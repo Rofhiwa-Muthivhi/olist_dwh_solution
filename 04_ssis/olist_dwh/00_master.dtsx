@@ -11,9 +11,113 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionGUID="{EA6BC746-19F8-4BA5-AC4B-CAC14BE321CE}">
+  DTS:VersionBuild="2"
+  DTS:VersionGUID="{8939ACCD-65C0-49FB-A426-6DEC3FBA3816}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
-  <DTS:Executables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\01_create_stg_dwh_db"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{12D3720F-7D17-4282-A4CE-C56568D41476}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="01_create_stg_dwh_db"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{348E272A-82DB-4566-B388-E40BF3736DD4}"
+          SQLTask:SqlStatementSource="&#xA;-- create staging and data warehouse databases&#xA;-- use IF DB_ID to check if the databases already exist and avoid errors when rerunning the script&#xA;&#xA;IF DB_ID('olist_stg') IS NULL&#xA;BEGIN&#xA;    CREATE DATABASE olist_stg;&#xA;END;&#xA;&#xA;IF DB_ID('olist_dwh') IS NULL&#xA;BEGIN&#xA;    CREATE DATABASE olist_dwh;&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\02_create_schemas"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{FB72D027-88A4-47EB-B79A-5C3E270451C1}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="02_create_schemas"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{348E272A-82DB-4566-B388-E40BF3736DD4}"
+          SQLTask:SqlStatementSource="&#xA;-- create schemas&#xA;-- use IF SCHEMA_ID to check if the schemas already exist and avoid errors when rerunning the script&#xA;&#xA;-- create bronze schema in the staging database&#xA;USE olist_stg;&#xA;&#xA;IF SCHEMA_ID('bronze') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA bronze');&#xA;END;&#xA;&#xA;-- create silver and gold schemas in the data warehouse database&#xA;USE olist_dwh;&#xA;&#xA;IF SCHEMA_ID('silver') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA silver');&#xA;END;&#xA;&#xA;IF SCHEMA_ID('gold') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA gold');&#xA;END;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{1884FE75-5E86-442D-943E-2D33710DE408}"
+      DTS:From="Package\01_create_stg_dwh_db"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\02_create_schemas" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="195.2,67.2"
+          Id="Package\01_create_stg_dwh_db"
+          TopLeft="82.499995492399,36.399999746879" />
+        <NodeLayout
+          Size="193.6,64.8"
+          Id="Package\02_create_schemas"
+          TopLeft="261.666652369831,149.066665630076" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="180.099995492399,103.599999746879">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="178.366656877432,45.4666658831968"
+              Start="0,0"
+              End="178.366656877432,37.9666658831968">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.7333329415984" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.7333329415984"
+                    Point2="0,22.7333329415984"
+                    Point3="4,22.7333329415984" />
+                  <mssgle:LineSegment
+                    End="174.366656877432,22.7333329415984" />
+                  <mssgle:CubicBezierSegment
+                    Point1="174.366656877432,22.7333329415984"
+                    Point2="178.366656877432,22.7333329415984"
+                    Point3="178.366656877432,26.7333329415984" />
+                  <mssgle:LineSegment
+                    End="178.366656877432,37.9666658831968" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
 </DTS:Executable>

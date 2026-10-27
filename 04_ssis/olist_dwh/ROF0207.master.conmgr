@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="ROF0207.master"
+  DTS:DTSID="{348E272A-82DB-4566-B388-E40BF3736DD4}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=ROF0207;Initial Catalog=master;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-olist_dwh-{348E272A-82DB-4566-B388-E40BF3736DD4}ROF0207.master;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
