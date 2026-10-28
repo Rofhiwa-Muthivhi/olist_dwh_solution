@@ -12,9 +12,12 @@
     before creating it. this allows me to rerun my script without
     attempting to recreate tables that already exist.
 
-    at this stage, i am using nvarchar for every column because
-    i want to land the source data as text before applying
-    transformations in the silver layer.
+    i am using nvarchar for every source column because i want
+    to land the source data as text before applying transformations
+    in the silver layer.
+
+    i am also including three metadata columns in every table
+    to capture the load timestamp, source file and batch id.
 */
 
 USE [olist_stg];
@@ -37,10 +40,13 @@ BEGIN
         customer_unique_id          NVARCHAR(255),
         customer_zip_code_prefix    NVARCHAR(255),
         customer_city               NVARCHAR(255),
-        customer_state              NVARCHAR(255)
+        customer_state              NVARCHAR(255),
+
+        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file             NVARCHAR(260),
+        dwh_batch_id                INT
     );
 END;
-
 
 
 /* =========================================================
@@ -63,10 +69,13 @@ BEGIN
         geolocation_lat             NVARCHAR(255),
         geolocation_lng             NVARCHAR(255),
         geolocation_city            NVARCHAR(255),
-        geolocation_state           NVARCHAR(255)
+        geolocation_state           NVARCHAR(255),
+
+        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file             NVARCHAR(260),
+        dwh_batch_id                INT
     );
 END;
-
 
 
 /* =========================================================
@@ -90,10 +99,13 @@ BEGIN
         seller_id           NVARCHAR(255),
         shipping_limit_date NVARCHAR(255),
         price               NVARCHAR(255),
-        freight_value       NVARCHAR(255)
+        freight_value       NVARCHAR(255),
+
+        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file     NVARCHAR(260),
+        dwh_batch_id        INT
     );
 END;
-
 
 
 /* =========================================================
@@ -115,10 +127,13 @@ BEGIN
         payment_sequential   NVARCHAR(255),
         payment_type         NVARCHAR(255),
         payment_installments NVARCHAR(255),
-        payment_value        NVARCHAR(255)
+        payment_value        NVARCHAR(255),
+
+        dwh_load_ts          DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file      NVARCHAR(260),
+        dwh_batch_id         INT
     );
 END;
-
 
 
 /* =========================================================
@@ -143,10 +158,13 @@ BEGIN
         review_comment_title    NVARCHAR(MAX),
         review_comment_message  NVARCHAR(MAX),
         review_creation_date    NVARCHAR(255),
-        review_answer_timestamp NVARCHAR(255)
+        review_answer_timestamp NVARCHAR(255),
+
+        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file         NVARCHAR(260),
+        dwh_batch_id            INT
     );
 END;
-
 
 
 /* =========================================================
@@ -172,10 +190,13 @@ BEGIN
         order_approved_at              NVARCHAR(255),
         order_delivered_carrier_date   NVARCHAR(255),
         order_delivered_customer_date  NVARCHAR(255),
-        order_estimated_delivery_date  NVARCHAR(255)
+        order_estimated_delivery_date  NVARCHAR(255),
+
+        dwh_load_ts                    DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file                NVARCHAR(260),
+        dwh_batch_id                   INT
     );
 END;
-
 
 
 /* =========================================================
@@ -193,15 +214,19 @@ IF OBJECT_ID('bronze.products', 'U') IS NULL
 BEGIN
     CREATE TABLE bronze.products
     (
-        product_id                   NVARCHAR(255),
-        product_category_name        NVARCHAR(255),
-        product_name_lenght          NVARCHAR(255),
-        product_description_lenght   NVARCHAR(255),
-        product_photos_qty           NVARCHAR(255),
-        product_weight_g             NVARCHAR(255),
-        product_length_cm            NVARCHAR(255),
-        product_height_cm            NVARCHAR(255),
-        product_width_cm             NVARCHAR(255)
+        product_id                  NVARCHAR(255),
+        product_category_name       NVARCHAR(255),
+        product_name_lenght         NVARCHAR(255),
+        product_description_lenght  NVARCHAR(255),
+        product_photos_qty          NVARCHAR(255),
+        product_weight_g            NVARCHAR(255),
+        product_length_cm           NVARCHAR(255),
+        product_height_cm           NVARCHAR(255),
+        product_width_cm            NVARCHAR(255),
+
+        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file             NVARCHAR(260),
+        dwh_batch_id                INT
     );
 END;
 
@@ -222,10 +247,13 @@ BEGIN
         seller_id              NVARCHAR(255),
         seller_zip_code_prefix NVARCHAR(255),
         seller_city            NVARCHAR(255),
-        seller_state           NVARCHAR(255)
+        seller_state           NVARCHAR(255),
+
+        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file         NVARCHAR(260),
+        dwh_batch_id            INT
     );
 END;
-
 
 
 /* =========================================================
@@ -236,8 +264,7 @@ END;
     i am creating the product category translation table
     to store the category names and their translations.
 
-    my source currently exposes these columns as column1
-    and column2. i am preserving those names for now.
+    i am preserving the source column names for now.
     i can confirm their actual meanings before transforming
     them in the silver layer.
 */
@@ -246,9 +273,11 @@ IF OBJECT_ID('bronze.product_category_name_translation', 'U') IS NULL
 BEGIN
     CREATE TABLE bronze.product_category_name_translation
     (
-        column1 NVARCHAR(255),
-        column2 NVARCHAR(255)
+        column1             NVARCHAR(255),
+        column2             NVARCHAR(255),
+
+        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),
+        dwh_source_file     NVARCHAR(260),
+        dwh_batch_id        INT
     );
 END;
-
-
