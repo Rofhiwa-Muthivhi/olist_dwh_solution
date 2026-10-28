@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="2"
-  DTS:VersionGUID="{8939ACCD-65C0-49FB-A426-6DEC3FBA3816}">
+  DTS:VersionBuild="3"
+  DTS:VersionGUID="{5F0E941B-8B70-4900-844C-16B728079E82}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -20,6 +20,7 @@
     <DTS:Executable
       DTS:refId="Package\01_create_stg_dwh_db"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{12D3720F-7D17-4282-A4CE-C56568D41476}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -37,6 +38,7 @@
     <DTS:Executable
       DTS:refId="Package\02_create_schemas"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{FB72D027-88A4-47EB-B79A-5C3E270451C1}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -51,6 +53,24 @@
           SQLTask:SqlStatementSource="&#xA;-- create schemas&#xA;-- use IF SCHEMA_ID to check if the schemas already exist and avoid errors when rerunning the script&#xA;&#xA;-- create bronze schema in the staging database&#xA;USE olist_stg;&#xA;&#xA;IF SCHEMA_ID('bronze') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA bronze');&#xA;END;&#xA;&#xA;-- create silver and gold schemas in the data warehouse database&#xA;USE olist_dwh;&#xA;&#xA;IF SCHEMA_ID('silver') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA silver');&#xA;END;&#xA;&#xA;IF SCHEMA_ID('gold') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA gold');&#xA;END;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\03_create_bronze_tables"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E44543AD-A115-42C5-824A-E22103A11977}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="03_create_bronze_tables"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
+          SQLTask:SqlStatementSource="&#xA;/*&#xA;    olist data warehouse solution&#xA;    layer: bronze&#xA;    database: olist_stg&#xA;    schema: bronze&#xA;&#xA;    my objective here is to create the nine bronze tables&#xA;    that will receive data from my olist source csv files.&#xA;&#xA;    i am using if object_id to check whether each table exists&#xA;    before creating it. this allows me to rerun my script without&#xA;    attempting to recreate tables that already exist.&#xA;&#xA;    at this stage, i am using nvarchar for every column because&#xA;    i want to land the source data as text before applying&#xA;    transformations in the silver layer.&#xA;*/&#xA;&#xA;USE [olist_stg];&#xA;&#xA;&#xA;/* =========================================================&#xA;   1. customers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the customers table to store the customer&#xA;    identifiers and location information from the source dataset.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.customers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.customers&#xA;    (&#xA;        customer_id                 NVARCHAR(255),&#xA;        customer_unique_id          NVARCHAR(255),&#xA;        customer_zip_code_prefix    NVARCHAR(255),&#xA;        customer_city               NVARCHAR(255),&#xA;        customer_state              NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   2. geolocation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the geolocation table to store the location&#xA;    information associated with zip code prefixes.&#xA;&#xA;    i am keeping the latitude and longitude as text for now.&#xA;    i can convert them to appropriate numeric types in silver.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.geolocation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.geolocation&#xA;    (&#xA;        geolocation_zip_code_prefix NVARCHAR(255),&#xA;        geolocation_lat             NVARCHAR(255),&#xA;        geolocation_lng             NVARCHAR(255),&#xA;        geolocation_city            NVARCHAR(255),&#xA;        geolocation_state           NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   3. order items&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_items table to capture the products&#xA;    associated with each order, including the seller and pricing.&#xA;&#xA;    i am keeping the dates and monetary values as text in bronze.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_items', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_items&#xA;    (&#xA;        order_id            NVARCHAR(255),&#xA;        order_item_id       NVARCHAR(255),&#xA;        product_id          NVARCHAR(255),&#xA;        seller_id           NVARCHAR(255),&#xA;        shipping_limit_date NVARCHAR(255),&#xA;        price               NVARCHAR(255),&#xA;        freight_value       NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   4. order payments&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_payments table to capture payment&#xA;    information, including payment type, instalments and value.&#xA;&#xA;    i will handle the appropriate data type conversions later.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_payments', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_payments&#xA;    (&#xA;        order_id             NVARCHAR(255),&#xA;        payment_sequential   NVARCHAR(255),&#xA;        payment_type         NVARCHAR(255),&#xA;        payment_installments NVARCHAR(255),&#xA;        payment_value        NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   5. order reviews&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_reviews table to store customer&#xA;    feedback, review scores and review timestamps.&#xA;&#xA;    i am using nvarchar(max) for the review comments because&#xA;    the messages can be longer than the other source fields.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_reviews', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_reviews&#xA;    (&#xA;        review_id               NVARCHAR(255),&#xA;        order_id                NVARCHAR(255),&#xA;        review_score            NVARCHAR(255),&#xA;        review_comment_title    NVARCHAR(MAX),&#xA;        review_comment_message  NVARCHAR(MAX),&#xA;        review_creation_date    NVARCHAR(255),&#xA;        review_answer_timestamp NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   6. orders&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the orders table to capture the order status&#xA;    and the different timestamps associated with each order.&#xA;&#xA;    i am landing the timestamps as text so i can validate and&#xA;    convert them during silver-layer processing.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.orders', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.orders&#xA;    (&#xA;        order_id                       NVARCHAR(255),&#xA;        customer_id                    NVARCHAR(255),&#xA;        order_status                   NVARCHAR(255),&#xA;        order_purchase_timestamp       NVARCHAR(255),&#xA;        order_approved_at              NVARCHAR(255),&#xA;        order_delivered_carrier_date   NVARCHAR(255),&#xA;        order_delivered_customer_date  NVARCHAR(255),&#xA;        order_estimated_delivery_date  NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   7. products&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the products table to store product details,&#xA;    including the category, dimensions, weight and photo count.&#xA;&#xA;    i am keeping the measurements as text for now.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.products', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.products&#xA;    (&#xA;        product_id                   NVARCHAR(255),&#xA;        product_category_name        NVARCHAR(255),&#xA;        product_name_lenght          NVARCHAR(255),&#xA;        product_description_lenght   NVARCHAR(255),&#xA;        product_photos_qty           NVARCHAR(255),&#xA;        product_weight_g             NVARCHAR(255),&#xA;        product_length_cm            NVARCHAR(255),&#xA;        product_height_cm            NVARCHAR(255),&#xA;        product_width_cm             NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   8. sellers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the sellers table to store seller identifiers&#xA;    and their location information.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.sellers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.sellers&#xA;    (&#xA;        seller_id              NVARCHAR(255),&#xA;        seller_zip_code_prefix NVARCHAR(255),&#xA;        seller_city            NVARCHAR(255),&#xA;        seller_state           NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;&#xA;/* =========================================================&#xA;   9. product category name translation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the product category translation table&#xA;    to store the category names and their translations.&#xA;&#xA;    my source currently exposes these columns as column1&#xA;    and column2. i am preserving those names for now.&#xA;    i can confirm their actual meanings before transforming&#xA;    them in the silver layer.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.product_category_name_translation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.product_category_name_translation&#xA;    (&#xA;        column1 NVARCHAR(255),&#xA;        column2 NVARCHAR(255)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -61,6 +81,14 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
       DTS:To="Package\02_create_schemas" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{3B4FF4A7-8DB3-4BDF-929E-DAFFFDF183D9}"
+      DTS:From="Package\02_create_schemas"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\03_create_bronze_tables" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -73,41 +101,79 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="195.2,67.2"
+          Size="193.6,67.2"
           Id="Package\01_create_stg_dwh_db"
           TopLeft="82.499995492399,36.399999746879" />
         <NodeLayout
           Size="193.6,64.8"
           Id="Package\02_create_schemas"
-          TopLeft="261.666652369831,149.066665630076" />
+          TopLeft="265.833318808841,149.933332290716" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="180.099995492399,103.599999746879">
+          TopLeft="179.299995492399,103.599999746879">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="178.366656877432,45.4666658831968"
+              EndConnector="183.333323316442,46.3333325438369"
               Start="0,0"
-              End="178.366656877432,37.9666658831968">
+              End="183.333323316442,38.8333325438369">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,18.7333329415984" />
+                    End="0,19.1666662719185" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,18.7333329415984"
-                    Point2="0,22.7333329415984"
-                    Point3="4,22.7333329415984" />
+                    Point1="0,19.1666662719185"
+                    Point2="0,23.1666662719185"
+                    Point3="4,23.1666662719185" />
                   <mssgle:LineSegment
-                    End="174.366656877432,22.7333329415984" />
+                    End="179.333323316442,23.1666662719185" />
                   <mssgle:CubicBezierSegment
-                    Point1="174.366656877432,22.7333329415984"
-                    Point2="178.366656877432,22.7333329415984"
-                    Point3="178.366656877432,26.7333329415984" />
+                    Point1="179.333323316442,23.1666662719185"
+                    Point2="183.333323316442,23.1666662719185"
+                    Point3="183.333323316442,27.1666662719185" />
                   <mssgle:LineSegment
-                    End="178.366656877432,37.9666658831968" />
+                    End="183.333323316442,38.8333325438369" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="196,56"
+          Id="Package\03_create_bronze_tables"
+          TopLeft="384.999978964528,253.933331567513" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="362.633318808841,214.733332290716">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="120.366660155687,39.1999992767966"
+              Start="0,0"
+              End="120.366660155687,31.6999992767966">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,15.5999996383983" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,15.5999996383983"
+                    Point2="0,19.5999996383983"
+                    Point3="4,19.5999996383983" />
+                  <mssgle:LineSegment
+                    End="116.366660155687,19.5999996383983" />
+                  <mssgle:CubicBezierSegment
+                    Point1="116.366660155687,19.5999996383983"
+                    Point2="120.366660155687,19.5999996383983"
+                    Point3="120.366660155687,23.5999996383983" />
+                  <mssgle:LineSegment
+                    End="120.366660155687,31.6999992767966" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
