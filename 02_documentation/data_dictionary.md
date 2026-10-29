@@ -141,3 +141,14 @@ I added three metadata columns to each Bronze table to support data traceability
 * I made sure the pipeline creates tables only when they don't already exist.
 * Data type conversions, data quality checks, and other transformations will be handled as I develop the Silver layer.
 
+### 5. ETL Logging Infrastructure
+
+I created an etl schema inside olist_stg to store information about the data ingestion process.
+
+I also created the etl.load_log table to record the number of rows loaded from each source file, the batch ID, the load timestamp, and the load status.
+
+I kept this separate from the Bronze tables because it serves a different purpose. The Bronze tables store the source data, while the logging table helps me track and validate the ingestion process.
+
+I will integrate the etl logging infrastructure  into 01_bronze_load.dtsx so that the package can record the results of each file load.
+
+
