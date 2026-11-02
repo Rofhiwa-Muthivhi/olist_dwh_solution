@@ -11,77 +11,10 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="59"
-  DTS:VersionGUID="{E34ED0D4-DEF7-47E9-9E5E-2618E5AEA9B9}">
+  DTS:VersionBuild="72"
+  DTS:VersionGUID="{5A108624-90A4-454E-A10D-4D5BA3676589}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
-  <DTS:ConnectionManagers>
-    <DTS:ConnectionManager
-      DTS:refId="Package.ConnectionManagers[ff_olist_customers]"
-      DTS:CreationName="FLATFILE"
-      DTS:DTSID="{818C49D5-9016-4DEA-9CD8-275587DECBD2}"
-      DTS:ObjectName="ff_olist_customers">
-      <DTS:ObjectData>
-        <DTS:ConnectionManager
-          DTS:Format="Delimited"
-          DTS:LocaleID="7177"
-          DTS:HeaderRowDelimiter="_x000D__x000A_"
-          DTS:ColumnNamesInFirstDataRow="True"
-          DTS:RowDelimiter=""
-          DTS:TextQualifier="_x0022_"
-          DTS:CodePage="65001"
-          DTS:ConnectionString="C:\Users\muthi\OneDrive\Desktop\github_projects\olist_dwh_solution\01_datasets\raw\olist_customers_dataset.csv">
-          <DTS:FlatFileColumns>
-            <DTS:FlatFileColumn
-              DTS:ColumnType="Delimited"
-              DTS:ColumnDelimiter="_x002C_"
-              DTS:MaximumWidth="255"
-              DTS:DataType="130"
-              DTS:TextQualified="True"
-              DTS:ObjectName="customer_id"
-              DTS:DTSID="{FCFB8736-1285-4D91-89AD-31FC6BBDC86B}"
-              DTS:CreationName="" />
-            <DTS:FlatFileColumn
-              DTS:ColumnType="Delimited"
-              DTS:ColumnDelimiter="_x002C_"
-              DTS:MaximumWidth="255"
-              DTS:DataType="130"
-              DTS:TextQualified="True"
-              DTS:ObjectName="customer_unique_id"
-              DTS:DTSID="{C0928F90-1961-4FFF-BBB0-4C861EE1F7EF}"
-              DTS:CreationName="" />
-            <DTS:FlatFileColumn
-              DTS:ColumnType="Delimited"
-              DTS:ColumnDelimiter="_x002C_"
-              DTS:MaximumWidth="255"
-              DTS:DataType="130"
-              DTS:TextQualified="True"
-              DTS:ObjectName="customer_zip_code_prefix"
-              DTS:DTSID="{AD10F371-0AA9-4ECE-8A18-84607CF3B845}"
-              DTS:CreationName="" />
-            <DTS:FlatFileColumn
-              DTS:ColumnType="Delimited"
-              DTS:ColumnDelimiter="_x002C_"
-              DTS:MaximumWidth="255"
-              DTS:DataType="130"
-              DTS:TextQualified="True"
-              DTS:ObjectName="customer_city"
-              DTS:DTSID="{031C2BBA-D13A-43C3-8E91-C320D8EBFFD3}"
-              DTS:CreationName="" />
-            <DTS:FlatFileColumn
-              DTS:ColumnType="Delimited"
-              DTS:ColumnDelimiter="_x000A_"
-              DTS:MaximumWidth="255"
-              DTS:DataType="130"
-              DTS:TextQualified="True"
-              DTS:ObjectName="customer_state"
-              DTS:DTSID="{A43A593A-A551-4A54-923D-DBF7BF1CF7B0}"
-              DTS:CreationName="" />
-          </DTS:FlatFileColumns>
-        </DTS:ConnectionManager>
-      </DTS:ObjectData>
-    </DTS:ConnectionManager>
-  </DTS:ConnectionManagers>
   <DTS:Variables>
     <DTS:Variable
       DTS:CreationName=""
@@ -98,6 +31,15 @@
       DTS:IncludeInDebugDump="6789"
       DTS:Namespace="User"
       DTS:ObjectName="CustomerRowLoaded">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{0391364D-19AF-44AD-A9A0-09FD5E2CC8BA}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="GeolocationRowsLoaded">
       <DTS:VariableValue
         DTS:DataType="3">0</DTS:VariableValue>
     </DTS:Variable>
@@ -293,8 +235,8 @@
               <connections>
                 <connection
                   refId="Package\06_dft_load_customers\Flat File Source.Connections[FlatFileConnection]"
-                  connectionManagerID="Package.ConnectionManagers[ff_olist_customers]"
-                  connectionManagerRefId="Package.ConnectionManagers[ff_olist_customers]"
+                  connectionManagerID="{818C49D5-9016-4DEA-9CD8-275587DECBD2}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ff_olist_customers]"
                   name="FlatFileConnection" />
               </connections>
               <outputs>
@@ -715,6 +657,7 @@
     <DTS:Executable
       DTS:refId="Package\07_log_customers"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{599F31D8-6C9A-4941-B4F5-DCE1DA74B903}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -736,6 +679,609 @@
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
             SQLTask:DtsVariableName="User::CustomerRowLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\08_load_geolocation"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{62002FFB-E11A-41D1-B954-AE9002947EE4}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="08_load_geolocation"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\08_load_geolocation\Derived Column"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Derived Column"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\08_load_geolocation\Derived Column.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\08_load_geolocation\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">[GETDATE]()</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">GETDATE()</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="29"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
+                      name="dwh_source_file"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"olist_geolocation_dataset.csv"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"olist_geolocation_dataset.csv"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">@[User::BatchId]</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">@[User::BatchId]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\08_load_geolocation\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\08_load_geolocation\Flat File Source"
+              componentClassID="Microsoft.FlatFileSource"
+              contactInfo="Flat File Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Flat File Source"
+              localeId="7177"
+              name="Flat File Source"
+              usesDispositions="true"
+              version="1">
+              <properties>
+                <property
+                  dataType="System.Boolean"
+                  description="Specifies whether zero-length columns are treated as null."
+                  name="RetainNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of an output column containing the file name. If no name is specified, no output column containing the file name will be generated."
+                  name="FileNameColumnName"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\08_load_geolocation\Flat File Source.Connections[FlatFileConnection]"
+                  connectionManagerID="{26542C50-9295-4292-89D9-05586EC3F9F8}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ff_olist_geolocation]"
+                  name="FlatFileConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output]"
+                  name="Flat File Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      length="255"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]"
+                      name="geolocation_zip_code_prefix"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lat]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_lat]"
+                      length="255"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lat]"
+                      name="geolocation_lat"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lng]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_lng]"
+                      length="255"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lng]"
+                      name="geolocation_lng"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_city]"
+                      length="255"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_city]"
+                      name="geolocation_city"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_state]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_state]"
+                      length="255"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_state]"
+                      name="geolocation_state"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_lat]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_lat" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_lng]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_lng" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[geolocation_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_state" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output]"
+                  isErrorOut="true"
+                  name="Flat File Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      codePage="65001"
+                      dataType="text"
+                      description="Flat File Source Error Output Column"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      name="Flat File Source Error Output Column" />
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\08_load_geolocation\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[bronze].[geolocation]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\08_load_geolocation\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{588E6981-183D-41DE-B56E-4B5CD1F797C5}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_stg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_zip_code_prefix]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_zip_code_prefix"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_zip_code_prefix]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_lat]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_lat"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lat]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_lng]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_lng"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_lng]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_city"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_city]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geolocation_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_state"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      lineageId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output].Columns[geolocation_state]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_source_file]"
+                      cachedDataType="wstr"
+                      cachedLength="29"
+                      cachedName="dwh_source_file"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]" />
+                    <inputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_batch_id]"
+                      cachedDataType="i4"
+                      cachedName="dwh_batch_id"
+                      externalMetadataColumnId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      lineageId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_lat" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_lng" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_state" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      name="dwh_source_file" />
+                    <externalMetadataColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      dataType="i4"
+                      name="dwh_batch_id" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\08_load_geolocation\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\08_load_geolocation\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\08_load_geolocation\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\08_load_geolocation\Row Count"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Counts rows as they pass through a data flow. For example, use the number of rows processed to determine whether or not to perform cleanup operations, or update text in an e-mail message to communicate processing status."
+              name="Row Count">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::GeolocationRowsLoaded</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\08_load_geolocation\Row Count.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\08_load_geolocation\Row Count.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\08_load_geolocation\Row Count.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\08_load_geolocation.Paths[Derived Column Output]"
+              endId="Package\08_load_geolocation\Row Count.Inputs[Row Count Input 1]"
+              name="Derived Column Output"
+              startId="Package\08_load_geolocation\Derived Column.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\08_load_geolocation.Paths[Flat File Source Output]"
+              endId="Package\08_load_geolocation\Derived Column.Inputs[Derived Column Input]"
+              name="Flat File Source Output"
+              startId="Package\08_load_geolocation\Flat File Source.Outputs[Flat File Source Output]" />
+            <path
+              refId="Package\08_load_geolocation.Paths[Row Count Output 1]"
+              endId="Package\08_load_geolocation\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\08_load_geolocation\Row Count.Outputs[Row Count Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\09_log_geolocation"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{31A0C5CF-0EDE-4328-9FDA-9886E384730E}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="09_log_geolocation"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_geolocation_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::GeolocationRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::BatchId"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
             SQLTask:ParameterSize="-1" />
@@ -768,6 +1314,22 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 2"
       DTS:To="Package\07_log_customers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{0DFF5315-26C9-48D7-B6DF-8B914D740574}"
+      DTS:From="Package\07_log_customers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\08_load_geolocation" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{F904974F-8DA1-46AC-8F8D-296FC58ECB77}"
+      DTS:From="Package\08_load_geolocation"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\09_log_geolocation" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -780,45 +1342,41 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="197.6,68.8"
+          Size="197.6,54.4"
           Id="Package\04_ensure_etl_load_log"
-          TopLeft="77.4999957655866,41.5999997107188" />
+          TopLeft="80.8333289167946,51.1333329777585" />
         <NodeLayout
-          Size="208,69.6"
+          Size="208,55.2"
           Id="Package\05_truncate_bronze_tables"
-          TopLeft="199.166655784681,136.933332381116" />
+          TopLeft="334.999981696408,54.5999996203182" />
         <NodeLayout
-          Size="197.6,73.6"
+          Size="197.6,56"
           Id="Package\06_dft_load_customers"
-          TopLeft="309.166649774545,249.599998264313" />
+          TopLeft="595.833300778436,50.266666317119" />
+        <NodeLayout
+          Size="182.4,51.2"
+          Id="Package\07_log_customers"
+          TopLeft="849.99995355805,53.7333329596787" />
+        <NodeLayout
+          Size="177.6,49.6"
+          Id="Package\08_load_geolocation"
+          TopLeft="1124.16660524491,51.9999996383985" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="176.299995765587,110.399999710719">
+          TopLeft="278.433328916795,80.2666662990384">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="126.866660019094,26.533332670397"
+              EndConnector="56.5666527796137,0"
               Start="0,0"
-              End="126.866660019094,19.033332670397">
+              End="49.0666527796137,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,9.26666633519849" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,9.26666633519849"
-                    Point2="0,13.2666663351985"
-                    Point3="4,13.2666663351985" />
-                  <mssgle:LineSegment
-                    End="122.866660019094,13.2666663351985" />
-                  <mssgle:CubicBezierSegment
-                    Point1="122.866660019094,13.2666663351985"
-                    Point2="126.866660019094,13.2666663351985"
-                    Point3="126.866660019094,17.2666663351985" />
-                  <mssgle:LineSegment
-                    End="126.866660019094,19.033332670397" />
+                    End="49.0666527796137,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -829,30 +1387,62 @@
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
-          TopLeft="303.166655784681,206.533332381116">
+          TopLeft="542.999981696408,80.2333329687186">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="104.799993989865,43.0666658831974"
+              EndConnector="52.8333190820282,0"
               Start="0,0"
-              End="104.799993989865,35.5666658831974">
+              End="45.3333190820282,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,17.5333329415987" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,17.5333329415987"
-                    Point2="0,21.5333329415987"
-                    Point3="4,21.5333329415987" />
+                    End="45.3333190820282,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="793.433300778436,78.7999996383988">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="56.5666527796134,0"
+              Start="0,0"
+              End="49.0666527796134,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
                   <mssgle:LineSegment
-                    End="100.799993989865,21.5333329415987" />
-                  <mssgle:CubicBezierSegment
-                    Point1="100.799993989865,21.5333329415987"
-                    Point2="104.799993989865,21.5333329415987"
-                    Point3="104.799993989865,25.5333329415987" />
+                    End="49.0666527796134,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="1032.39995355805,78.0666662990386">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="91.7666516868617,0"
+              Start="0,0"
+              End="84.2666516868617,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
                   <mssgle:LineSegment
-                    End="104.799993989865,35.5666658831974" />
+                    End="84.2666516868617,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -862,35 +1452,23 @@
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="182.4,58.4"
-          Id="Package\07_log_customers"
-          TopLeft="459.166641578908,370.06666409327" />
+          Size="168.8,41.6"
+          Id="Package\09_log_geolocation"
+          TopLeft="1125.83328711904,151.666665611996" />
         <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 2]"
-          TopLeft="407.966649774545,323.199998264313">
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="1211.59994618198,101.599999638399">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="142.399991804362,46.8666658289564"
+              EndConnector="0,50.0666659735971"
               Start="0,0"
-              End="142.399991804362,39.3666658289564">
+              End="0,42.5666659735971">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,19.4333329144782" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,19.4333329144782"
-                    Point2="0,23.4333329144782"
-                    Point3="4,23.4333329144782" />
-                  <mssgle:LineSegment
-                    End="138.399991804362,23.4333329144782" />
-                  <mssgle:CubicBezierSegment
-                    Point1="138.399991804362,23.4333329144782"
-                    Point2="142.399991804362,23.4333329144782"
-                    Point3="142.399991804362,27.4333329144782" />
-                  <mssgle:LineSegment
-                    End="142.399991804362,39.3666658289564" />
+                    End="0,42.5666659735971" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -906,7 +1484,7 @@
     design-time-name="Package\06_dft_load_customers">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
           Size="157.6,41.6"
           Id="Package\06_dft_load_customers\OLE DB Destination"
@@ -919,28 +1497,6 @@
           Size="152.8,41.6"
           Id="Package\06_dft_load_customers\Derived Column"
           TopLeft="130.333333444264,170.599997168581" />
-        <EdgeLayout
-          Id="Package\06_dft_load_customers.Paths[Flat File Source Output]"
-          TopLeft="202.8333336951,106.799998966456">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,63.7999982021256"
-              Start="0,0"
-              End="0,56.2999982021256">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,56.2999982021256" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
           Size="142.4,41.6"
           Id="Package\06_dft_load_customers\Row Count"
@@ -964,7 +1520,9 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -986,7 +1544,33 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\06_dft_load_customers.Paths[Flat File Source Output]"
+          TopLeft="202.8333336951,106.799998966456">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,63.7999982021256"
+              Start="0,0"
+              End="0,56.2999982021256">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,56.2999982021256" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -994,6 +1578,109 @@
   </TaskHost>
   <PipelineComponentMetadata
     design-time-name="Package\06_dft_load_customers\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\08_load_geolocation">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\08_load_geolocation\Flat File Source"
+          TopLeft="98.3333279606371,34.666666425599" />
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\08_load_geolocation\OLE DB Destination"
+          TopLeft="96.666661385033,344.06666427407" />
+        <NodeLayout
+          Size="166.4,41.6"
+          Id="Package\08_load_geolocation\Derived Column"
+          TopLeft="103.333327687449,141.933332435356" />
+        <NodeLayout
+          Size="170.4,41.6"
+          Id="Package\08_load_geolocation\Row Count"
+          TopLeft="99.1666612484391,238.999998427033" />
+        <EdgeLayout
+          Id="Package\08_load_geolocation.Paths[Flat File Source Output]"
+          TopLeft="185.233327824043,76.266666425599">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,65.6666660097573"
+              Start="0,0"
+              End="0,58.1666660097573">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,58.1666660097573" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\08_load_geolocation.Paths[Derived Column Output]"
+          TopLeft="185.449994467944,183.533332435356">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,55.466665991677"
+              Start="0,0"
+              End="0,47.966665991677">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,47.966665991677" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\08_load_geolocation.Paths[Row Count Output 1]"
+          TopLeft="183.316661316736,280.599998427033">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,63.4666658470366"
+              Start="0,0"
+              End="0,55.9666658470366">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,55.9666658470366" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\08_load_geolocation\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
