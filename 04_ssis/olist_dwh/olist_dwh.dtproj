@@ -26,7 +26,7 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">ROF0207</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAAACt0f8yEx+CHEkTLAsB/P9qYZtrjsLY31Y1WsuTVNLewAAAAAOgAAAAAIAACAAAADgvYRX8no7d5ZbvolAt1yhLLc5IFvu4c9zkMtAPOT3c5AAAADFgc1vDWq7Z2MFgvVVUxqh/YWjiniOKFWzSCbPBpuS5PT9CSmJ2FwwjHsq/YoPZv5Z6TnaeyKrY5RSgi9WC34G9k308pm/DK1vRhnNPuWQ7yyA+hhdpIuqiZPisyRwsXep4dyZMHNwj/tuQW4F85hGAal8HAtYsob7ClNEK7zJAgA+3hvJ/7XgFrMmN2ydbSpAAAAAG9XecIzdUA5toVXM6LgFbnXbffLsdM0oIQFK6uq/c26J3+oixyig66xm4JRtotY21I9KN38dcmugKVklO2ziKg==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAADb8q8FCW2U2Hb72d3aMRfABIhVY7vEBWlvlmcGakuGoQAAAAAOgAAAAAIAACAAAAAuGBxwQC1OsksjrwvvAPXkp0zpOPlg915FDhTrbJ6jP5AAAAD7Bho4r5guTsKslq21IcgVgN51gr09/hju2WPE0uPmJKMjbKEpaK0EBj+7kwq4MZ19Sx7FLCVsf+gxdCE0BeoSXFonGzPl6tuXcDqvVHga/sqyPq/HAg53oOCvkMjyH7Ax9C0Y/cdymwmahPwjr0AMNpul5T1p3c465I1V6jVAAOjgJAFO1/KYgR9UFrzcW9xAAAAAzroxD7yyQ6W67UAlFfPpJfVsIZJe33uRzYeWjSTpJjCt8OSAkoaJFQecc5VdbzEucovEiXDJFlt7mAIh7Qt1LQ==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
@@ -509,10 +509,10 @@
                 <SSIS:Property SSIS:Name="Name">Package1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionBuild">30</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">45</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{61E6A477-460A-449A-8042-3E0F4EBEE5E5}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{51394D2B-D59B-4401-B4CF-B7097FF5DFCC}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
@@ -577,6 +577,21 @@
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Value">false</SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">3</SSIS:Property>
+                  </SSIS:Properties>
+                </SSIS:Parameter>
+                <SSIS:Parameter SSIS:Name="CM.ff_olist_customers.ConnectionString">
+                  <SSIS:Properties>
+                    <SSIS:Property SSIS:Name="ID">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="CreationName">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="Description">
+                    </SSIS:Property>
+                    <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">C:\Users\muthi\OneDrive\Desktop\github_projects\olist_dwh_solution\01_datasets\raw\olist_customers_dataset.csv</SSIS:Property>
+                    <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>
                 <SSIS:Parameter SSIS:Name="CM.ff_olist_customers.DataRowsToSkip">
@@ -666,6 +681,8 @@
                     <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                     <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
+                    <SSIS:Property SSIS:Name="Value">
+                    </SSIS:Property>
                     <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
                   </SSIS:Properties>
                 </SSIS:Parameter>

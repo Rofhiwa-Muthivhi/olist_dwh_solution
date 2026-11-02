@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="33"
-  DTS:VersionGUID="{E50A8729-FEF5-41D1-88CF-48C916F075DF}">
+  DTS:VersionBuild="59"
+  DTS:VersionGUID="{E34ED0D4-DEF7-47E9-9E5E-2618E5AEA9B9}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:ConnectionManagers>
@@ -21,8 +21,6 @@
       DTS:CreationName="FLATFILE"
       DTS:DTSID="{818C49D5-9016-4DEA-9CD8-275587DECBD2}"
       DTS:ObjectName="ff_olist_customers">
-      <DTS:PropertyExpression
-        DTS:Name="ConnectionString">@[User::CurrentFilePath]</DTS:PropertyExpression>
       <DTS:ObjectData>
         <DTS:ConnectionManager
           DTS:Format="Delimited"
@@ -31,7 +29,8 @@
           DTS:ColumnNamesInFirstDataRow="True"
           DTS:RowDelimiter=""
           DTS:TextQualifier="_x0022_"
-          DTS:CodePage="65001">
+          DTS:CodePage="65001"
+          DTS:ConnectionString="C:\Users\muthi\OneDrive\Desktop\github_projects\olist_dwh_solution\01_datasets\raw\olist_customers_dataset.csv">
           <DTS:FlatFileColumns>
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -40,7 +39,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="customer_id"
-              DTS:DTSID="{261C8F77-1569-4F35-AEB1-BA2D206D67A4}"
+              DTS:DTSID="{FCFB8736-1285-4D91-89AD-31FC6BBDC86B}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -49,7 +48,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="customer_unique_id"
-              DTS:DTSID="{66E86558-8AE2-48F7-916F-E7097BFAD894}"
+              DTS:DTSID="{C0928F90-1961-4FFF-BBB0-4C861EE1F7EF}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -58,7 +57,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="customer_zip_code_prefix"
-              DTS:DTSID="{374B9F7E-4EF4-46B4-8FDD-BBE121E89651}"
+              DTS:DTSID="{AD10F371-0AA9-4ECE-8A18-84607CF3B845}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -67,7 +66,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="customer_city"
-              DTS:DTSID="{0C4BDB59-AB6D-44C1-A1F5-32654A29DA24}"
+              DTS:DTSID="{031C2BBA-D13A-43C3-8E91-C320D8EBFFD3}"
               DTS:CreationName="" />
             <DTS:FlatFileColumn
               DTS:ColumnType="Delimited"
@@ -76,7 +75,7 @@
               DTS:DataType="130"
               DTS:TextQualified="True"
               DTS:ObjectName="customer_state"
-              DTS:DTSID="{3C60CDC8-2E6F-4648-B293-EA29CE07C796}"
+              DTS:DTSID="{A43A593A-A551-4A54-923D-DBF7BF1CF7B0}"
               DTS:CreationName="" />
           </DTS:FlatFileColumns>
         </DTS:ConnectionManager>
@@ -95,23 +94,12 @@
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
-      DTS:DTSID="{C3D7DF7E-9F54-4F93-B1CE-B6515B637584}"
-      DTS:IncludeInDebugDump="2345"
+      DTS:DTSID="{35171FE5-76E7-4F74-AE85-E9B1E24C9DB2}"
+      DTS:IncludeInDebugDump="6789"
       DTS:Namespace="User"
-      DTS:ObjectName="CurrentFileName">
+      DTS:ObjectName="CustomerRowLoaded">
       <DTS:VariableValue
-        DTS:DataType="8"
-        xml:space="preserve"></DTS:VariableValue>
-    </DTS:Variable>
-    <DTS:Variable
-      DTS:CreationName=""
-      DTS:DTSID="{A629AD7D-27F8-48C2-99A6-AAEE70CF74D7}"
-      DTS:IncludeInDebugDump="2345"
-      DTS:Namespace="User"
-      DTS:ObjectName="CurrentFilePath">
-      <DTS:VariableValue
-        DTS:DataType="8"
-        xml:space="preserve"></DTS:VariableValue>
+        DTS:DataType="3">0</DTS:VariableValue>
     </DTS:Variable>
   </DTS:Variables>
   <DTS:Executables>
@@ -138,7 +126,6 @@
       DTS:CreationName="Microsoft.ExecuteSQLTask"
       DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
-      DTS:Disabled="True"
       DTS:DTSID="{494C3C5A-1880-40C1-B497-88E136EF4A1D}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
       DTS:LocaleID="-1"
@@ -153,1225 +140,607 @@
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\06_foreach_csv_files"
-      DTS:CreationName="STOCK:FOREACHLOOP"
-      DTS:DelayValidation="True"
-      DTS:Description="Foreach Loop Container"
-      DTS:DTSID="{C50D3F25-EF78-44F8-854A-173B060CD917}"
-      DTS:ExecutableType="STOCK:FOREACHLOOP"
+      DTS:refId="Package\06_dft_load_customers"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{3238270C-2B1B-4581-A953-2734C8D1FED2}"
+      DTS:ExecutableType="Microsoft.Pipeline"
       DTS:LocaleID="-1"
-      DTS:ObjectName="06_foreach_csv_files">
-      <DTS:ForEachEnumerator
-        DTS:CreationName="Microsoft.ForEachFileEnumerator"
-        DTS:DTSID="{EF0C9938-59A9-4F5B-B8C9-DC10DCB50D36}"
-        DTS:ObjectName="{EF0C9938-59A9-4F5B-B8C9-DC10DCB50D36}">
-        <DTS:ObjectData>
-          <ForEachFileEnumeratorProperties>
-            <FEFEProperty
-              Folder="C:\Users\muthi\OneDrive\Desktop\github_projects\olist_dwh_solution\01_datasets\raw" />
-            <FEFEProperty
-              FileSpec="*.csv" />
-            <FEFEProperty
-              FileNameRetrievalType="0" />
-            <FEFEProperty
-              Recurse="0" />
-          </ForEachFileEnumeratorProperties>
-        </DTS:ObjectData>
-      </DTS:ForEachEnumerator>
+      DTS:ObjectName="06_dft_load_customers"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
       <DTS:Variables />
-      <DTS:Executables>
-        <DTS:Executable
-          DTS:refId="Package\06_foreach_csv_files\06_load_customers"
-          DTS:CreationName="Microsoft.Pipeline"
-          DTS:DelayValidation="True"
-          DTS:Description="Data Flow Task"
-          DTS:Disabled="True"
-          DTS:DTSID="{14F0B0FF-0D6E-42AB-A0D7-582226CB8B7F}"
-          DTS:ExecutableType="Microsoft.Pipeline"
-          DTS:LocaleID="-1"
-          DTS:ObjectName="06_load_customers"
-          DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
-          <DTS:Variables />
-          <DTS:ObjectData>
-            <pipeline
-              version="1">
-              <components>
-                <component
-                  refId="Package\06_foreach_csv_files\06_load_customers\Derived Column"
-                  componentClassID="Microsoft.DerivedColumn"
-                  contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
-                  description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
-                  name="Derived Column"
-                  usesDispositions="true">
-                  <inputs>
-                    <input
-                      refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Inputs[Derived Column Input]"
-                      description="Input to the Derived Column Transformation"
-                      name="Derived Column Input">
-                      <externalMetadataColumns />
-                    </input>
-                  </inputs>
-                  <outputs>
-                    <output
-                      refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output]"
-                      description="Default Output of the Derived Column Transformation"
-                      exclusionGroup="1"
-                      name="Derived Column Output"
-                      synchronousInputId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Inputs[Derived Column Input]">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
-                          dataType="dbTimeStamp"
-                          errorOrTruncationOperation="Computation"
-                          errorRowDisposition="FailComponent"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
-                          name="dwh_load_ts"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Expression"
-                              name="Expression">[GETDATE]()</property>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Friendly Expression"
-                              expressionType="Notify"
-                              name="FriendlyExpression">GETDATE()</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Computation"
-                          errorRowDisposition="FailComponent"
-                          length="27"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
-                          name="dwh_source_file"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Expression"
-                              name="Expression">"olist_customers_dataset.csv"</property>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Friendly Expression"
-                              expressionType="Notify"
-                              name="FriendlyExpression">"olist_customers_dataset.csv"</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
-                          dataType="i4"
-                          errorOrTruncationOperation="Computation"
-                          errorRowDisposition="FailComponent"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
-                          name="dwh_batch_id"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Expression"
-                              name="Expression">@[User::BatchId]</property>
-                            <property
-                              containsID="true"
-                              dataType="System.String"
-                              description="Derived Column Friendly Expression"
-                              expressionType="Notify"
-                              name="FriendlyExpression">@[User::BatchId]</property>
-                          </properties>
-                        </outputColumn>
-                      </outputColumns>
-                      <externalMetadataColumns />
-                    </output>
-                    <output
-                      refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Error Output]"
-                      description="Error Output of the Derived Column Transformation"
-                      exclusionGroup="1"
-                      isErrorOut="true"
-                      name="Derived Column Error Output"
-                      synchronousInputId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Inputs[Derived Column Input]">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
-                          name="ErrorCode"
-                          specialFlags="1" />
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
-                          name="ErrorColumn"
-                          specialFlags="2" />
-                      </outputColumns>
-                      <externalMetadataColumns />
-                    </output>
-                  </outputs>
-                </component>
-                <component
-                  refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source"
-                  componentClassID="Microsoft.FlatFileSource"
-                  contactInfo="Flat File Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
-                  description="Flat File Source"
-                  localeId="7177"
-                  name="Flat File Source"
-                  usesDispositions="true"
-                  version="1">
-                  <properties>
-                    <property
-                      dataType="System.Boolean"
-                      description="Specifies whether zero-length columns are treated as null."
-                      name="RetainNulls">false</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies the name of an output column containing the file name. If no name is specified, no output column containing the file name will be generated."
-                      name="FileNameColumnName"></property>
-                  </properties>
-                  <connections>
-                    <connection
-                      refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Connections[FlatFileConnection]"
-                      connectionManagerID="Package.ConnectionManagers[ff_olist_customers]"
-                      connectionManagerRefId="Package.ConnectionManagers[ff_olist_customers]"
-                      name="FlatFileConnection" />
-                  </connections>
-                  <outputs>
-                    <output
-                      refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output]"
-                      name="Flat File Source Output">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Conversion"
-                          errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
-                          length="255"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
-                          name="customer_id"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                              name="FastParse">false</property>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the data is in binary format."
-                              name="UseBinaryFormat">false</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Conversion"
-                          errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_unique_id]"
-                          length="255"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]"
-                          name="customer_unique_id"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                              name="FastParse">false</property>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the data is in binary format."
-                              name="UseBinaryFormat">false</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Conversion"
-                          errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_zip_code_prefix]"
-                          length="255"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]"
-                          name="customer_zip_code_prefix"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                              name="FastParse">false</property>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the data is in binary format."
-                              name="UseBinaryFormat">false</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Conversion"
-                          errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_city]"
-                          length="255"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]"
-                          name="customer_city"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                              name="FastParse">false</property>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the data is in binary format."
-                              name="UseBinaryFormat">false</property>
-                          </properties>
-                        </outputColumn>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]"
-                          dataType="wstr"
-                          errorOrTruncationOperation="Conversion"
-                          errorRowDisposition="FailComponent"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_state]"
-                          length="255"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]"
-                          name="customer_state"
-                          truncationRowDisposition="FailComponent">
-                          <properties>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the column uses the faster, locale-neutral parsing routines."
-                              name="FastParse">false</property>
-                            <property
-                              dataType="System.Boolean"
-                              description="Indicates whether the data is in binary format."
-                              name="UseBinaryFormat">false</property>
-                          </properties>
-                        </outputColumn>
-                      </outputColumns>
-                      <externalMetadataColumns
-                        isUsed="True">
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_id" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_unique_id]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_unique_id" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_zip_code_prefix]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_zip_code_prefix" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_city]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_city" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_state]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_state" />
-                      </externalMetadataColumns>
-                    </output>
-                    <output
-                      refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output]"
-                      isErrorOut="true"
-                      name="Flat File Source Error Output">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
-                          codePage="65001"
-                          dataType="text"
-                          description="Flat File Source Error Output Column"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
-                          name="Flat File Source Error Output Column" />
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
-                          name="ErrorCode"
-                          specialFlags="1" />
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
-                          name="ErrorColumn"
-                          specialFlags="2" />
-                      </outputColumns>
-                      <externalMetadataColumns />
-                    </output>
-                  </outputs>
-                </component>
-                <component
-                  refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination"
-                  componentClassID="Microsoft.OLEDBDestination"
-                  contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
-                  description="OLE DB Destination"
-                  name="OLE DB Destination"
-                  usesDispositions="true"
-                  version="4">
-                  <properties>
-                    <property
-                      dataType="System.Int32"
-                      description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
-                      name="CommandTimeout">0</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies the name of the database object used to open a rowset."
-                      name="OpenRowset">[bronze].[customers]</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies the variable that contains the name of the database object used to open a rowset."
-                      name="OpenRowsetVariable"></property>
-                    <property
-                      dataType="System.String"
-                      description="The SQL command to be executed."
-                      name="SqlCommand"
-                      UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies the column code page to use when code page information is unavailable from the data source."
-                      name="DefaultCodePage">1252</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Forces the use of the DefaultCodePage property value when describing character data."
-                      name="AlwaysUseDefaultCodePage">false</property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies the mode used to access the database."
-                      name="AccessMode"
-                      typeConverter="AccessMode">3</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
-                      name="FastLoadKeepIdentity">false</property>
-                    <property
-                      dataType="System.Boolean"
-                      description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
-                      name="FastLoadKeepNulls">false</property>
-                    <property
-                      dataType="System.String"
-                      description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
-                      name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
-                    <property
-                      dataType="System.Int32"
-                      description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
-                      name="FastLoadMaxInsertCommitSize">2147483647</property>
-                  </properties>
-                  <connections>
-                    <connection
-                      refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Connections[OleDbConnection]"
-                      connectionManagerID="{588E6981-183D-41DE-B56E-4B5CD1F797C5}:external"
-                      connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_stg]"
-                      description="The OLE DB runtime connection used to access the database."
-                      name="OleDbConnection" />
-                  </connections>
-                  <inputs>
-                    <input
-                      refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]"
-                      errorOrTruncationOperation="Insert"
-                      errorRowDisposition="FailComponent"
-                      hasSideEffects="true"
-                      name="OLE DB Destination Input">
-                      <inputColumns>
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_id]"
-                          cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="customer_id"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_unique_id]"
-                          cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="customer_unique_id"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_unique_id]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_zip_code_prefix]"
-                          cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="customer_zip_code_prefix"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_zip_code_prefix]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_city]"
-                          cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="customer_city"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_city]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_state]"
-                          cachedDataType="wstr"
-                          cachedLength="255"
-                          cachedName="customer_state"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_state]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
-                          cachedDataType="dbTimeStamp"
-                          cachedName="dwh_load_ts"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_source_file]"
-                          cachedDataType="wstr"
-                          cachedLength="27"
-                          cachedName="dwh_source_file"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]" />
-                        <inputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_batch_id]"
-                          cachedDataType="i4"
-                          cachedName="dwh_batch_id"
-                          externalMetadataColumnId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]" />
-                      </inputColumns>
-                      <externalMetadataColumns
-                        isUsed="True">
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_id" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_unique_id]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_unique_id" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_zip_code_prefix]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_zip_code_prefix" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_city]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_city" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_state]"
-                          dataType="wstr"
-                          length="255"
-                          name="customer_state" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
-                          dataType="wstr"
-                          length="27"
-                          name="dwh_load_ts" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
-                          dataType="wstr"
-                          length="260"
-                          name="dwh_source_file" />
-                        <externalMetadataColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
-                          dataType="i4"
-                          name="dwh_batch_id" />
-                      </externalMetadataColumns>
-                    </input>
-                  </inputs>
-                  <outputs>
-                    <output
-                      refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
-                      exclusionGroup="1"
-                      isErrorOut="true"
-                      name="OLE DB Destination Error Output"
-                      synchronousInputId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]">
-                      <outputColumns>
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
-                          name="ErrorCode"
-                          specialFlags="1" />
-                        <outputColumn
-                          refId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
-                          dataType="i4"
-                          lineageId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
-                          name="ErrorColumn"
-                          specialFlags="2" />
-                      </outputColumns>
-                      <externalMetadataColumns />
-                    </output>
-                  </outputs>
-                </component>
-              </components>
-              <paths>
-                <path
-                  refId="Package\06_foreach_csv_files\06_load_customers.Paths[Derived Column Output]"
-                  endId="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]"
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\06_dft_load_customers\Derived Column"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Derived Column"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\06_dft_load_customers\Derived Column.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
                   name="Derived Column Output"
-                  startId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Outputs[Derived Column Output]" />
-                <path
-                  refId="Package\06_foreach_csv_files\06_load_customers.Paths[Flat File Source Output]"
-                  endId="Package\06_foreach_csv_files\06_load_customers\Derived Column.Inputs[Derived Column Input]"
-                  name="Flat File Source Output"
-                  startId="Package\06_foreach_csv_files\06_load_customers\Flat File Source.Outputs[Flat File Source Output]" />
-              </paths>
-            </pipeline>
-          </DTS:ObjectData>
-        </DTS:Executable>
-        <DTS:Executable
-          DTS:refId="Package\06_foreach_csv_files\06_start_routing"
-          DTS:CreationName="Microsoft.ScriptTask"
-          DTS:Description="Script Task"
-          DTS:DTSID="{CDA2789A-FE7C-4498-A265-9F0F80B37D8A}"
-          DTS:ExecutableType="Microsoft.ScriptTask"
-          DTS:LocaleID="-1"
-          DTS:ObjectName="06_start_routing"
-          DTS:ThreadHint="0">
-          <DTS:Variables />
-          <DTS:ObjectData>
-            <ScriptProject
-              Name="ST_db9f3a943bb9456f9362dd7cb0ddbc67"
-              VSTAMajorVersion="17"
-              VSTAMinorVersion="0"
-              Language="CSharp"
-              ReadOnlyVariables="User::CurrentFilePath"
-              ReadWriteVariables="User::CurrentFileName">
-              <ProjectItem
-                Name="ScriptMain.cs"
-                Encoding="UTF8"><![CDATA[#region Help:  Introduction to the script task
-/* The Script Task allows you to perform virtually any operation that can be accomplished in
- * a .Net application within the context of an Integration Services control flow. 
- * 
- * Expand the other regions which have "Help" prefixes for examples of specific ways to use
- * Integration Services features within this script task. */
-#endregion
-
-
-#region Namespaces
-using System;
-using System.Data;
-using Microsoft.SqlServer.Dts.Runtime;
-using System.Windows.Forms;
-#endregion
-
-namespace ST_db9f3a943bb9456f9362dd7cb0ddbc67
-{
-    /// <summary>
-    /// ScriptMain is the entry point class of the script.  Do not change the name, attributes,
-    /// or parent of this class.
-    /// </summary>
-	[Microsoft.SqlServer.Dts.Tasks.ScriptTask.SSISScriptTaskEntryPointAttribute]
-	public partial class ScriptMain : Microsoft.SqlServer.Dts.Tasks.ScriptTask.VSTARTScriptObjectModelBase
-	{
-        #region Help:  Using Integration Services variables and parameters in a script
-        /* To use a variable in this script, first ensure that the variable has been added to 
-         * either the list contained in the ReadOnlyVariables property or the list contained in 
-         * the ReadWriteVariables property of this script task, according to whether or not your
-         * code needs to write to the variable.  To add the variable, save this script, close this instance of
-         * Visual Studio, and update the ReadOnlyVariables and 
-         * ReadWriteVariables properties in the Script Transformation Editor window.
-         * To use a parameter in this script, follow the same steps. Parameters are always read-only.
-         * 
-         * Example of reading from a variable:
-         *  DateTime startTime = (DateTime) Dts.Variables["System::StartTime"].Value;
-         * 
-         * Example of writing to a variable:
-         *  Dts.Variables["User::myStringVariable"].Value = "new value";
-         * 
-         * Example of reading from a package parameter:
-         *  int batchId = (int) Dts.Variables["$Package::batchId"].Value;
-         *  
-         * Example of reading from a project parameter:
-         *  int batchId = (int) Dts.Variables["$Project::batchId"].Value;
-         * 
-         * Example of reading from a sensitive project parameter:
-         *  int batchId = (int) Dts.Variables["$Project::batchId"].GetSensitiveValue();
-         * */
-
-        #endregion
-
-        #region Help:  Firing Integration Services events from a script
-        /* This script task can fire events for logging purposes.
-         * 
-         * Example of firing an error event:
-         *  Dts.Events.FireError(18, "Process Values", "Bad value", "", 0);
-         * 
-         * Example of firing an information event:
-         *  Dts.Events.FireInformation(3, "Process Values", "Processing has started", "", 0, ref fireAgain)
-         * 
-         * Example of firing a warning event:
-         *  Dts.Events.FireWarning(14, "Process Values", "No values received for input", "", 0);
-         * */
-        #endregion
-
-        #region Help:  Using Integration Services connection managers in a script
-        /* Some types of connection managers can be used in this script task.  See the topic 
-         * "Working with Connection Managers Programatically" for details.
-         * 
-         * Example of using an ADO.Net connection manager:
-         *  object rawConnection = Dts.Connections["Sales DB"].AcquireConnection(Dts.Transaction);
-         *  SqlConnection myADONETConnection = (SqlConnection)rawConnection;
-         *  //Use the connection in some code here, then release the connection
-         *  Dts.Connections["Sales DB"].ReleaseConnection(rawConnection);
-         *
-         * Example of using a File connection manager
-         *  object rawConnection = Dts.Connections["Prices.zip"].AcquireConnection(Dts.Transaction);
-         *  string filePath = (string)rawConnection;
-         *  //Use the connection in some code here, then release the connection
-         *  Dts.Connections["Prices.zip"].ReleaseConnection(rawConnection);
-         * */
-        #endregion
-
-
-		/// <summary>
-        /// This method is called when this script task executes in the control flow.
-        /// Before returning from this method, set the value of Dts.TaskResult to indicate success or failure.
-        /// To open Help, press F1.
-        /// </summary>
-		public void Main()
-		{
-            string filePath = Dts.Variables["User::CurrentFilePath"].Value.ToString();
-
-            string fileName = System.IO.Path.GetFileName(filePath);
-
-            Dts.Variables["User::CurrentFileName"].Value = fileName;
-            bool fireAgain = true;
-
-            Dts.Events.FireInformation(
-                0,
-                "Foreach File Enumerator",
-                "Current file: " + fileName,
-                "",
-                0,
-                ref fireAgain
-            );
-            Dts.TaskResult = (int)ScriptResults.Success;
-
-           
-		}
-
-        #region ScriptResults declaration
-        /// <summary>
-        /// This enum provides a convenient shorthand within the scope of this class for setting the
-        /// result of the script.
-        /// 
-        /// This code was generated automatically.
-        /// </summary>
-        enum ScriptResults
-        {
-            Success = Microsoft.SqlServer.Dts.Runtime.DTSExecResult.Success,
-            Failure = Microsoft.SqlServer.Dts.Runtime.DTSExecResult.Failure
-        };
-        #endregion
-
-	}
-}]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\Resources.resx"
-                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-</root>]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\Settings.Designer.cs"
-                Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
-// <auto-generated>
-//     This code was generated by a tool.
-//
-//     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated.
-// </auto-generated>
-//------------------------------------------------------------------------------
-
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Settings.get_Default():ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Sett" +
-    "ings")]
-
-namespace ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties {
-    
-    
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
-        [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        private static Settings defaultInstance = new Settings();
-        
-        public static Settings Default {
-            get {
-                return defaultInstance;
-            }
-        }
-    }
-}]]></ProjectItem>
-              <ProjectItem
-                Name="ST_db9f3a943bb9456f9362dd7cb0ddbc67.csproj"
-                Encoding="UTF8"><![CDATA[<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <ProjectTypeGuids>{30D016F9-3734-4E33-A861-5E7D899E18F3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{29C0C7AE-3B2A-4F11-8197-7AEEDB099377}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ST_db9f3a943bb9456f9362dd7cb0ddbc67</RootNamespace>
-    <AssemblyName>ST_db9f3a943bb9456f9362dd7cb0ddbc67</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>true</ResolveAssemblyReferenceIgnoreTargetFrameworkAttributeVersionMismatch>
-    <TargetFrameworkProfile></TargetFrameworkProfile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>.\bin\Debug\</OutputPath>
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugSymbols>false</DebugSymbols>
-    <Optimize>true</Optimize>
-    <OutputPath>.\bin\Release\</OutputPath>
-    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.SqlServer.ManagedDTS, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
-    <Reference Include="Microsoft.SqlServer.ScriptTask, Version=17.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
-  </ItemGroup>
-  <ItemGroup>
-    <AppDesigner Include="Properties\" />
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="ScriptMain.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-  <!-- Include the build rules for a C# project.-->
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ProjectExtensions>
-    <VisualStudio>
-      <FlavorProperties GUID="{30D016F9-3734-4E33-A861-5E7D899E18F3}">
-        <ProjectProperties HostName="VSTAHostName" HostPackage="{B3A685AA-7EAF-4BC6-9940-57959FA5AC07}" ApplicationType="usd" Language="cs" TemplatesPath="" />
-        <Host Name="ScriptTask" />
-        <ProjectClient>
-          <HostIdentifier>SSIS_ST170</HostIdentifier>
-        </ProjectClient>
-      </FlavorProperties>
-    </VisualStudio>
-  </ProjectExtensions>
-</Project>]]></ProjectItem>
-              <ProjectItem
-                Name="Project"
-                Encoding="UTF16LE"><![CDATA[<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
-<c:Project xmlns:c="http://schemas.microsoft.com/codeprojectml/2010/08/main" xmlns:msb="http://schemas.microsoft.com/developer/msbuild/2003" runtimeVersion="4.0" schemaVersion="1.0">
-  <msb:PropertyGroup>
-    <msb:CodeName>ST_db9f3a943bb9456f9362dd7cb0ddbc67</msb:CodeName>
-    <msb:Language>msBuild</msb:Language>
-    <msb:DisplayName>ST_db9f3a943bb9456f9362dd7cb0ddbc67</msb:DisplayName>
-    <msb:ProjectId>{998AA7A2-2646-456D-BC23-61E20744CB36}</msb:ProjectId>
-  </msb:PropertyGroup>
-  <msb:ItemGroup>
-    <msb:Project Include="ST_db9f3a943bb9456f9362dd7cb0ddbc67.csproj" />
-    <msb:File Include="Properties\Settings.settings" />
-    <msb:File Include="Properties\AssemblyInfo.cs" />
-    <msb:File Include="Properties\Resources.resx" />
-    <msb:File Include="Properties\Resources.Designer.cs" />
-    <msb:File Include="Properties\Settings.Designer.cs" />
-    <msb:File Include="ScriptMain.cs" />
-  </msb:ItemGroup>
-</c:Project>]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\AssemblyInfo.cs"
-                Encoding="UTF8"><![CDATA[using System.Reflection;
-using System.Runtime.CompilerServices;
-
-//
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-//
-[assembly: AssemblyTitle("ST_db9f3a943bb9456f9362dd7cb0ddbc67")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ST_db9f3a943bb9456f9362dd7cb0ddbc67")]
-[assembly: AssemblyCopyright("Copyright @  2026")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-//
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-
-[assembly: AssemblyVersion("1.0.*")]]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\Settings.settings"
-                Encoding="UTF8"><![CDATA[<?xml version='1.0' encoding='iso-8859-1'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
-</SettingsFile>]]></ProjectItem>
-              <ProjectItem
-                Name="Properties\Resources.Designer.cs"
-                Encoding="UTF8"><![CDATA[//------------------------------------------------------------------------------
-// <auto-generated>
-//     This code was generated by a tool.
-//
-//     Changes to this file may cause incorrect behavior and will be lost if
-//     the code is regenerated.
-// </auto-generated>
-//------------------------------------------------------------------------------
-
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Resources.get_ResourceManager():System.Resources.Resou" +
-    "rceManager")]
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Resources.get_Culture():System.Globalization.CultureIn" +
-    "fo")]
-[assembly: global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode", Scope="member", Target="ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Resources.set_Culture(System.Globalization.CultureInfo" +
-    "):Void")]
-
-namespace ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties {
-    
-    
-    /// <summary>
-    ///   A strongly-typed resource class, for looking up localized strings, etc.
-    /// </summary>
-    // This class was auto-generated by the StronglyTypedResourceBuilder
-    // class via a tool like ResGen or Visual Studio.
-    // To add or remove a member, edit your .ResX file then rerun ResGen
-    // with the /str option, or rebuild your VS project.
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    internal class Resources {
-        
-        private static global::System.Resources.ResourceManager resourceMan;
-        
-        private static global::System.Globalization.CultureInfo resourceCulture;
-        
-        [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
-        }
-        
-        /// <summary>
-        ///   Returns the cached ResourceManager instance used by this class.
-        /// </summary>
-        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
-            get {
-                if ((resourceMan == null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ST_db9f3a943bb9456f9362dd7cb0ddbc67.Properties.Resources", typeof(Resources).Assembly);
-                    resourceMan = temp;
-                }
-                return resourceMan;
-            }
-        }
-        
-        /// <summary>
-        ///   Overrides the current thread's CurrentUICulture property for all
-        ///   resource lookups using this strongly typed resource class.
-        /// </summary>
-        [global::System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
-            get {
-                return resourceCulture;
-            }
-            set {
-                resourceCulture = value;
-            }
-        }
-    }
-}]]></ProjectItem>
-              <BinaryItem
-                Name="ST_db9f3a943bb9456f9362dd7cb0ddbc67.dll">TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1v
-ZGUuDQ0KJAAAAAAAAABQRQAATAEDABdD5GoAAAAAAAAAAOAAIiALATAAABAAAAAIAAAAAAAACi8A
-AAAgAAAAQAAAAAAAEAAgAAAAAgAABAAAAAAAAAAGAAAAAAAAAACAAAAAAgAAAAAAAAMAYIUAABAA
-ABAAAAAAEAAAEAAAAAAAABAAAAAAAAAAAAAAALguAABPAAAAAEAAAHgEAAAAAAAAAAAAAAAAAAAA
-AAAAAGAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAIAAACAAAAAAAAAAAAAAACCAAAEgAAAAAAAAAAAAAAC50ZXh0AAAAEA8AAAAgAAAAEAAAAAIA
-AAAAAAAAAAAAAAAAACAAAGAucnNyYwAAAHgEAAAAQAAAAAYAAAASAAAAAAAAAAAAAAAAAABAAABA
-LnJlbG9jAAAMAAAAAGAAAAACAAAAGAAAAAAAAAAAAAAAAAAAQAAAQgAAAAAAAAAAAAAAAAAAAADs
-LgAAAAAAAEgAAAACAAUAPCEAAMQMAAABAAAAAAAAAAAuAAC4AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAABMwBwB4AAAAAQAAEQIoEAAACm8RAAAKcgEAAHBvEgAACm8T
-AAAKbxQAAAooFQAACgoCKBAAAApvEQAACnItAABwbxIAAAoGbxYAAAoXCwIoEAAACm8XAAAKFnJZ
-AABwcokAAHAGKBgAAApypwAAcBYSAW8ZAAAKAigQAAAKFm8aAAAKKh4CKBsAAAoqHgIoHAAACiqu
-fgEAAAQtHnKpAABw0AMAAAIoHQAACm8eAAAKcx8AAAqAAQAABH4BAAAEKhp+AgAABCoeAoACAAAE
-Khp+AwAABCoeAiggAAAKKi5zCAAABoADAAAEKgAAQlNKQgEAAQAAAAAADAAAAHY0LjAuMzAzMTkA
-AAAABQBsAAAA7AMAACN+AABYBAAAuAUAACNTdHJpbmdzAAAAABAKAAAcAQAAI1VTACwLAAAQAAAA
-I0dVSUQAAAA8CwAAiAEAACNCbG9iAAAAAAAAAAIAAAFXHaIBCQMAAAD6ATMAFgAAAQAAACAAAAAF
-AAAABgAAAAkAAAABAAAAIAAAAAIAAAAQAAAAAQAAAAIAAAADAAAABAAAAAEAAAAEAAAAAQAAAAEA
-AAAAAJoDAQAAAAAABgA7Ao4EBgDKAo4EBgCHAXsEDwACBQAABgC0ASgEBgAeAigEBgD/ASgEBgCx
-AigEBgBbAigEBgB0AigEBgDLASgEBgDmAQIDCgCPAkkDCgAGAUkDBgDSA8sDBgBqAXsEBgCHBcsD
-BgBKBK4EBgA6BBMEDgA6AYQDDgCbAYQDDgAiAf4DBgBPAY4ECgByA0kDEgBEBbEAEgB4ALEABgAl
-Ay4ACgBaBEkDBgAeA8sDBgDRAMsDBgCBAMsDBgCtBSgEAAAAACUAAAAAAAEAAQABABAA4wMBADkA
-AQABAAAAEAC1BBEFRQABAAMAAAEQAE4FEQVZAAMABwADAQAAZwUAAD0ABAAKABEA1wOJABEA9gCN
-ABEAaACRAAYGVwCVAFaAVwWYAFaA1gCYAFAgAAAAAIYA6QMGAAEA1CAAAAAAhhhuBAYAAQDcIAAA
-AACDGG4EBgABAOQgAAAAAJMIRgScAAEAECEAAAAAkwjeAKEAAQAXIQAAAACTCOoApgABAB8hAAAA
-AJYIjgWsAAIAJiEAAAAAhhhuBAYAAgAuIQAAAACRGHQEsQACAAAAAQD8AgkAbgQBABEAbgQGABkA
-bgQKACkAbgQQADEAbgQQADkAbgQQAEEAbgQQAEkAbgQQAFEAbgQQAFkAbgQQAGEAbgQQAGkAbgQG
-AIEAbgQGAKkAbgQVALkAbgQGAHEAXwUgAMEAQAUlAMkAwgMqANEA6AIwAIkAHAM0ANkApQA4ANEA
-8gI9AMEAdQVCAOkAgAVHAOEA7gNNAMEAmgUBAHEAbgQGAIkAbgQGAPEAkwBYAPEAqQVfAJEAbgRl
-ALEAbgQGAAgAFAB/AAgAGACEACkAcwDsAC4ACwDEAC4AEwDNAC4AGwDsAC4AIwD1AC4AKwAeAS4A
-MwAeAS4AOwAeAS4AQwD1AC4ASwAkAS4AUwAeAS4AWwA7AUMAYwCEAEkAcwDsAGEAewCEAGMAawCE
-ABsAAwABAAQAAwAAAEoEtQAAAP4AugAAAJIFvwACAAQAAwACAAUABQABAAYABQACAAcABwAEgAAA
-AQAAAEcmm0AAAAAAAAABAAAABAAAAAAAAAAAAAAAbQBfAAAAAAARAAAAAAAAAAAAAAB2ACoDAAAA
-AAQAAAAAAAAAAAAAAG0AywMAAAAAEQAAAAAAAAAAAAAAdgA4AAAAAAAAAAAAAQAAAL8EAAAFAAIA
-AAAAU1RfZGI5ZjNhOTQzYmI5NDU2ZjkzNjJkZDdjYjBkZGJjNjcAPE1vZHVsZT4AU3lzdGVtLklP
-AE1pY3Jvc29mdC5TcWxTZXJ2ZXIuTWFuYWdlZERUUwB2YWx1ZV9fAG1zY29ybGliAGRlZmF1bHRJ
-bnN0YW5jZQBWYXJpYWJsZQBSdW50aW1lVHlwZUhhbmRsZQBHZXRUeXBlRnJvbUhhbmRsZQBHZXRG
-aWxlTmFtZQBNaWNyb3NvZnQuU3FsU2VydmVyLkR0cy5SdW50aW1lAFR5cGUARmFpbHVyZQBnZXRf
-Q3VsdHVyZQBzZXRfQ3VsdHVyZQByZXNvdXJjZUN1bHR1cmUAVlNUQVJUU2NyaXB0T2JqZWN0TW9k
-ZWxCYXNlAEFwcGxpY2F0aW9uU2V0dGluZ3NCYXNlAEVkaXRvckJyb3dzYWJsZVN0YXRlAENvbXBp
-bGVyR2VuZXJhdGVkQXR0cmlidXRlAERlYnVnZ2VyTm9uVXNlckNvZGVBdHRyaWJ1dGUARGVidWdn
-YWJsZUF0dHJpYnV0ZQBFZGl0b3JCcm93c2FibGVBdHRyaWJ1dGUAQXNzZW1ibHlUaXRsZUF0dHJp
-YnV0ZQBBc3NlbWJseVRyYWRlbWFya0F0dHJpYnV0ZQBUYXJnZXRGcmFtZXdvcmtBdHRyaWJ1dGUA
-QXNzZW1ibHlDb25maWd1cmF0aW9uQXR0cmlidXRlAEFzc2VtYmx5RGVzY3JpcHRpb25BdHRyaWJ1
-dGUAQ29tcGlsYXRpb25SZWxheGF0aW9uc0F0dHJpYnV0ZQBBc3NlbWJseVByb2R1Y3RBdHRyaWJ1
-dGUAQXNzZW1ibHlDb3B5cmlnaHRBdHRyaWJ1dGUAU1NJU1NjcmlwdFRhc2tFbnRyeVBvaW50QXR0
-cmlidXRlAEFzc2VtYmx5Q29tcGFueUF0dHJpYnV0ZQBSdW50aW1lQ29tcGF0aWJpbGl0eUF0dHJp
-YnV0ZQBnZXRfVmFsdWUAc2V0X1ZhbHVlAHZhbHVlAFN5c3RlbS5SdW50aW1lLlZlcnNpb25pbmcA
-VG9TdHJpbmcAUGF0aABNaWNyb3NvZnQuU3FsU2VydmVyLlNjcmlwdFRhc2sATWljcm9zb2Z0LlNx
-bFNlcnZlci5EdHMuVGFza3MuU2NyaXB0VGFzawBTY3JpcHRPYmplY3RNb2RlbABTeXN0ZW0uQ29t
-cG9uZW50TW9kZWwAU1RfZGI5ZjNhOTQzYmI5NDU2ZjkzNjJkZDdjYjBkZGJjNjcuZGxsAGdldF9J
-dGVtAFN5c3RlbQBFbnVtAHJlc291cmNlTWFuAFNjcmlwdE1haW4ARmlyZUluZm9ybWF0aW9uAFN5
-c3RlbS5Db25maWd1cmF0aW9uAFN5c3RlbS5HbG9iYWxpemF0aW9uAFN5c3RlbS5SZWZsZWN0aW9u
-AEN1bHR1cmVJbmZvAGdldF9SZXNvdXJjZU1hbmFnZXIARXZlbnRzT2JqZWN0V3JhcHBlcgAuY3Rv
-cgAuY2N0b3IAU3lzdGVtLkRpYWdub3N0aWNzAFN5c3RlbS5SdW50aW1lLkNvbXBpbGVyU2Vydmlj
-ZXMAU3lzdGVtLlJlc291cmNlcwBTVF9kYjlmM2E5NDNiYjk0NTZmOTM2MmRkN2NiMGRkYmM2Ny5Q
-cm9wZXJ0aWVzLlJlc291cmNlcy5yZXNvdXJjZXMARGVidWdnaW5nTW9kZXMAU1RfZGI5ZjNhOTQz
-YmI5NDU2ZjkzNjJkZDdjYjBkZGJjNjcuUHJvcGVydGllcwBnZXRfVmFyaWFibGVzAFNldHRpbmdz
-AFN1Y2Nlc3MAZ2V0X0R0cwBTY3JpcHRSZXN1bHRzAGdldF9FdmVudHMAQ29uY2F0AE9iamVjdABn
-ZXRfRGVmYXVsdABzZXRfVGFza1Jlc3VsdABnZXRfQXNzZW1ibHkAAAAAK1UAcwBlAHIAOgA6AEMA
-dQByAHIAZQBuAHQARgBpAGwAZQBQAGEAdABoAAArVQBzAGUAcgA6ADoAQwB1AHIAcgBlAG4AdABG
-AGkAbABlAE4AYQBtAGUAAC9GAG8AcgBlAGEAYwBoACAARgBpAGwAZQAgAEUAbgB1AG0AZQByAGEA
-dABvAHIAAB1DAHUAcgByAGUAbgB0ACAAZgBpAGwAZQA6ACAAAAEAcVMAVABfAGQAYgA5AGYAMwBh
-ADkANAAzAGIAYgA5ADQANQA2AGYAOQAzADYAMgBkAGQANwBjAGIAMABkAGQAYgBjADYANwAuAFAA
-cgBvAHAAZQByAHQAaQBlAHMALgBSAGUAcwBvAHUAcgBjAGUAcwAAAI65siHeriVKqN5Z5X1WVTEA
-BCABAQgDIAABBSABARERBCABAQ4FIAEBEVEEBwIOAgQgABJhBCAAEmUFIAESaRwDIAAcAyAADgQA
-AQ4OBCABARwEIAAScQUAAg4ODgogBgEIDg4OCBACBgABEnkRfQUgABKAgQcgAgEOEoCBCLd6XFYZ
-NOCJCImEXc2AgMyRBAAAAAAEAQAAAAMGEkkDBhJNAwYSEAIGCAMGERQEAAASSQQAABJNBQABARJN
-BAAAEhADAAABBAgAEkkECAASTQQIABIQCAEACAAAAAAAHgEAAQBUAhZXcmFwTm9uRXhjZXB0aW9u
-VGhyb3dzAQgBAAIAAAAAACgBACNTVF9kYjlmM2E5NDNiYjk0NTZmOTM2MmRkN2NiMGRkYmM2NwAA
-BQEAAAAAFgEAEUNvcHlyaWdodCBAICAyMDI2AABJAQAaLk5FVEZyYW1ld29yayxWZXJzaW9uPXY0
-LjcBAFQOFEZyYW1ld29ya0Rpc3BsYXlOYW1lEi5ORVQgRnJhbWV3b3JrIDQuNwAAALQAAADOyu++
-AQAAAJEAAABsU3lzdGVtLlJlc291cmNlcy5SZXNvdXJjZVJlYWRlciwgbXNjb3JsaWIsIFZlcnNp
-b249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRl
-MDg5I1N5c3RlbS5SZXNvdXJjZXMuUnVudGltZVJlc291cmNlU2V0AgAAAAAAAAAAAAAAUEFEUEFE
-ULQAAADgLgAAAAAAAAAAAAD6LgAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA7C4AAAAAAAAAAAAA
-AABfQ29yRGxsTWFpbgBtc2NvcmVlLmRsbAAAAAAA/yUAIAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAABABAAAAAYAACAAAAAAAAAAAAAAAAAAAABAAEAAAAwAACAAAAAAAAAAAAAAAAAAAABAAAA
-AABIAAAAWEAAABoEAAAAAAAAAAAAABoENAAAAFYAUwBfAFYARQBSAFMASQBPAE4AXwBJAE4ARgBP
-AAAAAAC9BO/+AAABAAAAAQCbQEcmAAABAJtARyY/AAAAAAAAAAQAAAACAAAAAAAAAAAAAAAAAAAA
-RAAAAAEAVgBhAHIARgBpAGwAZQBJAG4AZgBvAAAAAAAkAAQAAABUAHIAYQBuAHMAbABhAHQAaQBv
-AG4AAAAAAAAAsAR6AwAAAQBTAHQAcgBpAG4AZwBGAGkAbABlAEkAbgBmAG8AAABWAwAAAQAwADAA
-MAAwADAANABiADAAAAAaAAEAAQBDAG8AbQBtAGUAbgB0AHMAAAAAAAAAIgABAAEAQwBvAG0AcABh
-AG4AeQBOAGEAbQBlAAAAAAAAAAAAcAAkAAEARgBpAGwAZQBEAGUAcwBjAHIAaQBwAHQAaQBvAG4A
-AAAAAFMAVABfAGQAYgA5AGYAMwBhADkANAAzAGIAYgA5ADQANQA2AGYAOQAzADYAMgBkAGQANwBj
-AGIAMABkAGQAYgBjADYANwAAAD4ADwABAEYAaQBsAGUAVgBlAHIAcwBpAG8AbgAAAAAAMQAuADAA
-LgA5ADcAOQA5AC4AMQA2ADUAMwA5AAAAAABwACgAAQBJAG4AdABlAHIAbgBhAGwATgBhAG0AZQAA
-AFMAVABfAGQAYgA5AGYAMwBhADkANAAzAGIAYgA5ADQANQA2AGYAOQAzADYAMgBkAGQANwBjAGIA
-MABkAGQAYgBjADYANwAuAGQAbABsAAAASAASAAEATABlAGcAYQBsAEMAbwBwAHkAcgBpAGcAaAB0
-AAAAQwBvAHAAeQByAGkAZwBoAHQAIABAACAAIAAyADAAMgA2AAAAKgABAAEATABlAGcAYQBsAFQA
-cgBhAGQAZQBtAGEAcgBrAHMAAAAAAAAAAAB4ACgAAQBPAHIAaQBnAGkAbgBhAGwARgBpAGwAZQBu
-AGEAbQBlAAAAUwBUAF8AZABiADkAZgAzAGEAOQA0ADMAYgBiADkANAA1ADYAZgA5ADMANgAyAGQA
-ZAA3AGMAYgAwAGQAZABiAGMANgA3AC4AZABsAGwAAABoACQAAQBQAHIAbwBkAHUAYwB0AE4AYQBt
-AGUAAAAAAFMAVABfAGQAYgA5AGYAMwBhADkANAAzAGIAYgA5ADQANQA2AGYAOQAzADYAMgBkAGQA
-NwBjAGIAMABkAGQAYgBjADYANwAAAEIADwABAFAAcgBvAGQAdQBjAHQAVgBlAHIAcwBpAG8AbgAA
-ADEALgAwAC4AOQA3ADkAOQAuADEANgA1ADMAOQAAAAAARgAPAAEAQQBzAHMAZQBtAGIAbAB5ACAA
-VgBlAHIAcwBpAG8AbgAAADEALgAwAC4AOQA3ADkAOQAuADEANgA1ADMAOQAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAwAAAAMPwAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
-            </ScriptProject>
-          </DTS:ObjectData>
-        </DTS:Executable>
-      </DTS:Executables>
-      <DTS:PrecedenceConstraints>
-        <DTS:PrecedenceConstraint
-          DTS:refId="Package\06_foreach_csv_files.PrecedenceConstraints[Constraint]"
-          DTS:CreationName=""
-          DTS:DTSID="{1B14446F-DE83-4A63-BC08-3BFBC03A1480}"
-          DTS:EvalOp="3"
-          DTS:Expression="@[User::CurrentFileName] == &quot;olist_customers_dataset.csv&quot;"
-          DTS:From="Package\06_foreach_csv_files\06_start_routing"
-          DTS:LogicalAnd="True"
-          DTS:ObjectName="Constraint"
-          DTS:To="Package\06_foreach_csv_files\06_load_customers" />
-      </DTS:PrecedenceConstraints>
-      <DTS:ForEachVariableMappings>
-        <DTS:ForEachVariableMapping
-          DTS:CreationName=""
-          DTS:DTSID="{DC8A9EE3-5F6A-47D9-A9DA-3AF100BDF091}"
-          DTS:ObjectName="{DC8A9EE3-5F6A-47D9-A9DA-3AF100BDF091}"
-          DTS:ValueIndex="0"
-          DTS:VariableName="User::CurrentFilePath" />
-      </DTS:ForEachVariableMappings>
+                  synchronousInputId="Package\06_dft_load_customers\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
+                      dataType="dbTimeStamp"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">[GETDATE]()</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">GETDATE()</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="27"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]"
+                      name="dwh_source_file"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"olist_customers_dataset.csv"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"olist_customers_dataset.csv"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">@[User::BatchId]</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">@[User::BatchId]</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\06_dft_load_customers\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\06_dft_load_customers\Flat File Source"
+              componentClassID="Microsoft.FlatFileSource"
+              contactInfo="Flat File Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Flat File Source"
+              localeId="7177"
+              name="Flat File Source"
+              usesDispositions="true"
+              version="1">
+              <properties>
+                <property
+                  dataType="System.Boolean"
+                  description="Specifies whether zero-length columns are treated as null."
+                  name="RetainNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of an output column containing the file name. If no name is specified, no output column containing the file name will be generated."
+                  name="FileNameColumnName"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\06_dft_load_customers\Flat File Source.Connections[FlatFileConnection]"
+                  connectionManagerID="Package.ConnectionManagers[ff_olist_customers]"
+                  connectionManagerRefId="Package.ConnectionManagers[ff_olist_customers]"
+                  name="FlatFileConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output]"
+                  name="Flat File Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
+                      length="255"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]"
+                      name="customer_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_unique_id]"
+                      length="255"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]"
+                      name="customer_unique_id"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_zip_code_prefix]"
+                      length="255"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]"
+                      name="customer_zip_code_prefix"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_city]"
+                      length="255"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]"
+                      name="customer_city"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_state]"
+                      length="255"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]"
+                      name="customer_state"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the data is in binary format."
+                          name="UseBinaryFormat">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_unique_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_unique_id" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_city" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].ExternalColumns[customer_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_state" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output]"
+                  isErrorOut="true"
+                  name="Flat File Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      codePage="65001"
+                      dataType="text"
+                      description="Flat File Source Error Output Column"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[Flat File Source Error Output Column]"
+                      name="Flat File Source Error Output Column" />
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\06_dft_load_customers\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[bronze].[customers]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">true</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\06_dft_load_customers\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{588E6981-183D-41DE-B56E-4B5CD1F797C5}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_stg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_id"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_id]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_unique_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_unique_id"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_unique_id]"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_unique_id]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_zip_code_prefix]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_zip_code_prefix"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_zip_code_prefix]"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_zip_code_prefix]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_city"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_city]"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_city]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_state"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_state]"
+                      lineageId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output].Columns[customer_state]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="dbTimeStamp"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_load_ts]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_source_file]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="dwh_source_file"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_source_file]" />
+                    <inputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[dwh_batch_id]"
+                      cachedDataType="i4"
+                      cachedName="dwh_batch_id"
+                      externalMetadataColumnId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      lineageId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_unique_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_unique_id" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_city" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_state" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      name="dwh_source_file" />
+                    <externalMetadataColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      dataType="i4"
+                      name="dwh_batch_id" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\06_dft_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\06_dft_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\06_dft_load_customers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\06_dft_load_customers\Row Count"
+              componentClassID="Microsoft.RowCount"
+              contactInfo="Row Count;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Counts rows as they pass through a data flow. For example, use the number of rows processed to determine whether or not to perform cleanup operations, or update text in an e-mail message to communicate processing status."
+              name="Row Count">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable to hold the row count."
+                  name="VariableName">User::CustomerRowLoaded</property>
+              </properties>
+              <inputs>
+                <input
+                  refId="Package\06_dft_load_customers\Row Count.Inputs[Row Count Input 1]"
+                  hasSideEffects="true"
+                  name="Row Count Input 1">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\06_dft_load_customers\Row Count.Outputs[Row Count Output 1]"
+                  name="Row Count Output 1"
+                  synchronousInputId="Package\06_dft_load_customers\Row Count.Inputs[Row Count Input 1]">
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\06_dft_load_customers.Paths[Derived Column Output]"
+              endId="Package\06_dft_load_customers\Row Count.Inputs[Row Count Input 1]"
+              name="Derived Column Output"
+              startId="Package\06_dft_load_customers\Derived Column.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\06_dft_load_customers.Paths[Flat File Source Output]"
+              endId="Package\06_dft_load_customers\Derived Column.Inputs[Derived Column Input]"
+              name="Flat File Source Output"
+              startId="Package\06_dft_load_customers\Flat File Source.Outputs[Flat File Source Output]" />
+            <path
+              refId="Package\06_dft_load_customers.Paths[Row Count Output 1]"
+              endId="Package\06_dft_load_customers\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Row Count Output 1"
+              startId="Package\06_dft_load_customers\Row Count.Outputs[Row Count Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\07_log_customers"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{599F31D8-6C9A-4941-B4F5-DCE1DA74B903}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="07_log_customers"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_customers_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::BatchId"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::CustomerRowLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
     </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
@@ -1386,11 +755,19 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
       DTS:CreationName=""
-      DTS:DTSID="{9D4F98F2-1424-4EAD-B5C2-8AA35E643418}"
+      DTS:DTSID="{244EB9AF-4D36-471A-A841-54205592B8E3}"
       DTS:From="Package\05_truncate_bronze_tables"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 1"
-      DTS:To="Package\06_foreach_csv_files" />
+      DTS:To="Package\06_dft_load_customers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{CF2943C2-DF10-4468-9D98-28E2287C5AF2}"
+      DTS:From="Package\06_dft_load_customers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\07_log_customers" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -1403,41 +780,79 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="197.6,68.8"
           Id="Package\04_ensure_etl_load_log"
-          TopLeft="286.666651003891,51.9999996383985" />
+          TopLeft="77.4999957655866,41.5999997107188" />
         <NodeLayout
-          Size="204,69.6"
+          Size="208,69.6"
           Id="Package\05_truncate_bronze_tables"
-          TopLeft="401.666644720569,164.666665521595" />
+          TopLeft="199.166655784681,136.933332381116" />
+        <NodeLayout
+          Size="197.6,73.6"
+          Id="Package\06_dft_load_customers"
+          TopLeft="309.166649774545,249.599998264313" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="385.466651003891,120.799999638399">
+          TopLeft="176.299995765587,110.399999710719">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="118.199993716677,43.8666658831967"
+              EndConnector="126.866660019094,26.533332670397"
               Start="0,0"
-              End="118.199993716677,36.3666658831967">
+              End="126.866660019094,19.033332670397">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,17.9333329415984" />
+                    End="0,9.26666633519849" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,17.9333329415984"
-                    Point2="0,21.9333329415984"
-                    Point3="4,21.9333329415984" />
+                    Point1="0,9.26666633519849"
+                    Point2="0,13.2666663351985"
+                    Point3="4,13.2666663351985" />
                   <mssgle:LineSegment
-                    End="114.199993716677,21.9333329415984" />
+                    End="122.866660019094,13.2666663351985" />
                   <mssgle:CubicBezierSegment
-                    Point1="114.199993716677,21.9333329415984"
-                    Point2="118.199993716677,21.9333329415984"
-                    Point3="118.199993716677,25.9333329415984" />
+                    Point1="122.866660019094,13.2666663351985"
+                    Point2="126.866660019094,13.2666663351985"
+                    Point3="126.866660019094,17.2666663351985" />
                   <mssgle:LineSegment
-                    End="118.199993716677,36.3666658831967" />
+                    End="126.866660019094,19.033332670397" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="303.166655784681,206.533332381116">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="104.799993989865,43.0666658831974"
+              Start="0,0"
+              End="104.799993989865,35.5666658831974">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,17.5333329415987" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,17.5333329415987"
+                    Point2="0,21.5333329415987"
+                    Point3="4,21.5333329415987" />
+                  <mssgle:LineSegment
+                    End="100.799993989865,21.5333329415987" />
+                  <mssgle:CubicBezierSegment
+                    Point1="100.799993989865,21.5333329415987"
+                    Point2="104.799993989865,21.5333329415987"
+                    Point3="104.799993989865,25.5333329415987" />
+                  <mssgle:LineSegment
+                    End="104.799993989865,35.5666658831974" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -1447,70 +862,35 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="168.8,41.6"
-          Id="Package\06_foreach_csv_files\06_load_customers"
-          TopLeft="80.2999679004167,112.099999258717" />
-        <NodeLayout
-          Size="176.8,41.6"
-          Id="Package\06_foreach_csv_files\06_start_routing"
-          TopLeft="80.2999679004166,24.0666642017498" />
+          Size="182.4,58.4"
+          Id="Package\07_log_customers"
+          TopLeft="459.166641578908,370.06666409327" />
         <EdgeLayout
-          Id="Package\06_foreach_csv_files.PrecedenceConstraints[Constraint]"
-          TopLeft="166.699967900417,65.6666642017498">
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="407.966649774545,323.199998264313">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="0,46.4333350569672"
+              EndConnector="142.399991804362,46.8666658289564"
               Start="0,0"
-              End="0,38.9333350569672">
+              End="142.399991804362,39.3666658289564">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,38.9333350569672" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-8,11.4666675284836,16,16"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <ContainerLayout
-          HeaderHeight="43"
-          IsExpanded="True"
-          PanelSize="385.6,208.8"
-          Size="385.6,252"
-          Id="Package\06_foreach_csv_files"
-          TopLeft="513.333305286038,288.599997993112" />
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 1]"
-          TopLeft="503.666644720569,234.266665521595">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="202.466660565469,54.3333324715168"
-              Start="0,0"
-              End="202.466660565469,46.8333324715168">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,23.1666662357584" />
+                    End="0,19.4333329144782" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,23.1666662357584"
-                    Point2="0,27.1666662357584"
-                    Point3="4,27.1666662357584" />
+                    Point1="0,19.4333329144782"
+                    Point2="0,23.4333329144782"
+                    Point3="4,23.4333329144782" />
                   <mssgle:LineSegment
-                    End="198.466660565469,27.1666662357584" />
+                    End="138.399991804362,23.4333329144782" />
                   <mssgle:CubicBezierSegment
-                    Point1="198.466660565469,27.1666662357584"
-                    Point2="202.466660565469,27.1666662357584"
-                    Point3="202.466660565469,31.1666662357584" />
+                    Point1="138.399991804362,23.4333329144782"
+                    Point2="142.399991804362,23.4333329144782"
+                    Point3="142.399991804362,27.4333329144782" />
                   <mssgle:LineSegment
-                    End="202.466660565469,46.8333324715168" />
+                    End="142.399991804362,39.3666658289564" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -1523,32 +903,36 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     </LayoutInfo>
   </Package>
   <TaskHost
-    design-time-name="Package\06_foreach_csv_files\06_load_customers">
+    design-time-name="Package\06_dft_load_customers">
     <LayoutInfo>
       <GraphLayout
         Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="173.6,63.2"
-          Id="Package\06_foreach_csv_files\06_load_customers\Flat File Source"
-          TopLeft="286.666651003891,95.3333326703973" />
+          Size="157.6,41.6"
+          Id="Package\06_dft_load_customers\OLE DB Destination"
+          TopLeft="126.666666898462,399.133327792155" />
         <NodeLayout
-          Size="164.8,62.4"
-          Id="Package\06_foreach_csv_files\06_load_customers\Derived Column"
-          TopLeft="559.166636115148,90.9999993671973" />
+          Size="151.2,41.6"
+          Id="Package\06_dft_load_customers\Flat File Source"
+          TopLeft="123.333333945936,65.1999989664555" />
+        <NodeLayout
+          Size="152.8,41.6"
+          Id="Package\06_dft_load_customers\Derived Column"
+          TopLeft="130.333333444264,170.599997168581" />
         <EdgeLayout
-          Id="Package\06_foreach_csv_files\06_load_customers.Paths[Flat File Source Output]"
-          TopLeft="460.266651003891,124.566666018797">
+          Id="Package\06_dft_load_customers.Paths[Flat File Source Output]"
+          TopLeft="202.8333336951,106.799998966456">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="98.8999851112571,0"
+              EndConnector="0,63.7999982021256"
               Start="0,0"
-              End="91.3999851112571,0">
+              End="0,56.2999982021256">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="91.3999851112571,0" />
+                    End="0,56.2999982021256" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -1558,23 +942,45 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="171.2,60.8"
-          Id="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination"
-          TopLeft="863.333286162881,90.1333327065574" />
+          Size="142.4,41.6"
+          Id="Package\06_dft_load_customers\Row Count"
+          TopLeft="135.833325911728,278.199998065432" />
         <EdgeLayout
-          Id="Package\06_foreach_csv_files\06_load_customers.Paths[Derived Column Output]"
-          TopLeft="723.966636115148,121.366666036877">
+          Id="Package\06_dft_load_customers.Paths[Derived Column Output]"
+          TopLeft="206.883329677996,212.199997168581">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="139.366650047733,0"
+              EndConnector="0,66.0000008968508"
               Start="0,0"
-              End="131.866650047733,0">
+              End="0,58.5000008968508">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="131.866650047733,0" />
+                    End="0,58.5000008968508" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\06_dft_load_customers.Paths[Row Count Output 1]"
+          TopLeft="206.249996405095,319.799998065432">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,79.3333297267226"
+              Start="0,0"
+              End="0,71.8333297267226">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,71.8333297267226" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -1587,7 +993,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</BinaryItem>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\06_foreach_csv_files\06_load_customers\OLE DB Destination">
+    design-time-name="Package\06_dft_load_customers\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
