@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0"?>
 <DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
-  DTS:ObjectName="ff_order_payments"
+  DTS:ObjectName="ff_olist_order_payments"
   DTS:DTSID="{C76A6EDD-0777-4B0D-9537-15BB83DF49E0}"
   DTS:CreationName="FLATFILE">
   <DTS:ObjectData>
@@ -21,7 +21,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_id"
-          DTS:DTSID="{A2C61D0A-913A-4183-85BE-1D6AF2074B46}"
+          DTS:DTSID="{B1969A5B-BE57-4E38-BB32-A35B6B9F98C5}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +30,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="payment_sequential"
-          DTS:DTSID="{DFF39B2A-B07D-4D69-AD82-A20EC80D2238}"
+          DTS:DTSID="{040C47B4-5B7E-4821-9D8A-8882EFFF9449}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -39,7 +39,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="payment_type"
-          DTS:DTSID="{04085F5C-FE13-49BF-A693-8EEFAB18FEC4}"
+          DTS:DTSID="{BA126C02-3207-4D1F-A359-FF4BF7ED3A7C}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -48,7 +48,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="payment_installments"
-          DTS:DTSID="{C49D4928-8F2E-4F03-AEE6-A50713EEC9E3}"
+          DTS:DTSID="{4600CF8A-1680-4E19-81ED-85C3FEDB9670}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -57,7 +57,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="payment_value"
-          DTS:DTSID="{B9DCD084-298C-47D9-A3AE-DFC212F19E78}"
+          DTS:DTSID="{0953D50E-55BE-4B98-AA45-18BBE9138B81}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>
