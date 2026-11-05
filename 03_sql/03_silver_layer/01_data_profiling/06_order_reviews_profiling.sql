@@ -8,6 +8,13 @@ SELECT
 FROM [olist_stg].[bronze].[order_reviews];
 
 
+-- checking the number of columns in the order reviews table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'order_reviews';
+
 -- checking whether review ids appear more than once in the dataset
 
 SELECT
