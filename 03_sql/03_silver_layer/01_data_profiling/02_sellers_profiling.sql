@@ -8,6 +8,14 @@ SELECT
 FROM [olist_stg].[bronze].[sellers];
 
 
+-- checking the number of columns in the sellers table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'sellers';
+
+
 -- verifying that each seller record has a unique seller id and identifying any repeated ids
 
 SELECT
