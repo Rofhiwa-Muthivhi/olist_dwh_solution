@@ -8,6 +8,13 @@ SELECT
 FROM [olist_stg].[bronze].[order_payments];
 
 
+-- checking the number of columns in the order payments table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'order_payments';
+
 -- verifying whether each payment record has a unique order id and payment sequence combination
 
 SELECT
