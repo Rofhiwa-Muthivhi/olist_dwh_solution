@@ -8,6 +8,14 @@ SELECT
 FROM [olist_stg].[bronze].[order_items];
 
 
+-- checking the number of columns in the order items table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'order_items';
+
+
 -- checking whether each order item has a unique combination of order id and item id
 
 SELECT
