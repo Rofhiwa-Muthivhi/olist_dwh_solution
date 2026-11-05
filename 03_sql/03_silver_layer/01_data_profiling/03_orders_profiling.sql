@@ -8,6 +8,14 @@ SELECT
 FROM [olist_stg].[bronze].[orders];
 
 
+-- checking the number of columns in the orders table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'orders';
+
+
 -- verifying that each order has a unique order id and identifying any repeated ids
 
 SELECT
