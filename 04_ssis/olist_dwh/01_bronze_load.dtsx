@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="117"
-  DTS:VersionGUID="{B83D923C-96C4-4316-970C-A7269371368A}">
+  DTS:VersionBuild="118"
+  DTS:VersionGUID="{7E6E1DB7-F6BF-40E1-9AA4-14F0CF46CA80}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -5716,6 +5716,20 @@
                       cachedName="dwh_batch_id"
                       externalMetadataColumnId="Package\23_dft_load_product_category_name_translation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
                       lineageId="Package\23_dft_load_product_category_name_translation\Derived Column.Outputs[Derived Column Output].Columns[dwh_batch_id]" />
+                    <inputColumn
+                      refId="Package\23_dft_load_product_category_name_translation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[product_category_name]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name"
+                      externalMetadataColumnId="Package\23_dft_load_product_category_name_translation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[column1]"
+                      lineageId="Package\23_dft_load_product_category_name_translation\Flat File Source.Outputs[Flat File Source Output].Columns[product_category_name]" />
+                    <inputColumn
+                      refId="Package\23_dft_load_product_category_name_translation\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name_english"
+                      externalMetadataColumnId="Package\23_dft_load_product_category_name_translation\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[column2]"
+                      lineageId="Package\23_dft_load_product_category_name_translation\Flat File Source.Outputs[Flat File Source Output].Columns[product_category_name_english]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
@@ -7460,7 +7474,7 @@
     design-time-name="Package\23_dft_load_product_category_name_translation">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="171.2,41.6"
           Id="Package\23_dft_load_product_category_name_translation\OLE DB Destination"
@@ -7496,9 +7510,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -7520,9 +7532,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -7544,9 +7554,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
