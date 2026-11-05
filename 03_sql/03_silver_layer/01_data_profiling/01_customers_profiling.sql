@@ -8,6 +8,14 @@ SELECT
 FROM [olist_stg].[bronze].[customers];
 
 
+-- checking the number of columns in the customers table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'customers';
+
+
 -- verifying that each customer record has a unique customer id and identifying any repeated ids
 
 SELECT
