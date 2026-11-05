@@ -8,6 +8,13 @@ SELECT
 FROM [olist_stg].[bronze].[geolocation];
 
 
+-- checking the number of columns in the geolocation table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'geolocation';
+
 -- comparing the total geolocation records against the unique zip code prefixes
 
 SELECT
