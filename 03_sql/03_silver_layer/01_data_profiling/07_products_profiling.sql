@@ -8,6 +8,14 @@ SELECT
 FROM [olist_stg].[bronze].[products];
 
 
+-- checking the number of columns in the products table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'products';
+
+
 -- verifying that each product has a unique product id and identifying any repeated ids
 
 SELECT
