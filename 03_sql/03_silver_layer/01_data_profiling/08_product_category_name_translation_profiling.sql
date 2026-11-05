@@ -8,6 +8,13 @@ SELECT
 FROM [olist_stg].[bronze].[product_category_name_translation];
 
 
+-- checking the number of columns in the product category translation table
+
+SELECT COUNT(*) AS total_columns
+FROM [olist_stg].[INFORMATION_SCHEMA].[COLUMNS]
+WHERE TABLE_SCHEMA = 'bronze'
+AND TABLE_NAME = 'product_category_name_translation';
+
 -- viewing the original product categories alongside their english translations
 
 SELECT
