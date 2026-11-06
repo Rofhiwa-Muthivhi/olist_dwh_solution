@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="122"
-  DTS:VersionGUID="{E23D192E-81AA-4857-A2DB-023572AD5A90}">
+  DTS:VersionBuild="125"
+  DTS:VersionGUID="{E4B172CC-D630-41A5-85F3-7C70CFD629BF}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -140,7 +140,7 @@
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
           SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="USE [olist_stg];&#xA;&#xA;-- i am creating the batch id sequence if it does not exist&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.sequences&#xA;    WHERE name = 'batch_id_seq'&#xA;      AND SCHEMA_NAME(schema_id) = 'etl'&#xA;)&#xA;BEGIN&#xA;    CREATE SEQUENCE etl.batch_id_seq&#xA;        AS BIGINT&#xA;        START WITH 1&#xA;        INCREMENT BY 1;&#xA;END;&#xA;&#xA;"
+          SQLTask:SqlStatementSource="USE [olist_stg];&#xA;&#xA;-- i am creating the etl schema if it does not exist&#xA;IF SCHEMA_ID('etl') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA etl');&#xA;END;&#xA;&#xA;-- i am creating the batch id sequence if it does not exist&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.sequences&#xA;    WHERE name = 'batch_id_seq'&#xA;      AND SCHEMA_NAME(schema_id) = 'etl'&#xA;)&#xA;BEGIN&#xA;    CREATE SEQUENCE etl.batch_id_seq&#xA;        AS BIGINT&#xA;        START WITH 1&#xA;        INCREMENT BY 1;&#xA;END;&#xA;&#xA;-- i am generating the next batch id for this ingestion run&#xA;SELECT NEXT VALUE FOR etl.batch_id_seq AS BatchID;"
           SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ResultBinding
             SQLTask:ResultName="0"
