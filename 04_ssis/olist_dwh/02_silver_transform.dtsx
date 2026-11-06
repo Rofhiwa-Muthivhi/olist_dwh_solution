@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="6"
-  DTS:VersionGUID="{C370691C-9CD4-4A89-AB09-26FD61641B09}">
+  DTS:VersionBuild="7"
+  DTS:VersionGUID="{0C0DE053-72D3-430A-B74A-D7DE3AA8C89A}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -46,7 +46,263 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <pipeline
-          version="1" />
+          version="1">
+          <components>
+            <component
+              refId="Package\27_dft_load_customers\ole_src_bronze_customers"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="ole_src_bronze_customers"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[bronze].[customers]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">0</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\27_dft_load_customers\ole_src_bronze_customers.Connections[OleDbConnection]"
+                  connectionManagerID="{588E6981-183D-41DE-B56E-4B5CD1F797C5}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_stg]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_id]"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_id]"
+                      name="customer_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_unique_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_unique_id]"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_unique_id]"
+                      name="customer_unique_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_zip_code_prefix]"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_zip_code_prefix]"
+                      name="customer_zip_code_prefix"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_city]"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_city]"
+                      name="customer_city"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_state]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_state]"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[customer_state]"
+                      name="customer_state"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      length="27"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_source_file]"
+                      length="260"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_source_file]"
+                      name="dwh_source_file"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_batch_id]"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_unique_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_unique_id" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_city" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[customer_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_state" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      name="dwh_source_file" />
+                    <externalMetadataColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Output].ExternalColumns[dwh_batch_id]"
+                      dataType="i4"
+                      name="dwh_batch_id" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_id]"
+                      name="customer_id" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_unique_id]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_unique_id]"
+                      name="customer_unique_id" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_zip_code_prefix]"
+                      name="customer_zip_code_prefix" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_city]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_city]"
+                      name="customer_city" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_state]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[customer_state]"
+                      name="customer_state" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_source_file]"
+                      name="dwh_source_file" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\27_dft_load_customers\ole_src_bronze_customers.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+        </pipeline>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
@@ -252,5 +508,30 @@
       </GraphLayout>
     </LayoutInfo>
   </Package>
+  <TaskHost
+    design-time-name="Package\27_dft_load_customers">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph">
+        <NodeLayout
+          Size="240.8,63.2"
+          Id="Package\27_dft_load_customers\ole_src_bronze_customers"
+          TopLeft="167.999997496605,74.4285703194994" />
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\27_dft_load_customers\ole_src_bronze_customers">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
 </Objects>]]></DTS:DesignTimeProperties>
 </DTS:Executable>
