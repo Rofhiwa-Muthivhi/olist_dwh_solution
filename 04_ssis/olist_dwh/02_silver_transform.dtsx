@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="76"
-  DTS:VersionGUID="{6F6289F8-88ED-4F51-B3C9-0FB4E0905FAD}">
+  DTS:VersionBuild="84"
+  DTS:VersionGUID="{0B9C8792-D226-4A1C-9A22-FC322ED1510C}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -20,6 +20,7 @@
     <DTS:Executable
       DTS:refId="Package\26_prepare_silver_tables"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{9FED12EE-4265-41D8-974D-F449ED92D833}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -37,6 +38,7 @@
     <DTS:Executable
       DTS:refId="Package\27_create_clean_customer_view"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{1FC93B3D-AD29-4E13-9EA6-DAA3DC6CC322}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -48,7 +50,7 @@
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
           SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
-          SQLTask:SqlStatementSource="CREATE OR ALTER VIEW silver.vw_customers_prepared&#xA;AS&#xA;SELECT&#xA;    customer_id,&#xA;    customer_unique_id,&#xA;&#xA;    -- i am trimming and padding the zip prefix to 5 characters&#xA;    RIGHT('00000' + LTRIM(RTRIM(customer_zip_code_prefix)), 5)&#xA;        AS customer_zip_code_prefix,&#xA;&#xA;    -- i am removing unwanted spaces from the city and state&#xA;    LTRIM(RTRIM(customer_city)) AS customer_city,&#xA;    LTRIM(RTRIM(customer_state)) AS customer_state,&#xA;&#xA;    dwh_load_ts,&#xA;    dwh_source_file,&#xA;    dwh_batch_id&#xA;&#xA;FROM olist_stg.bronze.customers;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          SQLTask:SqlStatementSource="CREATE OR ALTER VIEW silver.vw_customers_prepared&#xA;AS&#xA;SELECT&#xA;    customer_id,&#xA;    customer_unique_id,&#xA;&#xA;    -- i am trimming and padding the zip prefix to 5 characters&#xA;    CAST(&#xA;        RIGHT(&#xA;            '00000' + LTRIM(RTRIM(customer_zip_code_prefix)),&#xA;            5&#xA;        )&#xA;        AS CHAR(5)&#xA;    ) AS customer_zip_code_prefix,&#xA;&#xA;    -- i am removing unwanted spaces from the city and state&#xA;    LTRIM(RTRIM(customer_city)) AS customer_city,&#xA;    LTRIM(RTRIM(customer_state)) AS customer_state,&#xA;&#xA;    dwh_load_ts,&#xA;    dwh_source_file,&#xA;    dwh_batch_id&#xA;&#xA;FROM olist_stg.bronze.customers;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
@@ -861,6 +863,7 @@
               description="OLE DB Source"
               name="ole_src_clean_customers"
               usesDispositions="true"
+              validateExternalMetadata="False"
               version="7">
               <properties>
                 <property
