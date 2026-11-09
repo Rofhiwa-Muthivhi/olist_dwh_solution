@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="8"
-  DTS:VersionGUID="{CF17EDCB-CA6C-4347-B592-3F3509EF7AD8}">
+  DTS:VersionBuild="10"
+  DTS:VersionGUID="{FF1F1439-DBF9-4747-A669-71BB12CEC1E0}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -140,6 +140,10 @@
           Size="196,56"
           Id="Package\03_create_bronze_tables"
           TopLeft="349.166647589042,236.599998354714" />
+        <NodeLayout
+          Size="188,65.6"
+          Id="Package\04_create_silver_tables"
+          TopLeft="465.833307881323,322.399997758071" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
           TopLeft="203.466660838657,110.533333031999">
@@ -208,10 +212,6 @@
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="188,65.6"
-          Id="Package\04_create_silver_tables"
-          TopLeft="465.833307881323,322.399997758071" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
           TopLeft="447.166647589042,292.599998354714">
