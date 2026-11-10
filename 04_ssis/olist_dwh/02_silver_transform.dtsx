@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="95"
-  DTS:VersionGUID="{74CD8A5B-A0A3-4499-9C32-5D56DCF4DC2E}">
+  DTS:VersionBuild="104"
+  DTS:VersionGUID="{2D7E8BE3-5139-4621-8786-C78F56BE680C}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -2070,6 +2070,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA]]></arrayElement>
     <DTS:Executable
       DTS:refId="Package\29_create_clean_sellers_view"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{6197317E-8950-4592-B7E0-FF2362F891BB}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -4149,6 +4150,1269 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
         </pipeline>
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\31_create_clean_orders_view"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{066CD633-CE88-4839-80B4-C2D05F366351}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="31_create_clean_orders_view"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="-- i am creating or updating the prepared orders view&#xA;&#xA;CREATE OR ALTER VIEW silver.vw_orders_prepared&#xA;AS&#xA;SELECT&#xA;    order_id,&#xA;    customer_id,&#xA;    LOWER(LTRIM(RTRIM(order_status))) AS order_status,&#xA;&#xA;    CAST(order_purchase_timestamp AS DATETIME2) AS order_purchase_timestamp,&#xA;    CAST(order_approved_at AS DATETIME2) AS order_approved_at,&#xA;    CAST(order_delivered_carrier_date AS DATETIME2) AS order_delivered_carrier_date,&#xA;    CAST(order_delivered_customer_date AS DATETIME2) AS order_delivered_customer_date,&#xA;    CAST(order_estimated_delivery_date AS DATETIME2) AS order_estimated_delivery_date,&#xA;&#xA;    CAST(&#xA;        CASE&#xA;            WHEN LOWER(LTRIM(RTRIM(order_status))) = 'delivered'&#xA;            THEN 1&#xA;            ELSE 0&#xA;        END AS BIT&#xA;    ) AS is_delivered,&#xA;&#xA;    dwh_load_ts,&#xA;    dwh_source_file,&#xA;    dwh_batch_id&#xA;&#xA;FROM olist_stg.bronze.orders;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\32_load_silver_orders"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{AE82E6D3-F504-4794-89C7-13715A5D2399}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="32_load_silver_orders"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\32_load_silver_orders\conditional_split_orders_records"
+              componentClassID="Microsoft.ConditionalSplit"
+              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
+              name="conditional_split_orders_records"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input]"
+                  description="Input to the Conditional Split Transformation"
+                  name="Conditional Split Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input].Columns[order_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="order_id"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[invalid_orders]"
+                  description="Output 1 of the Conditional Split Transformation"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="invalid_orders"
+                  synchronousInputId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">[ISNULL](#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]}) || [LEN]([TRIM](#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]})) == 0</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">ISNULL(order_id) || LEN(TRIM(order_id)) == 0</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">0</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[valid_orders]"
+                  description="Default Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  name="valid_orders"
+                  synchronousInputId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input]">
+                  <properties>
+                    <property
+                      dataType="System.Boolean"
+                      name="IsDefaultOut">true</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[Conditional Split Error Output]"
+                  description="Error Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Conditional Split Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\data_convert_order_identifiers"
+              componentClassID="Microsoft.DataConvert"
+              contactInfo="Data Conversion;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Data Conversion"
+              name="data_convert_order_identifiers"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input]"
+                  name="Data Conversion Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input].Columns[order_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="order_id"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input].Columns[customer_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="customer_id"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[customer_id]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output]"
+                  exclusionGroup="1"
+                  name="Data Conversion Output"
+                  synchronousInputId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[order_id_converted]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="50"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[order_id_converted]"
+                      name="order_id_converted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[customer_id_converted]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="50"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[customer_id_converted]"
+                      name="customer_id_converted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[customer_id]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Data Conversion Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\derive_order_error_metadata"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="derive_order_error_metadata"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\derive_order_error_metadata.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\32_load_silver_orders\derive_order_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="24"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]"
+                      name="error_package_name"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"02_silver_transform.dtsx"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"02_silver_transform.dtsx"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="13"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]"
+                      name="error_source_table"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"bronze.orders"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"bronze.orders"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="8"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]"
+                      name="error_column_name"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"order_id"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"order_id"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="25"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      name="error_description"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"order_id is NULL or blank"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"order_id is NULL or blank"</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\derive_order_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="derive_order_status_and_delivery_flag"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input].Columns[order_status]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="order_status"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_status]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input].Columns[is_delivered]"
+                      cachedDataType="bool"
+                      cachedName="is_delivered"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[is_delivered]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[order_status_clean]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="50"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[order_status_clean]"
+                      name="order_status_clean"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,50)[UPPER]([TRIM](#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_status]}))</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,50)UPPER(TRIM(order_status))</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[is_delivered]"
+                      dataType="bool"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[is_delivered]"
+                      name="is_delivered"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">#{Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[is_delivered]}</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">is_delivered</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\ole_dest_etl_error_rows"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_etl_error_rows"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[etl].[error_rows]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[dwh_batch_id]"
+                      cachedDataType="i4"
+                      cachedName="dwh_batch_id"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_batch_id]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[error_description]"
+                      cachedDataType="wstr"
+                      cachedLength="25"
+                      cachedName="error_description"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_description]"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_description]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[error_package_name]"
+                      cachedDataType="wstr"
+                      cachedLength="24"
+                      cachedName="error_package_name"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[package_name]"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[error_source_table]"
+                      cachedDataType="wstr"
+                      cachedLength="13"
+                      cachedName="error_source_table"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[source_table]"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[order_id]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="order_id"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[source_record_key]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].Columns[error_column_name]"
+                      cachedDataType="wstr"
+                      cachedLength="8"
+                      cachedName="error_column_name"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_column]"
+                      lineageId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_id]"
+                      dataType="i8"
+                      name="error_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[package_name]"
+                      dataType="wstr"
+                      length="255"
+                      name="package_name" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[source_table]"
+                      dataType="wstr"
+                      length="255"
+                      name="source_table" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[source_record_key]"
+                      dataType="wstr"
+                      length="255"
+                      name="source_record_key" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_column]"
+                      dataType="wstr"
+                      length="255"
+                      name="error_column" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_description]"
+                      dataType="wstr"
+                      length="255"
+                      name="error_description" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[rejected_record]"
+                      dataType="nText"
+                      name="rejected_record" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="dwh_batch_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input].ExternalColumns[error_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="error_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\ole_dest_silver_orders"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_silver_orders"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[orders]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\32_load_silver_orders\ole_dest_silver_orders.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_purchase_timestamp]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="order_purchase_timestamp"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_purchase_timestamp]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_purchase_timestamp]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_approved_at]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="order_approved_at"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_approved_at]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_approved_at]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_delivered_carrier_date]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="order_delivered_carrier_date"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_carrier_date]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_carrier_date]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_delivered_customer_date]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="order_delivered_customer_date"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_customer_date]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_customer_date]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_estimated_delivery_date]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="order_estimated_delivery_date"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_estimated_delivery_date]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_estimated_delivery_date]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_status_clean]"
+                      cachedDataType="wstr"
+                      cachedLength="50"
+                      cachedName="order_status_clean"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_status]"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[order_status_clean]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[order_id_converted]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="order_id_converted"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[order_id_converted]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[is_delivered]"
+                      cachedDataType="bool"
+                      cachedName="is_delivered"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[is_delivered]"
+                      lineageId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output].Columns[is_delivered]" />
+                    <inputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].Columns[customer_id_converted]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="customer_id_converted"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      lineageId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output].Columns[customer_id_converted]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[customer_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_status]"
+                      dataType="wstr"
+                      length="255"
+                      name="order_status" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_purchase_timestamp" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_approved_at]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_approved_at" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_delivered_carrier_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_delivered_customer_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_estimated_delivery_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[is_delivered]"
+                      dataType="bool"
+                      name="is_delivered" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\ole_dest_silver_orders.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_dest_silver_orders.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_dest_silver_orders.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_dest_silver_orders.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\32_load_silver_orders\ole_src_clean_orders"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="ole_src_clean_orders"
+              usesDispositions="true"
+              validateExternalMetadata="False"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[vw_orders_prepared]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">0</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\32_load_silver_orders\ole_src_clean_orders.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_id]"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_id]"
+                      name="order_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[customer_id]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[customer_id]"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[customer_id]"
+                      name="customer_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_status]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_status]"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_status]"
+                      name="order_status"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_purchase_timestamp]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_purchase_timestamp]"
+                      name="order_purchase_timestamp"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_approved_at]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_approved_at]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_approved_at]"
+                      name="order_approved_at"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_delivered_carrier_date]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_carrier_date]"
+                      name="order_delivered_carrier_date"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_delivered_customer_date]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_delivered_customer_date]"
+                      name="order_delivered_customer_date"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_estimated_delivery_date]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[order_estimated_delivery_date]"
+                      name="order_estimated_delivery_date"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[is_delivered]"
+                      dataType="bool"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[is_delivered]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[is_delivered]"
+                      name="is_delivered"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_source_file]"
+                      length="260"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_source_file]"
+                      name="dwh_source_file"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_batch_id]"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="customer_id" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_status]"
+                      dataType="wstr"
+                      length="255"
+                      name="order_status" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_purchase_timestamp" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_approved_at]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_approved_at" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_delivered_carrier_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_delivered_customer_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      length="27"
+                      name="order_estimated_delivery_date" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[is_delivered]"
+                      dataType="bool"
+                      name="is_delivered" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      name="dwh_source_file" />
+                    <externalMetadataColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output].ExternalColumns[dwh_batch_id]"
+                      dataType="i4"
+                      name="dwh_batch_id" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_id]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_id]"
+                      name="order_id" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[customer_id]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[customer_id]"
+                      name="customer_id" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_status]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_status]"
+                      name="order_status" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_purchase_timestamp]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_purchase_timestamp]"
+                      name="order_purchase_timestamp" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_approved_at]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_approved_at]"
+                      name="order_approved_at" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_delivered_carrier_date]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_delivered_carrier_date]"
+                      name="order_delivered_carrier_date" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_delivered_customer_date]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_delivered_customer_date]"
+                      name="order_delivered_customer_date" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_estimated_delivery_date]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[order_estimated_delivery_date]"
+                      name="order_estimated_delivery_date" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[is_delivered]"
+                      dataType="bool"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[is_delivered]"
+                      name="is_delivered" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_source_file]"
+                      dataType="wstr"
+                      length="260"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_source_file]"
+                      name="dwh_source_file" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_batch_id]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[dwh_batch_id]"
+                      name="dwh_batch_id" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\32_load_silver_orders.Paths[Data Conversion Output]"
+              endId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Inputs[Derived Column Input]"
+              name="Data Conversion Output"
+              startId="Package\32_load_silver_orders\data_convert_order_identifiers.Outputs[Data Conversion Output]" />
+            <path
+              refId="Package\32_load_silver_orders.Paths[Derived Column Output]"
+              endId="Package\32_load_silver_orders\conditional_split_orders_records.Inputs[Conditional Split Input]"
+              name="Derived Column Output"
+              startId="Package\32_load_silver_orders\derive_order_status_and_delivery_flag.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\32_load_silver_orders.Paths[Derived Column Output1]"
+              endId="Package\32_load_silver_orders\ole_dest_etl_error_rows.Inputs[OLE DB Destination Input]"
+              name="Derived Column Output"
+              startId="Package\32_load_silver_orders\derive_order_error_metadata.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\32_load_silver_orders.Paths[invalid_orders]"
+              endId="Package\32_load_silver_orders\derive_order_error_metadata.Inputs[Derived Column Input]"
+              name="invalid_orders"
+              startId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[invalid_orders]" />
+            <path
+              refId="Package\32_load_silver_orders.Paths[OLE DB Source Output]"
+              endId="Package\32_load_silver_orders\data_convert_order_identifiers.Inputs[Data Conversion Input]"
+              name="OLE DB Source Output"
+              startId="Package\32_load_silver_orders\ole_src_clean_orders.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\32_load_silver_orders.Paths[valid_orders]"
+              endId="Package\32_load_silver_orders\ole_dest_silver_orders.Inputs[OLE DB Destination Input]"
+              name="valid_orders"
+              startId="Package\32_load_silver_orders\conditional_split_orders_records.Outputs[valid_orders]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -4183,6 +5447,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 3"
       DTS:To="Package\30_load_silver_sellers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{4FC4F37C-DCF2-4AB8-9B48-C388C0CC28B8}"
+      DTS:From="Package\30_load_silver_sellers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\31_create_clean_orders_view" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{F1DC3560-8B8B-4E38-9253-CD780D6495BC}"
+      DTS:From="Package\31_create_clean_orders_view"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\32_load_silver_orders" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -4204,6 +5484,18 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           Size="230.4,56.8"
           Id="Package\27_create_clean_customer_view"
           TopLeft="356.66664717926,66.7333328692781" />
+        <NodeLayout
+          Size="199.2,56.8"
+          Id="Package\28_load_silver_customers"
+          TopLeft="667.49996352941,67.599999529918" />
+        <NodeLayout
+          Size="217.6,54.4"
+          Id="Package\29_create_clean_sellers_view"
+          TopLeft="972.499946864945,67.599999529918" />
+        <NodeLayout
+          Size="215.2,52"
+          Id="Package\30_load_silver_sellers"
+          TopLeft="59.1666634339429,167.266665503516" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
           TopLeft="277.527774416049,93.9444439914381">
@@ -4226,10 +5518,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="199.2,56.8"
-          Id="Package\28_load_silver_customers"
-          TopLeft="667.49996352941,67.599999529918" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
           TopLeft="587.06664717926,95.5666661995981">
@@ -4252,14 +5540,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="217.6,54.4"
-          Id="Package\29_create_clean_sellers_view"
-          TopLeft="972.499946864945,67.599999529918" />
-        <NodeLayout
-          Size="215.2,52"
-          Id="Package\30_load_silver_sellers"
-          TopLeft="58.3333301461408,188.933332019515" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
           TopLeft="866.69996352941,95.399999529918">
@@ -4288,26 +5568,78 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-915.366616718804,66.9333324895965"
+              EndConnector="-914.533283431002,45.2666659735977"
               Start="0,0"
-              End="-915.366616718804,59.4333324895965">
+              End="-914.533283431002,37.7666659735977">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,29.4666662447982" />
+                    End="0,18.6333329867988" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,29.4666662447982"
-                    Point2="0,33.4666662447982"
-                    Point3="-4,33.4666662447982" />
+                    Point1="0,18.6333329867988"
+                    Point2="0,22.6333329867988"
+                    Point3="-4,22.6333329867988" />
                   <mssgle:LineSegment
-                    End="-911.366616718804,33.4666662447982" />
+                    End="-910.533283431002,22.6333329867988" />
                   <mssgle:CubicBezierSegment
-                    Point1="-911.366616718804,33.4666662447982"
-                    Point2="-915.366616718804,33.4666662447982"
-                    Point3="-915.366616718804,37.4666662447982" />
+                    Point1="-910.533283431002,22.6333329867988"
+                    Point2="-914.533283431002,22.6333329867988"
+                    Point3="-914.533283431002,26.6333329867988" />
                   <mssgle:LineSegment
-                    End="-915.366616718804,59.4333324895965" />
+                    End="-914.533283431002,37.7666659735977" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="237.6,54.4"
+          Id="Package\31_create_clean_orders_view"
+          TopLeft="359.166647042666,168.999998824795" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="274.366663433943,194.733332164155">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="84.7999836087233,0"
+              Start="0,0"
+              End="77.2999836087233,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="77.2999836087233,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="190.4,56"
+          Id="Package\32_load_silver_orders"
+          TopLeft="674.999963119628,169.866665485435" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="596.766647042666,197.033332155115">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="78.2333160769613,0"
+              Start="0,0"
+              End="70.7333160769613,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="70.7333160769613,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4325,6 +5657,10 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
+          Size="241.6,41.6"
+          Id="Package\28_load_silver_customers\script_proper_case_customer_city"
+          TopLeft="219.230765963976,325.384610536007" />
+        <NodeLayout
           Size="223.2,43.2"
           Id="Package\28_load_silver_customers\ole_src_clean_customers"
           TopLeft="226.692304314329,61.1538452425829" />
@@ -4332,110 +5668,26 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           Size="242.4,41.6"
           Id="Package\28_load_silver_customers\data_convert_customers_identifiers"
           TopLeft="219.230765963976,165.384612920193" />
-        <EdgeLayout
-          Id="Package\28_load_silver_customers.Paths[OLE DB Source Output]"
-          TopLeft="339.361535139153,104.353845242583">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,61.0307676776098"
-              Start="0,0"
-              End="0,53.5307676776098">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,53.5307676776098" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
           Size="237.6,41.6"
           Id="Package\28_load_silver_customers\derive_customer_state_uppercase"
           TopLeft="225.384612026123,245.3846117281" />
-        <EdgeLayout
-          Id="Package\28_load_silver_customers.Paths[Data Conversion Output]"
-          TopLeft="342.30768899505,206.984612920193">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,38.3999988079071"
-              Start="0,0"
-              End="0,30.8999988079071">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,30.8999988079071" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
-          Size="241.6,41.6"
-          Id="Package\28_load_silver_customers\script_proper_case_customer_city"
-          TopLeft="219.230765963976,325.384610536007" />
-        <EdgeLayout
-          Id="Package\28_load_silver_customers.Paths[Derived Column Output]"
-          TopLeft="342.10768899505,286.9846117281">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,38.399998807907"
-              Start="0,0"
-              End="0,30.899998807907">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,30.899998807907" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          Size="201.6,41.6"
+          Id="Package\28_load_silver_customers\Derived Column"
+          TopLeft="419.999993741512,504.61537709603" />
         <NodeLayout
-          Size="246.4,41.6"
-          Id="Package\28_load_silver_customers\conditional_split_customers_records"
-          TopLeft="217.692304448439,401.538455555072" />
-        <EdgeLayout
-          Id="Package\28_load_silver_customers.Paths[Output 0]"
-          TopLeft="340.461535206208,366.984610536007">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,34.5538450190654"
-              Start="0,0"
-              End="0,27.0538450190654">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,27.0538450190654" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          Size="211.2,41.6"
+          Id="Package\28_load_silver_customers\ole_dest_etl_error_rows"
+          TopLeft="419.230762983744,583.846145146169" />
         <NodeLayout
           Size="201.6,41.6"
           Id="Package\28_load_silver_customers\ole_dest_silver_customers"
           TopLeft="49.9999992549419,575.384606810716" />
+        <NodeLayout
+          Size="246.4,41.6"
+          Id="Package\28_load_silver_customers\conditional_split_customers_records"
+          TopLeft="217.692304448439,401.538455555072" />
         <EdgeLayout
           Id="Package\28_load_silver_customers.Paths[valid_customers]"
           TopLeft="340.892304448439,443.138455555072">
@@ -4472,14 +5724,54 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="211.2,41.6"
-          Id="Package\28_load_silver_customers\ole_dest_etl_error_rows"
-          TopLeft="419.230762983744,583.846145146169" />
-        <NodeLayout
-          Size="201.6,41.6"
-          Id="Package\28_load_silver_customers\Derived Column"
-          TopLeft="419.999993741512,504.61537709603" />
+        <EdgeLayout
+          Id="Package\28_load_silver_customers.Paths[Output 0]"
+          TopLeft="340.461535206208,366.984610536007">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,34.5538450190654"
+              Start="0,0"
+              End="0,27.0538450190654">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,27.0538450190654" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\28_load_silver_customers.Paths[OLE DB Source Output]"
+          TopLeft="339.361535139153,104.353845242583">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,61.0307676776098"
+              Start="0,0"
+              End="0,53.5307676776098">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.5307676776098" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
         <EdgeLayout
           Id="Package\28_load_silver_customers.Paths[invalid_customers]"
           TopLeft="380.625637781773,443.138455555072">
@@ -4535,7 +5827,57 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\28_load_silver_customers.Paths[Derived Column Output]"
+          TopLeft="342.10768899505,286.9846117281">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,38.399998807907"
+              Start="0,0"
+              End="0,30.899998807907">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.899998807907" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\28_load_silver_customers.Paths[Data Conversion Output]"
+          TopLeft="342.30768899505,206.984612920193">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,38.3999988079071"
+              Start="0,0"
+              End="0,30.8999988079071">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.8999988079071" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -4555,7 +5897,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\28_load_silver_customers\ole_dest_silver_customers">
+    design-time-name="Package\28_load_silver_customers\ole_dest_etl_error_rows">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -4568,7 +5910,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\28_load_silver_customers\ole_dest_etl_error_rows">
+    design-time-name="Package\28_load_silver_customers\ole_dest_silver_customers">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -4586,157 +5928,37 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
-          Size="216.8,51.2"
-          Id="Package\30_load_silver_sellers\ole_src_clean_sellers"
-          TopLeft="251.999996244907,52.5714277880533" />
+          Size="184,41.6"
+          Id="Package\30_load_silver_sellers\ole_dest_silver_sellers"
+          TopLeft="93.5714271771057,529.285706398743" />
         <NodeLayout
           Size="220,41.6"
           Id="Package\30_load_silver_sellers\data_convert_seller_identifiers"
           TopLeft="253.57142479292,156.428569097604" />
-        <EdgeLayout
-          Id="Package\30_load_silver_sellers.Paths[OLE DB Source Output]"
-          TopLeft="361.985710518914,103.771427788053">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,52.6571413095509"
-              Start="0,0"
-              End="0,45.1571413095509">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,45.1571413095509" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <NodeLayout
-          Size="233.6,41.6"
-          Id="Package\30_load_silver_sellers\derive_seller_state_uppercase"
-          TopLeft="247.142853460142,244.285710645574" />
-        <EdgeLayout
-          Id="Package\30_load_silver_sellers.Paths[Data Conversion Output]"
-          TopLeft="363.757139126531,198.028569097604">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,46.2571415479694"
-              Start="0,0"
-              End="0,38.7571415479694">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,38.7571415479694" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
           Size="244.8,41.6"
           Id="Package\30_load_silver_sellers\script_proper_case_seller_city"
           TopLeft="246.4285677565,337.857137822679" />
-        <EdgeLayout
-          Id="Package\30_load_silver_sellers.Paths[Derived Column Output]"
-          TopLeft="366.385710608321,285.885710645574">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,51.9714271771056"
-              Start="0,0"
-              End="0,44.4714271771056">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,44.4714271771056" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <NodeLayout
-          Size="244.8,41.6"
-          Id="Package\30_load_silver_sellers\conditional_split_sellers_records"
-          TopLeft="245.714282052858,422.85713655608" />
-        <EdgeLayout
-          Id="Package\30_load_silver_sellers.Paths[Output 0]"
-          TopLeft="368.471424904679,379.457137822679">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="0,43.3999987334013"
-              Start="0,0"
-              End="0,35.8999987334013">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,35.8999987334013" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          Size="216.8,51.2"
+          Id="Package\30_load_silver_sellers\ole_src_clean_sellers"
+          TopLeft="251.999996244907,52.5714277880533" />
         <NodeLayout
-          Size="184,41.6"
-          Id="Package\30_load_silver_sellers\ole_dest_silver_sellers"
-          TopLeft="93.5714271771057,529.285706398743" />
-        <EdgeLayout
-          Id="Package\30_load_silver_sellers.Paths[valid_sellers]"
-          TopLeft="368.114282052858,464.45713655608">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="-182.542854875752,64.8285698426623"
-              Start="0,0"
-              End="-182.542854875752,57.3285698426623">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,28.4142849213311" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,28.4142849213311"
-                    Point2="0,32.4142849213311"
-                    Point3="-4,32.4142849213311" />
-                  <mssgle:LineSegment
-                    End="-178.542854875752,32.4142849213311" />
-                  <mssgle:CubicBezierSegment
-                    Point1="-178.542854875752,32.4142849213311"
-                    Point2="-182.542854875752,32.4142849213311"
-                    Point3="-182.542854875752,36.4142849213311" />
-                  <mssgle:LineSegment
-                    End="-182.542854875752,57.3285698426623" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="-118.873009469126,37.4142849213311,55.2031640625,11.0625"
-              RelativePosition="Any" />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          Size="233.6,41.6"
+          Id="Package\30_load_silver_sellers\derive_seller_state_uppercase"
+          TopLeft="247.142853460142,244.285710645574" />
         <NodeLayout
           Size="214.4,41.6"
           Id="Package\30_load_silver_sellers\derive_seller_error_metadata"
           TopLeft="411.428565297808,531.428563509669" />
+        <NodeLayout
+          Size="244.8,41.6"
+          Id="Package\30_load_silver_sellers\conditional_split_sellers_records"
+          TopLeft="245.714282052858,422.85713655608" />
+        <NodeLayout
+          Size="189.6,41.6"
+          Id="Package\30_load_silver_sellers\ole_dest_etl_error_rows"
+          TopLeft="254.285710496562,626.428562094058" />
         <EdgeLayout
           Id="Package\30_load_silver_sellers.Paths[invalid_sellers]"
           TopLeft="407.580948719524,464.45713655608">
@@ -4773,10 +5995,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="189.6,41.6"
-          Id="Package\30_load_silver_sellers\ole_dest_etl_error_rows"
-          TopLeft="254.285710496562,626.428562094058" />
         <EdgeLayout
           Id="Package\30_load_silver_sellers.Paths[Derived Column Output1]"
           TopLeft="518.628565297808,573.028563509669">
@@ -4808,25 +6026,146 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\30_load_silver_sellers.Paths[Derived Column Output]"
+          TopLeft="366.385710608321,285.885710645574">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,51.9714271771056"
+              Start="0,0"
+              End="0,44.4714271771056">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,44.4714271771056" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\30_load_silver_sellers.Paths[Data Conversion Output]"
+          TopLeft="363.757139126531,198.028569097604">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,46.2571415479694"
+              Start="0,0"
+              End="0,38.7571415479694">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,38.7571415479694" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\30_load_silver_sellers.Paths[valid_sellers]"
+          TopLeft="368.114282052858,464.45713655608">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-182.542854875752,64.8285698426623"
+              Start="0,0"
+              End="-182.542854875752,57.3285698426623">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,28.4142849213311" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,28.4142849213311"
+                    Point2="0,32.4142849213311"
+                    Point3="-4,32.4142849213311" />
+                  <mssgle:LineSegment
+                    End="-178.542854875752,32.4142849213311" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-178.542854875752,32.4142849213311"
+                    Point2="-182.542854875752,32.4142849213311"
+                    Point3="-182.542854875752,36.4142849213311" />
+                  <mssgle:LineSegment
+                    End="-182.542854875752,57.3285698426623" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-118.873009469126,37.4142849213311,55.2031640625,11.0625"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\30_load_silver_sellers.Paths[Output 0]"
+          TopLeft="368.471424904679,379.457137822679">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,43.3999987334013"
+              Start="0,0"
+              End="0,35.8999987334013">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,35.8999987334013" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\30_load_silver_sellers.Paths[OLE DB Source Output]"
+          TopLeft="361.985710518914,103.771427788053">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,52.6571413095509"
+              Start="0,0"
+              End="0,45.1571413095509">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,45.1571413095509" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </TaskHost>
-  <PipelineComponentMetadata
-    design-time-name="Package\30_load_silver_sellers\ole_src_clean_sellers">
-    <Properties>
-      <Property>
-        <Name>DataSourceViewID</Name>
-      </Property>
-      <Property>
-        <Name>TableInfoObjectType</Name>
-        <Value
-          type="q2:string">View</Value>
-      </Property>
-    </Properties>
-  </PipelineComponentMetadata>
   <PipelineComponentMetadata
     design-time-name="Package\30_load_silver_sellers\ole_dest_silver_sellers">
     <Properties>
@@ -4841,7 +6180,255 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
+    design-time-name="Package\30_load_silver_sellers\ole_src_clean_sellers">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">View</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
     design-time-name="Package\30_load_silver_sellers\ole_dest_etl_error_rows">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\32_load_silver_orders">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="212,41.6"
+          Id="Package\32_load_silver_orders\ole_src_clean_orders"
+          TopLeft="290.1388730364,40.8777774935188" />
+        <NodeLayout
+          Size="219.2,41.6"
+          Id="Package\32_load_silver_orders\data_convert_order_identifiers"
+          TopLeft="290.972206324202,135.777776833596" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[OLE DB Source Output]"
+          TopLeft="398.355539680301,82.4777774935188">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,53.2999993400773"
+              Start="0,0"
+              End="0,45.7999993400773">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,45.7999993400773" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="257.6,41.6"
+          Id="Package\32_load_silver_orders\derive_order_status_and_delivery_flag"
+          TopLeft="272.222207348656,238.333331675993" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[Data Conversion Output]"
+          TopLeft="400.797206836429,177.377776833596">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.955554842397"
+              Start="0,0"
+              End="0,53.455554842397">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,53.455554842397" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="253.6,41.6"
+          Id="Package\32_load_silver_orders\conditional_split_orders_records"
+          TopLeft="273.61109616166,322.111108871191" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[Derived Column Output]"
+          TopLeft="400.716651755158,279.933331675993">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,42.1777771951976"
+              Start="0,0"
+              End="0,34.6777771951976">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,34.6777771951976" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="183.2,41.6"
+          Id="Package\32_load_silver_orders\ole_dest_silver_orders"
+          TopLeft="123.611104357298,436.944441405987" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[valid_orders]"
+          TopLeft="400.41109616166,363.711108871191">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-185.199991804362,73.2333325347966"
+              Start="0,0"
+              End="-185.199991804362,65.7333325347966">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,32.6166662673983" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,32.6166662673983"
+                    Point2="0,36.6166662673983"
+                    Point3="-4,36.6166662673983" />
+                  <mssgle:LineSegment
+                    End="-181.199991804362,36.6166662673983" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-181.199991804362,36.6166662673983"
+                    Point2="-185.199991804362,36.6166662673983"
+                    Point3="-185.199991804362,40.6166662673983" />
+                  <mssgle:LineSegment
+                    End="-185.199991804362,65.7333325347966" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-120.331577933431,41.6166662673983,55.4631640625,11.0625"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="213.6,41.6"
+          Id="Package\32_load_silver_orders\derive_order_error_metadata"
+          TopLeft="439.58330931556,439.833330274787" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[invalid_orders]"
+          TopLeft="441.344429494993,363.711108871191">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="105.038879820567,76.1222214035967"
+              Start="0,0"
+              End="105.038879820567,68.6222214035967">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,26.735241745402" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,26.735241745402"
+                    Point2="0,30.735241745402"
+                    Point3="4,30.735241745402" />
+                  <mssgle:LineSegment
+                    End="101.038879820567,30.735241745402" />
+                  <mssgle:CubicBezierSegment
+                    Point1="101.038879820567,30.735241745402"
+                    Point2="105.038879820567,30.735241745402"
+                    Point3="105.038879820567,34.735241745402" />
+                  <mssgle:LineSegment
+                    End="105.038879820567,68.6222214035967" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="21.1482680352834,35.735241745402,62.74234375,11.0625"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="209.6,49.6"
+          Id="Package\32_load_silver_orders\ole_dest_etl_error_rows"
+          TopLeft="442.361086941567,535.166662945184" />
+        <EdgeLayout
+          Id="Package\32_load_silver_orders.Paths[Derived Column Output1]"
+          TopLeft="546.772198128563,481.433330274787">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,53.7333326703969"
+              Start="0,0"
+              End="0,46.2333326703969">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,46.2333326703969" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\32_load_silver_orders\ole_src_clean_orders">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">View</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\32_load_silver_orders\ole_dest_silver_orders">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\32_load_silver_orders\ole_dest_etl_error_rows">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
