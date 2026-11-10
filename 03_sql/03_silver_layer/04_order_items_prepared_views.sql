@@ -1,3 +1,4 @@
+
 USE olist_dwh;
 GO
 
@@ -9,7 +10,9 @@ SELECT
     order_item_id,
     product_id,
     seller_id,
-    shipping_limit_date,
+
+    -- i am converting shipping_limit_date to DATETIME2 for consistent date and time handling
+    CAST(shipping_limit_date AS DATETIME2) AS shipping_limit_date,
 
     -- i am converting price and freight_value to DECIMAL(10,2) to ensure consistent monetary precision
     CAST(price AS DECIMAL(10,2)) AS price,
