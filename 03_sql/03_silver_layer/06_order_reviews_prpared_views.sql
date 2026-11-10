@@ -1,3 +1,4 @@
+
 USE olist_dwh;
 GO
 
@@ -31,8 +32,9 @@ SELECT
     CAST(review_comment_title AS NVARCHAR(MAX)) AS review_comment_title,
     CAST(review_comment_message AS NVARCHAR(MAX)) AS review_comment_message,
 
-    review_creation_date,
-    review_answer_timestamp,
+    -- i am converting review timestamps to DATETIME2
+    CAST(review_creation_date AS DATETIME2) AS review_creation_date,
+    CAST(review_answer_timestamp AS DATETIME2) AS review_answer_timestamp,
 
     -- i am preserving ETL metadata for data lineage and auditing
     dwh_load_ts,
@@ -41,3 +43,4 @@ SELECT
 
 FROM ranked_reviews
 WHERE row_num = 1;
+
