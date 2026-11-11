@@ -1,3 +1,4 @@
+
 USE olist_dwh;
 GO
 
@@ -21,7 +22,7 @@ WITH coordinate_aggregation AS
             AS DECIMAL(12,8)
         ) AS geolocation_lng,
 
-        MAX(dwh_load_ts) AS dwh_load_ts
+        MAX(TRY_CONVERT(DATETIME2(7), dwh_load_ts)) AS dwh_load_ts
 
     FROM olist_stg.bronze.geolocation
 

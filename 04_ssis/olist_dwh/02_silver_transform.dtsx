@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="146"
-  DTS:VersionGUID="{349E6891-13BA-42B9-9501-FD57C886CBD0}">
+  DTS:VersionBuild="168"
+  DTS:VersionGUID="{2A91FA8B-868F-4EDC-AF67-4F0296E75AC4}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -10031,18 +10031,1039 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\Data Flow Task"
+      DTS:refId="Package\41_create_clean_geolocation_view"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{D280551C-3CA4-4D81-8CAA-EAA8D731919B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="41_create_clean_geolocation_view"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="-- i am creating a preparation view for geolocation before loading into silver&#xA;CREATE OR ALTER VIEW silver.vw_geolocation_prepared&#xA;AS&#xA;&#xA;-- i am calculating the average latitude and longitude per zip prefix&#xA;WITH coordinate_aggregation AS&#xA;(&#xA;    SELECT&#xA;        geolocation_zip_code_prefix,&#xA;&#xA;        CAST(&#xA;            AVG(TRY_CONVERT(DECIMAL(18,10), geolocation_lat))&#xA;            AS DECIMAL(12,8)&#xA;        ) AS geolocation_lat,&#xA;&#xA;        CAST(&#xA;            AVG(TRY_CONVERT(DECIMAL(18,10), geolocation_lng))&#xA;            AS DECIMAL(12,8)&#xA;        ) AS geolocation_lng,&#xA;&#xA;        MAX(dwh_load_ts) AS dwh_load_ts&#xA;&#xA;    FROM olist_stg.bronze.geolocation&#xA;&#xA;    GROUP BY geolocation_zip_code_prefix&#xA;),&#xA;&#xA;-- i am counting the frequency of each city per zip prefix&#xA;city_frequency AS&#xA;(&#xA;    SELECT&#xA;        geolocation_zip_code_prefix,&#xA;        LTRIM(RTRIM(geolocation_city)) AS geolocation_city,&#xA;        COUNT(*) AS city_count&#xA;&#xA;    FROM olist_stg.bronze.geolocation&#xA;&#xA;    GROUP BY&#xA;        geolocation_zip_code_prefix,&#xA;        LTRIM(RTRIM(geolocation_city))&#xA;),&#xA;&#xA;-- i am ranking cities by frequency and using alphabetical order for ties&#xA;city_ranking AS&#xA;(&#xA;    SELECT&#xA;        geolocation_zip_code_prefix,&#xA;        geolocation_city,&#xA;&#xA;        ROW_NUMBER() OVER&#xA;        (&#xA;            PARTITION BY geolocation_zip_code_prefix&#xA;            ORDER BY city_count DESC, geolocation_city ASC&#xA;        ) AS city_rank&#xA;&#xA;    FROM city_frequency&#xA;),&#xA;&#xA;-- i am counting the frequency of each state per zip prefix&#xA;state_frequency AS&#xA;(&#xA;    SELECT&#xA;        geolocation_zip_code_prefix,&#xA;        UPPER(LTRIM(RTRIM(geolocation_state))) AS geolocation_state,&#xA;        COUNT(*) AS state_count&#xA;&#xA;    FROM olist_stg.bronze.geolocation&#xA;&#xA;    GROUP BY&#xA;        geolocation_zip_code_prefix,&#xA;        UPPER(LTRIM(RTRIM(geolocation_state)))&#xA;),&#xA;&#xA;-- i am ranking states by frequency and using alphabetical order for ties&#xA;state_ranking AS&#xA;(&#xA;    SELECT&#xA;        geolocation_zip_code_prefix,&#xA;        geolocation_state,&#xA;&#xA;        ROW_NUMBER() OVER&#xA;        (&#xA;            PARTITION BY geolocation_zip_code_prefix&#xA;            ORDER BY state_count DESC, geolocation_state ASC&#xA;        ) AS state_rank&#xA;&#xA;    FROM state_frequency&#xA;)&#xA;&#xA;-- i am combining aggregated coordinates with the selected city and state&#xA;SELECT&#xA;    coordinates.geolocation_zip_code_prefix,&#xA;    coordinates.geolocation_lat,&#xA;    coordinates.geolocation_lng,&#xA;    cities.geolocation_city,&#xA;    states.geolocation_state,&#xA;    coordinates.dwh_load_ts&#xA;&#xA;FROM coordinate_aggregation AS coordinates&#xA;&#xA;INNER JOIN city_ranking AS cities&#xA;    ON coordinates.geolocation_zip_code_prefix =&#xA;       cities.geolocation_zip_code_prefix&#xA;    AND cities.city_rank = 1&#xA;&#xA;INNER JOIN state_ranking AS states&#xA;    ON coordinates.geolocation_zip_code_prefix =&#xA;       states.geolocation_zip_code_prefix&#xA;    AND states.state_rank = 1;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\42_load_silver_geolocation"
       DTS:CreationName="Microsoft.Pipeline"
       DTS:Description="Data Flow Task"
-      DTS:DTSID="{63032676-C16D-4B89-B6F3-5C19CD322681}"
+      DTS:DTSID="{30578F3E-D55A-45B2-8C56-12CF0A1D9450}"
       DTS:ExecutableType="Microsoft.Pipeline"
       DTS:LocaleID="-1"
-      DTS:ObjectName="Data Flow Task"
+      DTS:ObjectName="42_load_silver_geolocation"
       DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
       <DTS:Variables />
       <DTS:ObjectData>
         <pipeline
-          version="1" />
+          version="1">
+          <components>
+            <component
+              refId="Package\42_load_silver_geolocation\conditional_split_geolocation records"
+              componentClassID="Microsoft.ConditionalSplit"
+              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
+              name="conditional_split_geolocation records"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input]"
+                  description="Input to the Conditional Split Transformation"
+                  name="Conditional Split Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input].Columns[geolocation_zip_code_prefix]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_zip_code_prefix"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input].Columns[geolocation_lat]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lat"
+                      cachedPrecision="12"
+                      cachedScale="8"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lat]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input].Columns[geolocation_lng]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lng"
+                      cachedPrecision="12"
+                      cachedScale="8"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lng]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input].Columns[geolocation_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_city"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input].Columns[geolocation_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_state"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[invalid_output]"
+                  description="Output 1 of the Conditional Split Transformation"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="invalid_output"
+                  synchronousInputId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">[ISNULL](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]}) || [LEN]([TRIM](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]})) == 0 || [ISNULL](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lat]}) || [ISNULL](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lng]}) || [ISNULL](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]}) || [LEN]([TRIM](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]})) == 0 || [ISNULL](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]}) || [LEN]([TRIM](#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]})) == 0</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">ISNULL(geolocation_zip_code_prefix) || LEN(TRIM(geolocation_zip_code_prefix)) == 0 || ISNULL(geolocation_lat) || ISNULL(geolocation_lng) || ISNULL(geolocation_city) || LEN(TRIM(geolocation_city)) == 0 || ISNULL(geolocation_state) || LEN(TRIM(geolocation_state)) == 0</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">0</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[valid_output]"
+                  description="Default Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  name="valid_output"
+                  synchronousInputId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input]">
+                  <properties>
+                    <property
+                      dataType="System.Boolean"
+                      name="IsDefaultOut">true</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[Conditional Split Error Output]"
+                  description="Error Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Conditional Split Error Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records"
+              componentClassID="Microsoft.DataConvert"
+              contactInfo="Data Conversion;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Data Conversion"
+              name="dat_convert_geolocation_records"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input]"
+                  name="Data Conversion Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input].Columns[geolocation_zip_code_prefix]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_zip_code_prefix"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input].Columns[geolocation_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_city"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input].Columns[geolocation_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_state"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output]"
+                  exclusionGroup="1"
+                  name="Data Conversion Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_converted]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="5"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_converted]"
+                      name="geolocation_zip_code_prefix_converted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_city_converted]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_city_converted]"
+                      name="geolocation_city_converted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_state_converted]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_state_converted]"
+                      name="geolocation_state_converted"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Specifies the input column used as the source of data for the conversion."
+                          name="SourceInputColumnLineageID">#{Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]}</property>
+                        <property
+                          dataType="System.Boolean"
+                          description="Indicates whether the column uses the faster, locale-neutral parsing routines."
+                          name="FastParse">false</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Data Conversion Error Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="derive_geolocation_error_metadata"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="24"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]"
+                      name="error_package_name"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"02_silver_transform.dtsx"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"02_silver_transform.dtsx"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="18"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]"
+                      name="error_source_table"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"bronze.geolocation"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"bronze.geolocation"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="27"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]"
+                      name="error_column_name"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"geolocation_zip_code_prefix"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"geolocation_zip_code_prefix"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="57"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      name="error_description"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">"Geolocation record contains NULL or blank required fields"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">"Geolocation record contains NULL or blank required fields"</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_error_geolocation"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[etl].[error_rows]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].Columns[error_description]"
+                      cachedDataType="wstr"
+                      cachedLength="57"
+                      cachedName="error_description"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_description]"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_description]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].Columns[error_package_name]"
+                      cachedDataType="wstr"
+                      cachedLength="24"
+                      cachedName="error_package_name"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[package_name]"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_package_name]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].Columns[error_source_table]"
+                      cachedDataType="wstr"
+                      cachedLength="18"
+                      cachedName="error_source_table"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[source_table]"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_source_table]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].Columns[error_column_name]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="error_column_name"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_column]"
+                      lineageId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output].Columns[error_column_name]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_zip_code_prefix]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_zip_code_prefix"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[source_record_key]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_id]"
+                      dataType="i8"
+                      name="error_id" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[package_name]"
+                      dataType="wstr"
+                      length="255"
+                      name="package_name" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[source_table]"
+                      dataType="wstr"
+                      length="255"
+                      name="source_table" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[source_record_key]"
+                      dataType="wstr"
+                      length="255"
+                      name="source_record_key" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_column]"
+                      dataType="wstr"
+                      length="255"
+                      name="error_column" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_description]"
+                      dataType="wstr"
+                      length="255"
+                      name="error_description" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[rejected_record]"
+                      dataType="nText"
+                      name="rejected_record" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_batch_id]"
+                      dataType="wstr"
+                      length="255"
+                      name="dwh_batch_id" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[error_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="error_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_silver_geolocation"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[geolocation]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_lat]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lat"
+                      cachedPrecision="12"
+                      cachedScale="8"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lat]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_lng]"
+                      cachedDataType="numeric"
+                      cachedName="geolocation_lng"
+                      cachedPrecision="12"
+                      cachedScale="8"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lng]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_city_converted]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_city_converted"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_city_converted]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_state_converted]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="geolocation_state_converted"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_state_converted]" />
+                    <inputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].Columns[geolocation_zip_code_prefix_converted]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="5"
+                      cachedName="geolocation_zip_code_prefix_converted"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      lineageId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output].Columns[geolocation_zip_code_prefix_converted]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_zip_code_prefix]"
+                      codePage="1252"
+                      dataType="str"
+                      length="5"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lat]"
+                      dataType="numeric"
+                      name="geolocation_lat"
+                      precision="10"
+                      scale="8" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_lng]"
+                      dataType="numeric"
+                      name="geolocation_lng"
+                      precision="11"
+                      scale="8" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[geolocation_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_state" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="ole_src_clean_geolocation"
+              usesDispositions="true"
+              validateExternalMetadata="False"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[vw_geolocation_prepared]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">0</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_zip_code_prefix]"
+                      name="geolocation_zip_code_prefix"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lat]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_lat]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lat]"
+                      name="geolocation_lat"
+                      precision="12"
+                      scale="8"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lng]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_lng]"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_lng]"
+                      name="geolocation_lng"
+                      precision="12"
+                      scale="8"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_city]"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_city]"
+                      name="geolocation_city"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_state]"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[geolocation_state]"
+                      name="geolocation_state"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      length="27"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_lat]"
+                      dataType="numeric"
+                      name="geolocation_lat"
+                      precision="12"
+                      scale="8" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_lng]"
+                      dataType="numeric"
+                      name="geolocation_lng"
+                      precision="12"
+                      scale="8" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_city" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[geolocation_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="geolocation_state" />
+                    <externalMetadataColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_zip_code_prefix]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_zip_code_prefix]"
+                      name="geolocation_zip_code_prefix" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_lat]"
+                      dataType="numeric"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_lat]"
+                      name="geolocation_lat"
+                      precision="12"
+                      scale="8" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_lng]"
+                      dataType="numeric"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_lng]"
+                      name="geolocation_lng"
+                      precision="12"
+                      scale="8" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_city]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_city]"
+                      name="geolocation_city" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_state]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[geolocation_state]"
+                      name="geolocation_state" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\42_load_silver_geolocation.Paths[Data Conversion Output]"
+              endId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Inputs[Conditional Split Input]"
+              name="Data Conversion Output"
+              startId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Outputs[Data Conversion Output]" />
+            <path
+              refId="Package\42_load_silver_geolocation.Paths[Derived Column Output]"
+              endId="Package\42_load_silver_geolocation\ole_dest_error_geolocation.Inputs[OLE DB Destination Input]"
+              name="Derived Column Output"
+              startId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\42_load_silver_geolocation.Paths[invalid_output]"
+              endId="Package\42_load_silver_geolocation\derive_geolocation_error_metadata.Inputs[Derived Column Input]"
+              name="invalid_output"
+              startId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[invalid_output]" />
+            <path
+              refId="Package\42_load_silver_geolocation.Paths[OLE DB Source Output]"
+              endId="Package\42_load_silver_geolocation\dat_convert_geolocation_records.Inputs[Data Conversion Input]"
+              name="OLE DB Source Output"
+              startId="Package\42_load_silver_geolocation\ole_src_clean_geolocation.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\42_load_silver_geolocation.Paths[valid_output]"
+              endId="Package\42_load_silver_geolocation\ole_dest_silver_geolocation.Inputs[OLE DB Destination Input]"
+              name="valid_output"
+              startId="Package\42_load_silver_geolocation\conditional_split_geolocation records.Outputs[valid_output]" />
+          </paths>
+        </pipeline>
       </DTS:ObjectData>
     </DTS:Executable>
   </DTS:Executables>
@@ -10095,6 +11116,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 13"
       DTS:To="Package\40_load_silver_products" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 14]"
+      DTS:CreationName=""
+      DTS:DTSID="{B2F9D8CC-EF9F-49DE-B393-6268AEC30FAA}"
+      DTS:From="Package\40_load_silver_products"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 14"
+      DTS:To="Package\41_create_clean_geolocation_view" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 15]"
+      DTS:CreationName=""
+      DTS:DTSID="{B2E43C9D-B992-4213-8A39-DAAE81620F47}"
+      DTS:From="Package\41_create_clean_geolocation_view"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 15"
+      DTS:To="Package\42_load_silver_geolocation" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
       DTS:CreationName=""
@@ -10171,7 +11208,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="64" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="216,58.4"
           Id="Package\26_prepare_silver_tables"
@@ -10232,10 +11269,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           Size="223.2,60.8"
           Id="Package\40_load_silver_products"
           TopLeft="684.999962573252,388.266663966709" />
-        <NodeLayout
-          Size="150.4,41.6"
-          Id="Package\Data Flow Task"
-          TopLeft="5.5,5.5" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
           TopLeft="277.527774416049,93.9444439914381">
@@ -10580,6 +11613,70 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
+        <NodeLayout
+          Size="204.8,41.6"
+          Id="Package\42_load_silver_geolocation"
+          TopLeft="51.6666638437246,510.466663116945" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 14]"
+          TopLeft="908.199962573252,415.783331739274">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="76.5667225791325,0"
+              Start="0,0"
+              End="69.0667225791325,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="69.0667225791325,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 15]"
+          TopLeft="1105.16668515238,442.099999511838">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-951.10002130866,68.366663605107"
+              Start="0,0"
+              End="-951.10002130866,60.866663605107">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.1833318025535" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,30.1833318025535"
+                    Point2="0,34.1833318025535"
+                    Point3="-4,34.1833318025535" />
+                  <mssgle:LineSegment
+                    End="-947.10002130866,34.1833318025535" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-947.10002130866,34.1833318025535"
+                    Point2="-951.10002130866,34.1833318025535"
+                    Point3="-951.10002130866,38.1833318025535" />
+                  <mssgle:LineSegment
+                    End="-951.10002130866,60.866663605107" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="240.8,58.4"
+          Id="Package\41_create_clean_geolocation_view"
+          TopLeft="984.766685152384,383.699999511838" />
       </GraphLayout>
     </LayoutInfo>
   </Package>
@@ -12279,6 +13376,215 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
     design-time-name="Package\40_load_silver_products\ole_dest_silver_products">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\42_load_silver_geolocation">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="201.6,41.6"
+          Id="Package\42_load_silver_geolocation\ole_src_clean_geolocation"
+          TopLeft="285.666662409902,44.9999993294478" />
+        <NodeLayout
+          Size="232,41.6"
+          Id="Package\42_load_silver_geolocation\dat_convert_geolocation_records"
+          TopLeft="273.999995917082,120.666664868593" />
+        <EdgeLayout
+          Id="Package\42_load_silver_geolocation.Paths[OLE DB Source Output]"
+          TopLeft="388.233329163492,86.5999993294478">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,34.0666655391455"
+              Start="0,0"
+              End="0,26.5666655391455">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,26.5666655391455" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="248.8,41.6"
+          Id="Package\42_load_silver_geolocation\conditional_split_geolocation records"
+          TopLeft="263.999996066094,213.333330154419" />
+        <EdgeLayout
+          Id="Package\42_load_silver_geolocation.Paths[Data Conversion Output]"
+          TopLeft="389.199995991588,162.266664868593">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,51.0666652858257"
+              Start="0,0"
+              End="0,43.5666652858257">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,43.5666652858257" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="242.4,41.6"
+          Id="Package\42_load_silver_geolocation\derive_geolocation_error_metadata"
+          TopLeft="439.333326786757,317.333328604698" />
+        <EdgeLayout
+          Id="Package\42_load_silver_geolocation.Paths[invalid_output]"
+          TopLeft="428.533329399427,254.933330154419">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="131.99999738733,62.3999984502793"
+              Start="0,0"
+              End="131.99999738733,54.8999984502793">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,21.1992326010074" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,21.1992326010074"
+                    Point2="0,25.1992326010074"
+                    Point3="4,25.1992326010074" />
+                  <mssgle:LineSegment
+                    End="127.99999738733,25.1992326010074" />
+                  <mssgle:CubicBezierSegment
+                    Point1="127.99999738733,25.1992326010074"
+                    Point2="131.99999738733,25.1992326010074"
+                    Point3="131.99999738733,29.1992326010074" />
+                  <mssgle:LineSegment
+                    End="131.99999738733,54.8999984502793" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="34.080018224915,30.1992326010074,63.8399609375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="242.4,41.6"
+          Id="Package\42_load_silver_geolocation\ole_dest_error_geolocation"
+          TopLeft="438.666660130024,395.333327442408" />
+        <EdgeLayout
+          Id="Package\42_load_silver_geolocation.Paths[Derived Column Output]"
+          TopLeft="560.199993458391,358.933328604698">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,36.3999988377095"
+              Start="0,0"
+              End="0,28.8999988377095">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,28.8999988377095" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="207.2,41.6"
+          Id="Package\42_load_silver_geolocation\ole_dest_silver_geolocation"
+          TopLeft="162.666664242744,319.999995231629" />
+        <EdgeLayout
+          Id="Package\42_load_silver_geolocation.Paths[valid_output]"
+          TopLeft="348.26666273276,254.933330154419">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-81.9999984900157,65.0666650772096"
+              Start="0,0"
+              End="-81.9999984900157,57.5666650772096">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,22.2761228937996" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,22.2761228937996"
+                    Point2="0,26.2761228937996"
+                    Point3="-4,26.2761228937996" />
+                  <mssgle:LineSegment
+                    End="-77.9999984900157,26.2761228937996" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-77.9999984900157,26.2761228937996"
+                    Point2="-81.9999984900157,26.2761228937996"
+                    Point3="-81.9999984900157,30.2761228937996" />
+                  <mssgle:LineSegment
+                    End="-81.9999984900157,57.5666650772096" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-69.2803898700079,31.2761228937996,56.56078125,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\42_load_silver_geolocation\ole_src_clean_geolocation">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">View</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\42_load_silver_geolocation\ole_dest_error_geolocation">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\42_load_silver_geolocation\ole_dest_silver_geolocation">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
