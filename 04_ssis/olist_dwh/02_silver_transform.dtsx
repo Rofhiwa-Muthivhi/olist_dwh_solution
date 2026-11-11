@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="168"
-  DTS:VersionGUID="{2A91FA8B-868F-4EDC-AF67-4F0296E75AC4}">
+  DTS:VersionBuild="175"
+  DTS:VersionGUID="{1F050ACB-EDCE-411D-A203-0302425FA27C}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -11066,6 +11066,731 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
         </pipeline>
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\43_create_clean_category_translation_view"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{6752DC9C-9BEA-4F99-BBE8-C7D439D2DE31}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="43_create_clean_category_translation_view"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="-- i am creating the category translation preparation view&#xA;CREATE OR ALTER VIEW silver.vw_product_category_name_translation_prepared&#xA;AS&#xA;&#xA;WITH original_translations AS&#xA;(&#xA;    SELECT&#xA;        LTRIM(RTRIM(column1)) AS product_category_name,&#xA;        LTRIM(RTRIM(column2)) AS product_category_name_english,&#xA;        MAX(TRY_CONVERT(DATETIME2(7), dwh_load_ts)) AS dwh_load_ts&#xA;    FROM olist_stg.bronze.product_category_name_translation&#xA;    WHERE NULLIF(LTRIM(RTRIM(column1)), '') IS NOT NULL&#xA;      AND NULLIF(LTRIM(RTRIM(column2)), '') IS NOT NULL&#xA;    GROUP BY&#xA;        LTRIM(RTRIM(column1)),&#xA;        LTRIM(RTRIM(column2))&#xA;),&#xA;&#xA;missing_translations AS&#xA;(&#xA;    SELECT&#xA;        CAST('pc_gamer' AS NVARCHAR(255)) AS product_category_name,&#xA;        CAST('PC Gamer' AS NVARCHAR(255)) AS product_category_name_english,&#xA;        CAST(SYSDATETIME() AS DATETIME2(7)) AS dwh_load_ts&#xA;&#xA;    UNION ALL&#xA;&#xA;    SELECT&#xA;        CAST('portateis_cozinha_e_preparadores_de_alimentos' AS NVARCHAR(255)),&#xA;        CAST('Kitchen and Food Preparation Appliances' AS NVARCHAR(255)),&#xA;        CAST(SYSDATETIME() AS DATETIME2(7))&#xA;)&#xA;&#xA;SELECT&#xA;    product_category_name,&#xA;    product_category_name_english,&#xA;    dwh_load_ts&#xA;FROM original_translations&#xA;&#xA;UNION ALL&#xA;&#xA;SELECT&#xA;    missing.product_category_name,&#xA;    missing.product_category_name_english,&#xA;    missing.dwh_load_ts&#xA;FROM missing_translations AS missing&#xA;WHERE NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM original_translations AS original&#xA;    WHERE original.product_category_name = missing.product_category_name&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\44_load_silver_category_translation"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{869B9F3D-1F40-42E6-9BD5-10824FF4E741}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="44_load_silver_category_translation"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\44_load_silver_category_translation\conditional_split_category_translation"
+              componentClassID="Microsoft.ConditionalSplit"
+              contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
+              name="conditional_split_category_translation"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+                  description="Input to the Conditional Split Transformation"
+                  name="Conditional Split Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name_english]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name_english"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[invalid_output]"
+                  description="Output 1 of the Conditional Split Transformation"
+                  errorOrTruncationOperation="Computation"
+                  errorRowDisposition="FailComponent"
+                  exclusionGroup="1"
+                  name="invalid_output"
+                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+                  truncationRowDisposition="FailComponent">
+                  <properties>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
+                      name="Expression">[ISNULL](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) || [TRIM](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) == "" || [ISNULL](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) || [TRIM](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) == ""</property>
+                    <property
+                      containsID="true"
+                      dataType="System.String"
+                      description="Specifies the friendly version of the expression. This expression version uses column names."
+                      expressionType="Notify"
+                      name="FriendlyExpression">ISNULL(product_category_name) || TRIM(product_category_name) == "" || ISNULL(product_category_name_english) || TRIM(product_category_name_english) == ""</property>
+                    <property
+                      dataType="System.Int32"
+                      description="Specifies the position of the condition in the list of conditions that the transformation evaluates. The evaluation order is from the lowest to the highest value."
+                      name="EvaluationOrder">0</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[valid_output]"
+                  description="Default Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  name="valid_output"
+                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
+                  <properties>
+                    <property
+                      dataType="System.Boolean"
+                      name="IsDefaultOut">true</property>
+                  </properties>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output]"
+                  description="Error Output of the Conditional Split Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Conditional Split Error Output"
+                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="derive_category_translation_error_metadata"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
+                      name="package_name"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,255)"02_silver_transform.dtsx"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,255)"02_silver_transform.dtsx"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
+                      name="source_table"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,255)"bronze.product_category_name_translation"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,255)"bronze.product_category_name_translation"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
+                      name="error_column"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,255)"product_category_name"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,255)"product_category_name"</property>
+                      </properties>
+                    </outputColumn>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      length="500"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      name="error_description"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_WSTR,500)"Category translation contains NULL or blank required fields"</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_WSTR,500)"Category translation contains NULL or blank required fields"</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_error_category_translation"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[vw_product_category_name_translation_prepared]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name_english"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name_english" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="ole_dest_silver_category_translation"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[product_category_name_translation]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="product_category_name_english"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                    <inputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      cachedDataType="wstr"
+                      cachedLength="27"
+                      cachedName="dwh_load_ts"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name_english" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="ole_src_clean_category_translation"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[vw_product_category_name_translation_prepared]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">0</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
+                      name="product_category_name"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
+                      name="product_category_name_english"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      length="27"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
+                      dataType="wstr"
+                      length="255"
+                      name="product_category_name_english" />
+                    <externalMetadataColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      name="dwh_load_ts" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
+                      name="product_category_name" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
+                      name="product_category_name_english" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      dataType="wstr"
+                      length="27"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      name="dwh_load_ts" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\44_load_silver_category_translation.Paths[Derived Column Output]"
+              endId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
+              name="Derived Column Output"
+              startId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\44_load_silver_category_translation.Paths[invalid_output]"
+              endId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
+              name="invalid_output"
+              startId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[invalid_output]" />
+            <path
+              refId="Package\44_load_silver_category_translation.Paths[OLE DB Source Output]"
+              endId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+              name="OLE DB Source Output"
+              startId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\44_load_silver_category_translation.Paths[valid_output]"
+              endId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
+              name="valid_output"
+              startId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[valid_output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -11132,6 +11857,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 15"
       DTS:To="Package\42_load_silver_geolocation" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 16]"
+      DTS:CreationName=""
+      DTS:DTSID="{936234C1-A719-47E3-B0FD-F5C5CE2921C6}"
+      DTS:From="Package\42_load_silver_geolocation"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 16"
+      DTS:To="Package\43_create_clean_category_translation_view" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 17]"
+      DTS:CreationName=""
+      DTS:DTSID="{8226E2F7-5F2D-4E1D-93CC-AB703FBA8BC8}"
+      DTS:From="Package\43_create_clean_category_translation_view"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 17"
+      DTS:To="Package\44_load_silver_category_translation" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
       DTS:CreationName=""
@@ -11614,7 +12355,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="204.8,41.6"
+          Size="204.8,64.8"
           Id="Package\42_load_silver_geolocation"
           TopLeft="51.6666638437246,510.466663116945" />
         <EdgeLayout
@@ -11677,6 +12418,58 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           Size="240.8,58.4"
           Id="Package\41_create_clean_geolocation_view"
           TopLeft="984.766685152384,383.699999511838" />
+        <NodeLayout
+          Size="281.6,64"
+          Id="Package\43_create_clean_category_translation_view"
+          TopLeft="354.166647315854,510.466663116945" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 16]"
+          TopLeft="256.466663843725,542.666663116945">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="97.6999834721295,0"
+              Start="0,0"
+              End="90.1999834721295,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="90.1999834721295,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="244.8,64"
+          Id="Package\44_load_silver_category_translation"
+          TopLeft="775.833290943671,515.666663080785" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 17]"
+          TopLeft="635.766647315854,545.066663098865">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="140.066643627816,0"
+              Start="0,0"
+              End="132.566643627816,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="132.566643627816,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </Package>
@@ -13593,6 +14386,189 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
         <Name>TableInfoObjectType</Name>
         <Value
           type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\44_load_silver_category_translation">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="260.8,66.4"
+          Id="Package\44_load_silver_category_translation\ole_src_clean_category_translation"
+          TopLeft="301.571424077664,77.7142845562527" />
+        <NodeLayout
+          Size="260,59.2"
+          Id="Package\44_load_silver_category_translation\conditional_split_category_translation"
+          TopLeft="303.428566907133,191.71428285752" />
+        <NodeLayout
+          Size="283.2,72"
+          Id="Package\44_load_silver_category_translation\derive_category_translation_error_metadata"
+          TopLeft="532.714277776224,311.142852506467" />
+        <NodeLayout
+          Size="247.2,67.2"
+          Id="Package\44_load_silver_category_translation\ole_dest_silver_category_translation"
+          TopLeft="122.142855322787,318.99999524653" />
+        <NodeLayout
+          Size="244.8,76"
+          Id="Package\44_load_silver_category_translation\ole_dest_error_category_translation"
+          TopLeft="552.428563196745,427.999993622303" />
+        <EdgeLayout
+          Id="Package\44_load_silver_category_translation.Paths[OLE DB Source Output]"
+          TopLeft="432.699995492399,144.114284556253">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47.5999983012676"
+              Start="0,0"
+              End="0,40.0999983012676">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,40.0999983012676" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\44_load_silver_category_translation.Paths[valid_output]"
+          TopLeft="433.428566907133,250.91428285752">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-187.685711584347,68.0857123890094"
+              Start="0,0"
+              End="-187.685711584347,60.5857123890094">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,30.0428561945047" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,30.0428561945047"
+                    Point2="0,34.0428561945047"
+                    Point3="-4,34.0428561945047" />
+                  <mssgle:LineSegment
+                    End="-183.685711584347,34.0428561945047" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-183.685711584347,34.0428561945047"
+                    Point2="-187.685711584347,34.0428561945047"
+                    Point3="-187.685711584347,38.0428561945047" />
+                  <mssgle:LineSegment
+                    End="-187.685711584347,60.5857123890094" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-122.123246417173,39.0428561945047,56.56078125,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\44_load_silver_category_translation.Paths[invalid_output]"
+          TopLeft="475.428566907133,250.91428285752">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="198.885710869091,60.2285696489472"
+              Start="0,0"
+              End="198.885710869091,52.7285696489472">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,20.31245013352" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,20.31245013352"
+                    Point2="0,24.31245013352"
+                    Point3="4,24.31245013352" />
+                  <mssgle:LineSegment
+                    End="194.885710869091,24.31245013352" />
+                  <mssgle:CubicBezierSegment
+                    Point1="194.885710869091,24.31245013352"
+                    Point2="198.885710869091,24.31245013352"
+                    Point3="198.885710869091,28.31245013352" />
+                  <mssgle:LineSegment
+                    End="198.885710869091,52.7285696489472" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="67.5228749657955,29.31245013352,63.8399609375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\44_load_silver_category_translation.Paths[Derived Column Output]"
+          TopLeft="674.571420486484,383.142852506467">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,44.8571411158358"
+              Start="0,0"
+              End="0,37.3571411158358">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,37.3571411158358" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\44_load_silver_category_translation\ole_src_clean_category_translation">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">View</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\44_load_silver_category_translation\ole_dest_silver_category_translation">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\44_load_silver_category_translation\ole_dest_error_category_translation">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">View</Value>
       </Property>
     </Properties>
   </PipelineComponentMetadata>
