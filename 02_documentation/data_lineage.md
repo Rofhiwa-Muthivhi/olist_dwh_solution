@@ -90,3 +90,14 @@ The validation focuses on three main areas:
 
 These checks help me confirm that the data has reached the correct destination, that the expected number of records has been loaded and that the ingestion process can be traced through its metadata and ETL logs.
 
+
+## Silver Data Lineage
+
+### 1. Purpose
+
+I created the Silver layer to clean, standardise and transform the raw data ingested into the Bronze layer.
+
+The transformations are implemented using SQL preparation views and SQL Server Integration Services (SSIS). The cleaned records are loaded into the olist_dwh database under the silver schema.
+
+Each dataset is transformed according to its specific data quality requirements before being made available for downstream Gold layer processing.
+
