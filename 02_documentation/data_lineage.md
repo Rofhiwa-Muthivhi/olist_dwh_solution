@@ -245,3 +245,22 @@ The following transformations were implemented:
 Converted review and order identifiers to the required string data type.
 
 A Conditional Split was used to identify records with missing identifiers or invalid review scores outside the range of 1 to 5.
+
+#### 4.7 Products
+The products dataset contained misspelt column names and missing product category information.
+
+The following transformations were implemented:
+
+- Renamed product_name_lenght to product_name_length.
+
+- Renamed product_description_lenght to product_description_length.
+
+- Converted relevant numeric columns into their appropriate integer and decimal data types using TRY_CONVERT.
+
+- Joined the product category translation dataset to retrieve English category descriptions.
+
+- Used COALESCE and NULLIF to assign Unknown when the English category translation was missing or blank.
+
+- Converted the product identifier to the required string data type.
+
+A Conditional Split was used to identify records with missing or blank product identifiers.
