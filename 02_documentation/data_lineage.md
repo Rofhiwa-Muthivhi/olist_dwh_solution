@@ -207,3 +207,20 @@ The following transformations were implemented:
 - Converted order identifiers to the required string data type.
 
 A Conditional Split was used to identify records with missing identifiers or monetary values.
+
+#### 4.5 Order_Payments
+The payment dataset required data type standardisation and payment method cleaning.
+
+The following transformations were implemented:
+
+- Converted payment_sequential to an integer.
+
+- Converted payment_installments to an integer.
+
+- Converted payment_value to DECIMAL(10,2).
+
+- Standardised payment types by replacing not_defined with Unknown.
+
+Converted the order identifier to the required string data type.
+
+A Conditional Split was used to identify records with missing or invalid required fields.
