@@ -156,3 +156,20 @@ The following transformations were implemented:
 - Converted customer identifiers to the required string data type using Data Conversion.
 
 A Conditional Split was implemented to identify records with missing or blank customer identifiers.
+
+#### 4.2 Sellers
+The seller dataset followed the same standardisation requirements as the customer dataset.
+
+The following transformations were implemented:
+
+- Applied LTRIM and RTRIM to remove leading and trailing whitespace.
+
+- Converted city names to proper case using an SSIS Script Component.
+
+- Converted state abbreviations to uppercase using a Derived Column transformation.
+
+- Padded ZIP code prefixes to five characters using SQL.
+
+- Converted the seller identifier to the required string data type.
+
+A Conditional Split was used to identify records with missing or blank seller identifiers.
