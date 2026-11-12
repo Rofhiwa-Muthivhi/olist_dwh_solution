@@ -264,3 +264,22 @@ The following transformations were implemented:
 - Converted the product identifier to the required string data type.
 
 A Conditional Split was used to identify records with missing or blank product identifiers.
+
+#### 4.8 Geolocation
+The following transformations were implemented:
+
+- Grouped records by geolocation_zip_code_prefix.
+
+- Calculated the average latitude and longitude for each ZIP prefix.
+
+- Identified the most frequently occurring city for each ZIP prefix.
+
+- Identified the most frequently occurring state for each ZIP prefix.
+
+- Applied alphabetical ordering to resolve ties when selecting the most frequent city or state.
+
+- Converted ZIP code prefixes to five-character values.
+
+- Preserved the load timestamp in the Silver output.
+
+A Conditional Split was used to identify records with missing ZIP prefixes, coordinates, cities or states.
