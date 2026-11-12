@@ -283,3 +283,20 @@ The following transformations were implemented:
 - Preserved the load timestamp in the Silver output.
 
 A Conditional Split was used to identify records with missing ZIP prefixes, coordinates, cities or states.
+
+#### 4.9 Product Category Name Translation
+The following transformations were implemented:
+
+- Applied LTRIM and RTRIM to standardise Portuguese and English category names.
+
+- Added the missing pc_gamer translation as PC Gamer.
+
+- Added the missing portateis_cozinha_e_preparadores_de_alimentos translation as Kitchen and Food Preparation Appliances.
+
+- Used NOT EXISTS to prevent the additional mappings from being inserted when they already existed in the original translations.
+
+- Used GROUP BY to prevent identical category mappings from appearing more than once.
+
+- Preserved the original load timestamp and generated timestamps for the two additional mappings.
+
+A Conditional Split was used to identify records with NULL or blank Portuguese category names or English translations.
