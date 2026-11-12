@@ -224,3 +224,24 @@ The following transformations were implemented:
 Converted the order identifier to the required string data type.
 
 A Conditional Split was used to identify records with missing or invalid required fields.
+
+#### 4.6 Order_Reviews
+The source dataset contained duplicate review_id values, which required deduplication before loading.
+
+The following transformations were implemented:
+
+- Used ROW_NUMBER() partitioned by review_id to identify duplicate records.
+
+- Retained the latest record using review_answer_timestamp in descending order.
+
+- Used order_id in ascending order as a deterministic tie-breaker when timestamps were equal.
+
+- Converted review_score to TINYINT.
+
+- Converted the review timestamp columns to DATETIME2.
+
+- Retained review comments as NVARCHAR(MAX) to preserve the original text.
+
+Converted review and order identifiers to the required string data type.
+
+A Conditional Split was used to identify records with missing identifiers or invalid review scores outside the range of 1 to 5.
