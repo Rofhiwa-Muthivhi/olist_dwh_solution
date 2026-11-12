@@ -173,3 +173,22 @@ The following transformations were implemented:
 - Converted the seller identifier to the required string data type.
 
 A Conditional Split was used to identify records with missing or blank seller identifiers.
+
+#### 4.3 Orders
+The orders dataset required timestamp standardisation and order status classification.
+
+The following transformations were implemented:
+
+- Converted all five order timestamp columns to DATETIME2.
+
+- Trimmed and standardised order_status to lowercase in the preparation view.
+
+- Converted order_status to uppercase in SSIS.
+
+- Created an is_delivered flag to identify delivered orders.
+
+- Converted the order identifier to the required string data type.
+
+A Conditional Split was used to identify records with missing or blank order identifiers.
+
+NULL delivery timestamps were retained for orders that had not been delivered.
