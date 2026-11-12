@@ -101,3 +101,40 @@ The transformations are implemented using SQL preparation views and SQL Server I
 
 Each dataset is transformed according to its specific data quality requirements before being made available for downstream Gold layer processing.
 
+
+### 2. Source-to-Silver Mapping
+
+| Source file                                           | Destination table                                   |
+| ------------------------------------------------------| ----------------------------------------------------|
+|  olist_stg.bronze.customers                           |  olist_dwh.silver.customers                         |
+|  olist_stg.bronze.sellers                             |  olist_dwh.silver.sellers                           |
+|  olist_stg.bronze.orders                              |  olist_dwh.silver.orders                            |
+|  olist_stg.bronze.order_items                         |  olist_dwh.silver.order_items                       |
+|  olist_stg.bronze.order_payments                      |  olist_dwh.silver.order_payments                    |
+|  olist_stg.bronze.order_reviews                       |  olist_dwh.silver.order_reviews                     |
+|  olist_stg.bronze.products                            |  olist_dwh.silver.products                          |
+|  olist_stg.bronze.geolocation                         |  olist_dwh.silver.geolocation                       |
+|  product_stg.bronze.product_category_name_translation |  olist_dwh.silver.product_category_name_translation |
+
+
+### 3. Data Flow
+
+The Silver transformations are managed through the 02_silver_transform.dtsx SSIS package.
+
+I used SQL preparation views to perform the initial data transformations before passing the prepared records into SSIS Data Flow Tasks.
+
+The general processing approach is:
+
+- Execute SQL Task creates or updates the preparation view.
+
+- OLE DB Source retrieves the prepared records.
+
+- SSIS transformations perform the required conversions and data quality checks.
+
+- Conditional Split separates valid and invalid records where required.
+
+- Valid records are loaded into the corresponding Silver table.
+
+- Invalid records are redirected to etl.error_rows.
+
+Each dataset has its own Execute SQL Task and Data Flow Task, making the transformations easier to manage and troubleshoot.
