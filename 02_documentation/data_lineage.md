@@ -192,3 +192,18 @@ The following transformations were implemented:
 A Conditional Split was used to identify records with missing or blank order identifiers.
 
 NULL delivery timestamps were retained for orders that had not been delivered.
+
+#### 4.4 Order_Items
+The order items dataset required monetary data type standardisation and a calculated item value.
+
+The following transformations were implemented:
+
+- Converted price to DECIMAL(10,2).
+
+- Converted freight_value to DECIMAL(10,2).
+
+- Created total_item_value using a Derived Column transformation by adding the converted price and freight value.
+
+- Converted order identifiers to the required string data type.
+
+A Conditional Split was used to identify records with missing identifiers or monetary values.
