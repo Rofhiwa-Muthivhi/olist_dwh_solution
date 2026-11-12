@@ -138,3 +138,21 @@ The general processing approach is:
 - Invalid records are redirected to etl.error_rows.
 
 Each dataset has its own Execute SQL Task and Data Flow Task, making the transformations easier to manage and troubleshoot.
+
+
+### 4. Dataset Transformations
+
+#### 4.1 Customers
+The following transformations were implemented:
+
+- Applied LTRIM and RTRIM to remove leading and trailing whitespace.
+
+- Converted city names to proper case using an SSIS Script Component.
+
+- Converted state abbreviations to uppercase using a Derived Column transformation.
+
+- Padded ZIP code prefixes to five characters using SQL.
+
+- Converted customer identifiers to the required string data type using Data Conversion.
+
+A Conditional Split was implemented to identify records with missing or blank customer identifiers.
