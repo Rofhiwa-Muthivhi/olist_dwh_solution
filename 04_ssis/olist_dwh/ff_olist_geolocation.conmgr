@@ -21,7 +21,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="geolocation_zip_code_prefix"
-          DTS:DTSID="{BBC2F431-4075-402F-9CE0-AE3BA3F85E53}"
+          DTS:DTSID="{87B7C3A5-973E-4055-AE2E-CAEF4C9A0DC9}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +30,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="geolocation_lat"
-          DTS:DTSID="{08F55CA6-470A-4F4C-A448-24F31EE391F7}"
+          DTS:DTSID="{7333EB17-1B22-47A4-B37C-FA6685B145FB}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -39,7 +39,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="geolocation_lng"
-          DTS:DTSID="{8E566464-59D7-426F-8740-36BD1748CCED}"
+          DTS:DTSID="{CEA90E59-06DC-45E5-840C-C6F24DFC5D5F}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -48,7 +48,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="geolocation_city"
-          DTS:DTSID="{D3C859AD-51AE-4053-BB28-B8C16C40B635}"
+          DTS:DTSID="{E93A225C-B57C-40DE-B6EC-8CB8B76C5812}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -57,7 +57,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="geolocation_state"
-          DTS:DTSID="{28758328-21EA-4856-BE15-8FF5B8D6A790}"
+          DTS:DTSID="{C336A0C0-8E15-4C4C-A322-F2D23078E578}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>

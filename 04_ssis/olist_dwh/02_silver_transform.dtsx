@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="182"
-  DTS:VersionGUID="{1F8728C3-A7F0-45DE-AF17-A56DDA1FB98A}">
+  DTS:VersionBuild="195"
+  DTS:VersionGUID="{F6572C2E-6B7F-4DB9-8E28-FDAE771BF5B0}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -11085,13 +11085,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\43_create_clean_category_translation_view"
+      DTS:refId="Package\43_create_clean_product_category_name_translation_view"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{6752DC9C-9BEA-4F99-BBE8-C7D439D2DE31}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
       DTS:LocaleID="-1"
-      DTS:ObjectName="43_create_clean_category_translation_view"
+      DTS:ObjectName="43_create_clean_product_category_name_translation_view"
       DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
       DTS:ThreadHint="0">
       <DTS:Variables />
@@ -11102,13 +11102,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\44_load_silver_category_translation"
+      DTS:refId="Package\44_load_silver_product_category_name_translation"
       DTS:CreationName="Microsoft.Pipeline"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{869B9F3D-1F40-42E6-9BD5-10824FF4E741}"
       DTS:ExecutableType="Microsoft.Pipeline"
       DTS:LocaleID="-1"
-      DTS:ObjectName="44_load_silver_category_translation"
+      DTS:ObjectName="44_load_silver_product_category_name_translation"
       DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
       <DTS:Variables />
       <DTS:ObjectData>
@@ -11116,7 +11116,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           version="1">
           <components>
             <component
-              refId="Package\44_load_silver_category_translation\conditional_split_category_translation"
+              refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation"
               componentClassID="Microsoft.ConditionalSplit"
               contactInfo="Conditional Split;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
               description="Routes data rows to different outputs depending on the content of the data. Use conditions (SSIS expressions) to specify which rows are routed. For example, separate records that need to be cleaned from those that are ready to be loaded or route only a subset of records."
@@ -11124,42 +11124,42 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               usesDispositions="true">
               <inputs>
                 <input
-                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+                  refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
                   description="Input to the Conditional Split Transformation"
                   name="Conditional Split Input">
                   <inputColumns>
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input].Columns[product_category_name_english]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name_english"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
                   </inputColumns>
                   <externalMetadataColumns />
                 </input>
               </inputs>
               <outputs>
                 <output
-                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[invalid_output]"
+                  refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[invalid_output]"
                   description="Output 1 of the Conditional Split Transformation"
                   errorOrTruncationOperation="Computation"
                   errorRowDisposition="FailComponent"
                   exclusionGroup="1"
                   name="invalid_output"
-                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
                   truncationRowDisposition="FailComponent">
                   <properties>
                     <property
                       containsID="true"
                       dataType="System.String"
                       description="Specifies the expression. This expression version uses lineage identifiers instead of column names."
-                      name="Expression">[ISNULL](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) || [TRIM](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) == "" || [ISNULL](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) || [TRIM](#{Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) == ""</property>
+                      name="Expression">[ISNULL](#{Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) || [TRIM](#{Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]}) == "" || [ISNULL](#{Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) || [TRIM](#{Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]}) == ""</property>
                     <property
                       containsID="true"
                       dataType="System.String"
@@ -11174,11 +11174,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                   <externalMetadataColumns />
                 </output>
                 <output
-                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[valid_output]"
+                  refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[valid_output]"
                   description="Default Output of the Conditional Split Transformation"
                   exclusionGroup="1"
                   name="valid_output"
-                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
                   <properties>
                     <property
                       dataType="System.Boolean"
@@ -11187,23 +11187,23 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                   <externalMetadataColumns />
                 </output>
                 <output
-                  refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output]"
                   description="Error Output of the Conditional Split Transformation"
                   exclusionGroup="1"
                   isErrorOut="true"
                   name="Conditional Split Error Output"
-                  synchronousInputId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input]">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorCode]"
                       name="ErrorCode"
                       specialFlags="1" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      refId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[Conditional Split Error Output].Columns[ErrorColumn]"
                       name="ErrorColumn"
                       specialFlags="2" />
                   </outputColumns>
@@ -11212,7 +11212,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </outputs>
             </component>
             <component
-              refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata"
+              refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata"
               componentClassID="Microsoft.DerivedColumn"
               contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
               description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
@@ -11220,7 +11220,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               usesDispositions="true">
               <inputs>
                 <input
-                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
+                  refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
                   description="Input to the Derived Column Transformation"
                   name="Derived Column Input">
                   <externalMetadataColumns />
@@ -11228,19 +11228,19 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </inputs>
               <outputs>
                 <output
-                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]"
                   description="Default Output of the Derived Column Transformation"
                   exclusionGroup="1"
                   name="Derived Column Output"
-                  synchronousInputId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
                       dataType="wstr"
                       errorOrTruncationOperation="Computation"
                       errorRowDisposition="FailComponent"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[package_name]"
                       name="package_name"
                       truncationRowDisposition="FailComponent">
                       <properties>
@@ -11258,12 +11258,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                       </properties>
                     </outputColumn>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
                       dataType="wstr"
                       errorOrTruncationOperation="Computation"
                       errorRowDisposition="FailComponent"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[source_table]"
                       name="source_table"
                       truncationRowDisposition="FailComponent">
                       <properties>
@@ -11281,12 +11281,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                       </properties>
                     </outputColumn>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
                       dataType="wstr"
                       errorOrTruncationOperation="Computation"
                       errorRowDisposition="FailComponent"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_column]"
                       name="error_column"
                       truncationRowDisposition="FailComponent">
                       <properties>
@@ -11304,12 +11304,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                       </properties>
                     </outputColumn>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
                       dataType="wstr"
                       errorOrTruncationOperation="Computation"
                       errorRowDisposition="FailComponent"
                       length="500"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output].Columns[error_description]"
                       name="error_description"
                       truncationRowDisposition="FailComponent">
                       <properties>
@@ -11330,23 +11330,23 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
                   <externalMetadataColumns />
                 </output>
                 <output
-                  refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output]"
                   description="Error Output of the Derived Column Transformation"
                   exclusionGroup="1"
                   isErrorOut="true"
                   name="Derived Column Error Output"
-                  synchronousInputId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorCode]"
                       name="ErrorCode"
                       specialFlags="1" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      refId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
                       name="ErrorColumn"
                       specialFlags="2" />
                   </outputColumns>
@@ -11355,7 +11355,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </outputs>
             </component>
             <component
-              refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation"
+              refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation"
               componentClassID="Microsoft.OLEDBDestination"
               contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
               description="OLE DB Destination"
@@ -11412,7 +11412,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </properties>
               <connections>
                 <connection
-                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Connections[OleDbConnection]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Connections[OleDbConnection]"
                   connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
                   connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
                   description="The OLE DB runtime connection used to access the database."
@@ -11420,48 +11420,48 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </connections>
               <inputs>
                 <input
-                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
                   errorOrTruncationOperation="Insert"
                   errorRowDisposition="FailComponent"
                   hasSideEffects="true"
                   name="OLE DB Destination Input">
                   <inputColumns>
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name_english"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
                       cachedDataType="wstr"
                       cachedLength="27"
                       cachedName="dwh_load_ts"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name_english" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
                       dataType="wstr"
                       length="27"
                       name="dwh_load_ts" />
@@ -11470,22 +11470,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </inputs>
               <outputs>
                 <output
-                  refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output]"
                   exclusionGroup="1"
                   isErrorOut="true"
                   name="OLE DB Destination Error Output"
-                  synchronousInputId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                       name="ErrorCode"
                       specialFlags="1" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                       name="ErrorColumn"
                       specialFlags="2" />
                   </outputColumns>
@@ -11494,7 +11494,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </outputs>
             </component>
             <component
-              refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation"
+              refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation"
               componentClassID="Microsoft.OLEDBDestination"
               contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
               description="OLE DB Destination"
@@ -11551,7 +11551,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </properties>
               <connections>
                 <connection
-                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Connections[OleDbConnection]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Connections[OleDbConnection]"
                   connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
                   connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
                   description="The OLE DB runtime connection used to access the database."
@@ -11559,48 +11559,48 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </connections>
               <inputs>
                 <input
-                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
                   errorOrTruncationOperation="Insert"
                   errorRowDisposition="FailComponent"
                   hasSideEffects="true"
                   name="OLE DB Destination Input">
                   <inputColumns>
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]" />
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[product_category_name_english]"
                       cachedDataType="wstr"
                       cachedLength="255"
                       cachedName="product_category_name_english"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]" />
                     <inputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].Columns[dwh_load_ts]"
                       cachedDataType="wstr"
                       cachedLength="27"
                       cachedName="dwh_load_ts"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]" />
                   </inputColumns>
                   <externalMetadataColumns
                     isUsed="True">
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[product_category_name_english]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name_english" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input].ExternalColumns[dwh_load_ts]"
                       dataType="wstr"
                       length="27"
                       name="dwh_load_ts" />
@@ -11609,22 +11609,22 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </inputs>
               <outputs>
                 <output
-                  refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output]"
                   exclusionGroup="1"
                   isErrorOut="true"
                   name="OLE DB Destination Error Output"
-                  synchronousInputId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]">
+                  synchronousInputId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
                       name="ErrorCode"
                       specialFlags="1" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
                       name="ErrorColumn"
                       specialFlags="2" />
                   </outputColumns>
@@ -11633,7 +11633,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </outputs>
             </component>
             <component
-              refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation"
+              refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation"
               componentClassID="Microsoft.OLEDBSource"
               contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
               description="OLE DB Source"
@@ -11682,7 +11682,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </properties>
               <connections>
                 <connection
-                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Connections[OleDbConnection]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Connections[OleDbConnection]"
                   connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
                   connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
                   description="The OLE DB runtime connection used to access the database."
@@ -11690,92 +11690,92 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
               </connections>
               <outputs>
                 <output
-                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]"
                   name="OLE DB Source Output">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
                       dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name]"
                       name="product_category_name"
                       truncationRowDisposition="FailComponent" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
                       dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[product_category_name_english]"
                       name="product_category_name_english"
                       truncationRowDisposition="FailComponent" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
                       dataType="wstr"
                       errorOrTruncationOperation="Conversion"
                       errorRowDisposition="FailComponent"
-                      externalMetadataColumnId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      externalMetadataColumnId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
                       length="27"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].Columns[dwh_load_ts]"
                       name="dwh_load_ts"
                       truncationRowDisposition="FailComponent" />
                   </outputColumns>
                   <externalMetadataColumns
                     isUsed="True">
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[product_category_name_english]"
                       dataType="wstr"
                       length="255"
                       name="product_category_name_english" />
                     <externalMetadataColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output].ExternalColumns[dwh_load_ts]"
                       dataType="wstr"
                       length="27"
                       name="dwh_load_ts" />
                   </externalMetadataColumns>
                 </output>
                 <output
-                  refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output]"
+                  refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output]"
                   isErrorOut="true"
                   name="OLE DB Source Error Output">
                   <outputColumns>
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
                       dataType="wstr"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name]"
                       name="product_category_name" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
                       dataType="wstr"
                       length="255"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[product_category_name_english]"
                       name="product_category_name_english" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
                       dataType="wstr"
                       length="27"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[dwh_load_ts]"
                       name="dwh_load_ts" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
                       name="ErrorCode"
                       specialFlags="1" />
                     <outputColumn
-                      refId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      refId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
                       dataType="i4"
-                      lineageId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      lineageId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
                       name="ErrorColumn"
                       specialFlags="2" />
                   </outputColumns>
@@ -11786,25 +11786,25 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           </components>
           <paths>
             <path
-              refId="Package\44_load_silver_category_translation.Paths[Derived Column Output]"
-              endId="Package\44_load_silver_category_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
+              refId="Package\44_load_silver_product_category_name_translation.Paths[Derived Column Output]"
+              endId="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation.Inputs[OLE DB Destination Input]"
               name="Derived Column Output"
-              startId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]" />
+              startId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Outputs[Derived Column Output]" />
             <path
-              refId="Package\44_load_silver_category_translation.Paths[invalid_output]"
-              endId="Package\44_load_silver_category_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
+              refId="Package\44_load_silver_product_category_name_translation.Paths[invalid_output]"
+              endId="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata.Inputs[Derived Column Input]"
               name="invalid_output"
-              startId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[invalid_output]" />
+              startId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[invalid_output]" />
             <path
-              refId="Package\44_load_silver_category_translation.Paths[OLE DB Source Output]"
-              endId="Package\44_load_silver_category_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
+              refId="Package\44_load_silver_product_category_name_translation.Paths[OLE DB Source Output]"
+              endId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Inputs[Conditional Split Input]"
               name="OLE DB Source Output"
-              startId="Package\44_load_silver_category_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]" />
+              startId="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation.Outputs[OLE DB Source Output]" />
             <path
-              refId="Package\44_load_silver_category_translation.Paths[valid_output]"
-              endId="Package\44_load_silver_category_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
+              refId="Package\44_load_silver_product_category_name_translation.Paths[valid_output]"
+              endId="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation.Inputs[OLE DB Destination Input]"
               name="valid_output"
-              startId="Package\44_load_silver_category_translation\conditional_split_category_translation.Outputs[valid_output]" />
+              startId="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation.Outputs[valid_output]" />
           </paths>
         </pipeline>
       </DTS:ObjectData>
@@ -11882,15 +11882,15 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
       DTS:From="Package\42_load_silver_geolocation"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 16"
-      DTS:To="Package\43_create_clean_category_translation_view" />
+      DTS:To="Package\43_create_clean_product_category_name_translation_view" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 17]"
       DTS:CreationName=""
       DTS:DTSID="{8226E2F7-5F2D-4E1D-93CC-AB703FBA8BC8}"
-      DTS:From="Package\43_create_clean_category_translation_view"
+      DTS:From="Package\43_create_clean_product_category_name_translation_view"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 17"
-      DTS:To="Package\44_load_silver_category_translation" />
+      DTS:To="Package\44_load_silver_product_category_name_translation" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 18]"
       DTS:CreationName=""
@@ -12045,13 +12045,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           Id="Package\42_load_silver_geolocation"
           TopLeft="972.348431721709,505.660602544305" />
         <NodeLayout
-          Size="281.6,76.8"
-          Id="Package\43_create_clean_category_translation_view"
-          TopLeft="87.4999952192109,609.739389699342" />
+          Size="352.8,76"
+          Id="Package\43_create_clean_product_category_name_translation_view"
+          TopLeft="89.7727223677619,613.678783611342" />
         <NodeLayout
-          Size="244.8,74.4"
-          Id="Package\44_load_silver_category_translation"
-          TopLeft="456.060581142554,610.842419994702" />
+          Size="325.6,76.8"
+          Id="Package\44_load_silver_product_category_name_translation"
+          TopLeft="538.636334206572,614.781813906702" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
           TopLeft="480.794423507624,111.985858302239">
@@ -12258,26 +12258,26 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-846.448436502498,39.2787871550371"
+              EndConnector="-808.575709353947,43.218181067037"
               Start="0,0"
-              End="-846.448436502498,31.7787871550371">
+              End="-808.575709353947,35.718181067037">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,15.6393935775185" />
+                    End="0,17.6090905335185" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,15.6393935775185"
-                    Point2="0,19.6393935775185"
-                    Point3="-4,19.6393935775185" />
+                    Point1="0,17.6090905335185"
+                    Point2="0,21.6090905335185"
+                    Point3="-4,21.6090905335185" />
                   <mssgle:LineSegment
-                    End="-842.448436502498,19.6393935775185" />
+                    End="-804.575709353947,21.6090905335185" />
                   <mssgle:CubicBezierSegment
-                    Point1="-842.448436502498,19.6393935775185"
-                    Point2="-846.448436502498,19.6393935775185"
-                    Point3="-846.448436502498,23.6393935775185" />
+                    Point1="-804.575709353947,21.6090905335185"
+                    Point2="-808.575709353947,21.6090905335185"
+                    Point3="-808.575709353947,25.6090905335185" />
                   <mssgle:LineSegment
-                    End="-846.448436502498,31.7787871550371" />
+                    End="-808.575709353947,35.718181067037" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -12288,18 +12288,18 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 17]"
-          TopLeft="369.099995219211,648.090904847022">
+          TopLeft="442.572722367762,652.430298759022">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="86.9605859233433,0"
+              EndConnector="96.0636118388096,0"
               Start="0,0"
-              End="79.4605859233433,0">
+              End="88.5636118388096,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="79.4605859233433,0" />
+                    End="88.5636118388096,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -12629,9 +12629,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12653,9 +12651,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12713,9 +12709,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12737,9 +12731,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12761,9 +12753,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -12912,9 +12902,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12936,9 +12924,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -12960,9 +12946,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13020,9 +13004,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13044,9 +13026,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -13179,9 +13159,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13239,9 +13217,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13263,9 +13239,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13287,9 +13261,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -13426,9 +13398,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13486,9 +13456,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13510,9 +13478,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13534,9 +13500,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13558,9 +13522,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -13689,9 +13651,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13749,9 +13709,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13773,9 +13731,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -13904,9 +13860,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13964,9 +13918,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -13988,9 +13940,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -14119,9 +14069,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -14179,9 +14127,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -14203,9 +14149,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -14334,9 +14278,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -14394,9 +14336,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -14418,9 +14358,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
@@ -14466,32 +14404,32 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <TaskHost
-    design-time-name="Package\44_load_silver_category_translation">
+    design-time-name="Package\44_load_silver_product_category_name_translation">
     <LayoutInfo>
       <GraphLayout
         Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
           Size="244.8,76"
-          Id="Package\44_load_silver_category_translation\ole_dest_error_category_translation"
+          Id="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation"
           TopLeft="552.428563196745,427.999993622303" />
         <NodeLayout
           Size="283.2,72"
-          Id="Package\44_load_silver_category_translation\derive_category_translation_error_metadata"
+          Id="Package\44_load_silver_product_category_name_translation\derive_category_translation_error_metadata"
           TopLeft="532.714277776224,311.142852506467" />
         <NodeLayout
           Size="260.8,66.4"
-          Id="Package\44_load_silver_category_translation\ole_src_clean_category_translation"
+          Id="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation"
           TopLeft="301.571424077664,77.7142845562527" />
         <NodeLayout
           Size="247.2,67.2"
-          Id="Package\44_load_silver_category_translation\ole_dest_silver_category_translation"
+          Id="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation"
           TopLeft="122.142855322787,318.99999524653" />
         <NodeLayout
           Size="260,59.2"
-          Id="Package\44_load_silver_category_translation\conditional_split_category_translation"
+          Id="Package\44_load_silver_product_category_name_translation\conditional_split_category_translation"
           TopLeft="303.428566907133,191.71428285752" />
         <EdgeLayout
-          Id="Package\44_load_silver_category_translation.Paths[invalid_output]"
+          Id="Package\44_load_silver_product_category_name_translation.Paths[invalid_output]"
           TopLeft="475.428566907133,250.91428285752">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -14527,7 +14465,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\44_load_silver_category_translation.Paths[Derived Column Output]"
+          Id="Package\44_load_silver_product_category_name_translation.Paths[Derived Column Output]"
           TopLeft="674.571420486484,383.142852506467">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -14545,13 +14483,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\44_load_silver_category_translation.Paths[valid_output]"
+          Id="Package\44_load_silver_product_category_name_translation.Paths[valid_output]"
           TopLeft="433.428566907133,250.91428285752">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -14587,7 +14523,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
-          Id="Package\44_load_silver_category_translation.Paths[OLE DB Source Output]"
+          Id="Package\44_load_silver_product_category_name_translation.Paths[OLE DB Source Output]"
           TopLeft="432.699995492399,144.114284556253">
           <EdgeLayout.Curve>
             <mssgle:Curve
@@ -14605,16 +14541,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\44_load_silver_category_translation\ole_src_clean_category_translation">
+    design-time-name="Package\44_load_silver_product_category_name_translation\ole_src_clean_category_translation">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -14627,7 +14561,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\44_load_silver_category_translation\ole_dest_error_category_translation">
+    design-time-name="Package\44_load_silver_product_category_name_translation\ole_dest_error_category_translation">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
@@ -14640,7 +14574,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></arrayElement>
     </Properties>
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
-    design-time-name="Package\44_load_silver_category_translation\ole_dest_silver_category_translation">
+    design-time-name="Package\44_load_silver_product_category_name_translation\ole_dest_silver_category_translation">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
