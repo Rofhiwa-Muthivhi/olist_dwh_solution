@@ -11,8 +11,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="10"
-  DTS:VersionGUID="{FF1F1439-DBF9-4747-A669-71BB12CEC1E0}">
+  DTS:VersionBuild="12"
+  DTS:VersionGUID="{E427A67B-CE97-4B12-BF44-F28B657BC209}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -53,42 +53,6 @@
           SQLTask:SqlStatementSource="&#xA;-- create schemas&#xA;-- use IF SCHEMA_ID to check if the schemas already exist and avoid errors when rerunning the script&#xA;&#xA;-- create bronze schema in the staging database&#xA;USE olist_stg;&#xA;&#xA;IF SCHEMA_ID('bronze') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA bronze');&#xA;END;&#xA;&#xA;-- create silver and gold schemas in the data warehouse database&#xA;USE olist_dwh;&#xA;&#xA;IF SCHEMA_ID('silver') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA silver');&#xA;END;&#xA;&#xA;IF SCHEMA_ID('gold') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA gold');&#xA;END;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
-    <DTS:Executable
-      DTS:refId="Package\03_create_bronze_tables"
-      DTS:CreationName="Microsoft.ExecuteSQLTask"
-      DTS:DelayValidation="True"
-      DTS:Description="Execute SQL Task"
-      DTS:DTSID="{E44543AD-A115-42C5-824A-E22103A11977}"
-      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
-      DTS:LocaleID="-1"
-      DTS:ObjectName="03_create_bronze_tables"
-      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-      DTS:ThreadHint="0">
-      <DTS:Variables />
-      <DTS:ObjectData>
-        <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="&#xA;/*&#xA;    olist data warehouse solution&#xA;    layer: bronze&#xA;    database: olist_stg&#xA;    schema: bronze&#xA;&#xA;    my objective here is to create the nine bronze tables&#xA;    that will receive data from my olist source csv files.&#xA;&#xA;    i am using if object_id to check whether each table exists&#xA;    before creating it. this allows me to rerun my script without&#xA;    attempting to recreate tables that already exist.&#xA;&#xA;    i am using nvarchar for every source column because i want&#xA;    to land the source data as text before applying transformations&#xA;    in the silver layer.&#xA;&#xA;    i am also including three metadata columns in every table&#xA;    to capture the load timestamp, source file and batch id.&#xA;*/&#xA;&#xA;USE [olist_stg];&#xA;&#xA;&#xA;/* =========================================================&#xA;   1. customers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the customers table to store the customer&#xA;    identifiers and location information from the source dataset.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.customers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.customers&#xA;    (&#xA;        customer_id                 NVARCHAR(255),&#xA;        customer_unique_id          NVARCHAR(255),&#xA;        customer_zip_code_prefix    NVARCHAR(255),&#xA;        customer_city               NVARCHAR(255),&#xA;        customer_state              NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   2. geolocation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the geolocation table to store the location&#xA;    information associated with zip code prefixes.&#xA;&#xA;    i am keeping the latitude and longitude as text for now.&#xA;    i can convert them to appropriate numeric types in silver.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.geolocation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.geolocation&#xA;    (&#xA;        geolocation_zip_code_prefix NVARCHAR(255),&#xA;        geolocation_lat             NVARCHAR(255),&#xA;        geolocation_lng             NVARCHAR(255),&#xA;        geolocation_city            NVARCHAR(255),&#xA;        geolocation_state           NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   3. order items&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_items table to capture the products&#xA;    associated with each order, including the seller and pricing.&#xA;&#xA;    i am keeping the dates and monetary values as text in bronze.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_items', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_items&#xA;    (&#xA;        order_id            NVARCHAR(255),&#xA;        order_item_id       NVARCHAR(255),&#xA;        product_id          NVARCHAR(255),&#xA;        seller_id           NVARCHAR(255),&#xA;        shipping_limit_date NVARCHAR(255),&#xA;        price               NVARCHAR(255),&#xA;        freight_value       NVARCHAR(255),&#xA;&#xA;        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file     NVARCHAR(260),&#xA;        dwh_batch_id        INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   4. order payments&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_payments table to capture payment&#xA;    information, including payment type, instalments and value.&#xA;&#xA;    i will handle the appropriate data type conversions later.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_payments', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_payments&#xA;    (&#xA;        order_id             NVARCHAR(255),&#xA;        payment_sequential   NVARCHAR(255),&#xA;        payment_type         NVARCHAR(255),&#xA;        payment_installments NVARCHAR(255),&#xA;        payment_value        NVARCHAR(255),&#xA;&#xA;        dwh_load_ts          DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file      NVARCHAR(260),&#xA;        dwh_batch_id         INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   5. order reviews&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_reviews table to store customer&#xA;    feedback, review scores and review timestamps.&#xA;&#xA;    i am using nvarchar(max) for the review comments because&#xA;    the messages can be longer than the other source fields.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_reviews', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_reviews&#xA;    (&#xA;        review_id               NVARCHAR(255),&#xA;        order_id                NVARCHAR(255),&#xA;        review_score            NVARCHAR(255),&#xA;        review_comment_title    NVARCHAR(MAX),&#xA;        review_comment_message  NVARCHAR(MAX),&#xA;        review_creation_date    NVARCHAR(255),&#xA;        review_answer_timestamp NVARCHAR(255),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file         NVARCHAR(260),&#xA;        dwh_batch_id            INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   6. orders&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the orders table to capture the order status&#xA;    and the different timestamps associated with each order.&#xA;&#xA;    i am landing the timestamps as text so i can validate and&#xA;    convert them during silver-layer processing.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.orders', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.orders&#xA;    (&#xA;        order_id                       NVARCHAR(255),&#xA;        customer_id                    NVARCHAR(255),&#xA;        order_status                   NVARCHAR(255),&#xA;        order_purchase_timestamp       NVARCHAR(255),&#xA;        order_approved_at              NVARCHAR(255),&#xA;        order_delivered_carrier_date   NVARCHAR(255),&#xA;        order_delivered_customer_date  NVARCHAR(255),&#xA;        order_estimated_delivery_date  NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                    DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file                NVARCHAR(260),&#xA;        dwh_batch_id                   INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   7. products&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the products table to store product details,&#xA;    including the category, dimensions, weight and photo count.&#xA;&#xA;    i am keeping the measurements as text for now.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.products', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.products&#xA;    (&#xA;        product_id                  NVARCHAR(255),&#xA;        product_category_name       NVARCHAR(255),&#xA;        product_name_lenght         NVARCHAR(255),&#xA;        product_description_lenght  NVARCHAR(255),&#xA;        product_photos_qty          NVARCHAR(255),&#xA;        product_weight_g            NVARCHAR(255),&#xA;        product_length_cm           NVARCHAR(255),&#xA;        product_height_cm           NVARCHAR(255),&#xA;        product_width_cm            NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   8. sellers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the sellers table to store seller identifiers&#xA;    and their location information.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.sellers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.sellers&#xA;    (&#xA;        seller_id              NVARCHAR(255),&#xA;        seller_zip_code_prefix NVARCHAR(255),&#xA;        seller_city            NVARCHAR(255),&#xA;        seller_state           NVARCHAR(255),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file         NVARCHAR(260),&#xA;        dwh_batch_id            INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   9. product category name translation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the product category translation table&#xA;    to store the category names and their translations.&#xA;&#xA;    i am preserving the source column names for now.&#xA;    i can confirm their actual meanings before transforming&#xA;    them in the silver layer.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.product_category_name_translation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.product_category_name_translation&#xA;    (&#xA;        column1             NVARCHAR(255),&#xA;        column2             NVARCHAR(255),&#xA;&#xA;        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file     NVARCHAR(260),&#xA;        dwh_batch_id        INT&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
-      </DTS:ObjectData>
-    </DTS:Executable>
-    <DTS:Executable
-      DTS:refId="Package\04_create_silver_tables"
-      DTS:CreationName="Microsoft.ExecuteSQLTask"
-      DTS:DelayValidation="True"
-      DTS:Description="Execute SQL Task"
-      DTS:DTSID="{6AFD80BB-9805-4150-B29E-459468C59864}"
-      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
-      DTS:LocaleID="-1"
-      DTS:ObjectName="04_create_silver_tables"
-      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-      DTS:ThreadHint="0">
-      <DTS:Variables />
-      <DTS:ObjectData>
-        <SQLTask:SqlTaskData
-          SQLTask:Connection="{348E272A-82DB-4566-B388-E40BF3736DD4}"
-          SQLTask:SqlStatementSource="/*&#xA;    olist data warehouse solution&#xA;    layer: silver&#xA;    database: olist_dwh&#xA;    schema: silver&#xA;&#xA;    my objective here is to create the nine silver tables&#xA;    that will receive cleansed and transformed data from&#xA;    the bronze layer.&#xA;&#xA;    unlike bronze, i am assigning appropriate data types&#xA;    to the columns because silver will contain standardised,&#xA;    validated and typed data.&#xA;&#xA;    i am using if object_id to check whether each table exists&#xA;    before creating it. this allows me to rerun my script without&#xA;    attempting to recreate tables that already exist.&#xA;&#xA;    i am using nvarchar(255) for descriptive text columns&#xA;    to accommodate text values and support special characters.&#xA;&#xA;    i am using nvarchar(max) for customer review comments&#xA;    to preserve the full text of customer feedback.&#xA;&#xA;    i am also including the dwh_load_ts metadata column in&#xA;    every silver table to capture when records are loaded.&#xA;&#xA;    the etl.error_rows table will capture records that fail&#xA;    validation during the silver transformation process.&#xA;*/&#xA;&#xA;USE [olist_dwh];&#xA;&#xA;&#xA;/* =========================================================&#xA;    customers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the customers table to store customer&#xA;    identifiers and location information.&#xA;&#xA;    the transformation process will trim spaces, standardise&#xA;    city and state names, and pad zip prefixes to five characters.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.customers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.customers&#xA;    (&#xA;        customer_id                 VARCHAR(50) NOT NULL,&#xA;        customer_unique_id          VARCHAR(50),&#xA;        customer_zip_code_prefix    CHAR(5),&#xA;        customer_city               NVARCHAR(255),&#xA;        customer_state              NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    sellers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the sellers table to store seller identifiers&#xA;    and geographical information.&#xA;&#xA;    the transformation process will standardise city and state&#xA;    names and pad zip prefixes to five characters.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.sellers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.sellers&#xA;    (&#xA;        seller_id                   VARCHAR(50) NOT NULL,&#xA;        seller_zip_code_prefix      CHAR(10),&#xA;        seller_city                 NVARCHAR(255),&#xA;        seller_state                NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    orders&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the orders table to store order identifiers,&#xA;    customer references, order statuses and lifecycle timestamps.&#xA;&#xA;    the transformation process will convert timestamps to&#xA;    datetime2, standardise order statuses and derive an&#xA;    is_delivered flag.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.orders', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.orders&#xA;    (&#xA;        order_id                        VARCHAR(50) NOT NULL,&#xA;        customer_id                     VARCHAR(50) NOT NULL,&#xA;        order_status                    NVARCHAR(255),&#xA;        order_purchase_timestamp        DATETIME2,&#xA;        order_approved_at               DATETIME2,&#xA;        order_delivered_carrier_date    DATETIME2,&#xA;        order_delivered_customer_date   DATETIME2,&#xA;        order_estimated_delivery_date   DATETIME2,&#xA;        is_delivered                    BIT DEFAULT 0,&#xA;&#xA;        dwh_load_ts                     DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    order_items&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order items table to store products&#xA;    associated with each order, including seller information,&#xA;    shipping dates and monetary values.&#xA;&#xA;    the transformation process will convert price and freight&#xA;    values to decimal and derive the total item value.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.order_items', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.order_items&#xA;    (&#xA;        order_id                VARCHAR(50) NOT NULL,&#xA;        order_item_id           INT NOT NULL,&#xA;        product_id              VARCHAR(50),&#xA;        seller_id               VARCHAR(50),&#xA;        shipping_limit_date     DATETIME2,&#xA;        price                   DECIMAL(10,2),&#xA;        freight_value           DECIMAL(10,2),&#xA;        total_item_value        DECIMAL(10,2),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    order_payments&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order payments table to store payment&#xA;    information associated with each order.&#xA;&#xA;    the transformation process will convert numerical columns&#xA;    to their appropriate data types and standardise payment&#xA;    types, including changing not_defined to Unknown.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.order_payments', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.order_payments&#xA;    (&#xA;        order_id                VARCHAR(50) NOT NULL,&#xA;        payment_sequential      INT NOT NULL,&#xA;        payment_type            NVARCHAR(255),&#xA;        payment_installments    INT,&#xA;        payment_value           DECIMAL(10,2),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    order_reviews&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order reviews table to store customer&#xA;    feedback, review scores and review response timestamps.&#xA;&#xA;    the transformation process will deduplicate records using&#xA;    review_id, convert review scores to tinyint and convert&#xA;    review timestamps to datetime2.&#xA;&#xA;    i am using nvarchar(max) for review comments to preserve&#xA;    the full text of customer feedback.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.order_reviews', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.order_reviews&#xA;    (&#xA;        review_id                   VARCHAR(50) NOT NULL,&#xA;        order_id                    VARCHAR(50),&#xA;        review_score                TINYINT,&#xA;        review_comment_title        NVARCHAR(MAX),&#xA;        review_comment_message      NVARCHAR(MAX),&#xA;        review_creation_date        DATETIME2,&#xA;        review_answer_timestamp     DATETIME2,&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    products&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the products table to store product&#xA;    identifiers, category information and product measurements.&#xA;&#xA;    the transformation process will correct the misspelt column&#xA;    names, convert numerical values to their appropriate data&#xA;    types and retrieve english category names through a lookup.&#xA;&#xA;    products without a category will be assigned Unknown.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.products', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.products&#xA;    (&#xA;        product_id                  VARCHAR(50) NOT NULL,&#xA;        product_category_name       NVARCHAR(255),&#xA;        product_name_length         INT,&#xA;        product_description_length  INT,&#xA;        product_photos_qty          INT,&#xA;        product_weight_g            INT,&#xA;        product_length_cm            DECIMAL(10,2),&#xA;        product_height_cm            DECIMAL(10,2),&#xA;        product_width_cm             DECIMAL(10,2),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    product_category_name_translation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the category translation table to store&#xA;    the original portuguese product categories and their&#xA;    corresponding english translations.&#xA;&#xA;    the transformation process will also add the missing&#xA;    category translations identified in the project requirements.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.product_category_name_translation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.product_category_name_translation&#xA;    (&#xA;        product_category_name           NVARCHAR(255) NOT NULL,&#xA;        product_category_name_english   NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                     DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    geolocation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the geolocation table to store geographical&#xA;    information associated with zip code prefixes.&#xA;&#xA;    the transformation process will aggregate the bronze records&#xA;    to produce one record per zip prefix, using average latitude&#xA;    and longitude and the most frequent city.&#xA;*/&#xA;&#xA;IF OBJECT_ID('silver.geolocation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE silver.geolocation&#xA;    (&#xA;        geolocation_zip_code_prefix    CHAR(5) NOT NULL,&#xA;        geolocation_lat                DECIMAL(10,8),&#xA;        geolocation_lng                DECIMAL(11,8),&#xA;        geolocation_city               NVARCHAR(255),&#xA;        geolocation_state              NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                    DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;    etl error rows&#xA;   ========================================================= */&#xA;/*&#xA;    i am creating the error rows table to capture records&#xA;    that fail validation during the silver transformation.&#xA;&#xA;    this allows me to investigate and troubleshoot rejected&#xA;    records instead of silently dropping them during loading.&#xA;&#xA;    the table stores information about the SSIS package,&#xA;    source dataset, affected record, error details and the&#xA;    rejected record for further investigation.&#xA;&#xA;    i am also checking whether the etl schema exists before&#xA;    creating it to make the script idempotent.&#xA;*/&#xA;&#xA;-- i am creating the etl schema if it does not exist&#xA;IF SCHEMA_ID('etl') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA etl');&#xA;END;&#xA;&#xA;-- i am creating the error rows table if it does not exist&#xA;IF OBJECT_ID('etl.error_rows', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE etl.error_rows&#xA;    (&#xA;        error_id                BIGINT IDENTITY(1,1),&#xA;        package_name            NVARCHAR(255),&#xA;        source_table            NVARCHAR(255),&#xA;        source_record_key       NVARCHAR(255),&#xA;        error_column            NVARCHAR(255),&#xA;        error_description       NVARCHAR(255),&#xA;        rejected_record         NVARCHAR(MAX),&#xA;        dwh_batch_id            NVARCHAR(255),&#xA;        error_ts                DATETIME2 DEFAULT SYSDATETIME()&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
-      </DTS:ObjectData>
-    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -99,22 +63,6 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
       DTS:To="Package\02_create_schemas" />
-    <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
-      DTS:CreationName=""
-      DTS:DTSID="{3B4FF4A7-8DB3-4BDF-929E-DAFFFDF183D9}"
-      DTS:From="Package\02_create_schemas"
-      DTS:LogicalAnd="True"
-      DTS:ObjectName="Constraint 1"
-      DTS:To="Package\03_create_bronze_tables" />
-    <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
-      DTS:CreationName=""
-      DTS:DTSID="{5441CDD8-A221-4B75-AC72-2A5CFE656D69}"
-      DTS:From="Package\03_create_bronze_tables"
-      DTS:LogicalAnd="True"
-      DTS:ObjectName="Constraint 2"
-      DTS:To="Package\04_create_silver_tables" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -127,117 +75,29 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
-          Size="193.6,67.2"
+          Size="192.8,51.2"
           Id="Package\01_create_stg_dwh_db"
-          TopLeft="106.666660838657,43.3333330319988" />
+          TopLeft="46.6666641169123,34.088888651839" />
         <NodeLayout
-          Size="193.6,64.8"
+          Size="198.4,55.2"
           Id="Package\02_create_schemas"
-          TopLeft="238.333320311375,142.999999005596" />
-        <NodeLayout
-          Size="196,56"
-          Id="Package\03_create_bronze_tables"
-          TopLeft="349.166647589042,236.599998354714" />
-        <NodeLayout
-          Size="188,65.6"
-          Id="Package\04_create_silver_tables"
-          TopLeft="465.833307881323,322.399997758071" />
+          TopLeft="284.999984428288,33.2222219911992" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="203.466660838657,110.533333031999">
+          TopLeft="239.466664116912,60.2555553215191">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="131.666659472717,32.4666659735974"
+              EndConnector="45.5333203113755,0"
               Start="0,0"
-              End="131.666659472717,24.9666659735974">
+              End="38.0333203113755,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,12.2333329867987" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,12.2333329867987"
-                    Point2="0,16.2333329867987"
-                    Point3="4,16.2333329867987" />
-                  <mssgle:LineSegment
-                    End="127.666659472717,16.2333329867987" />
-                  <mssgle:CubicBezierSegment
-                    Point1="127.666659472717,16.2333329867987"
-                    Point2="131.666659472717,16.2333329867987"
-                    Point3="131.666659472717,20.2333329867987" />
-                  <mssgle:LineSegment
-                    End="131.666659472717,24.9666659735974" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 1]"
-          TopLeft="335.133320311375,207.799999005596">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="112.033327277667,28.7999993491173"
-              Start="0,0"
-              End="112.033327277667,21.2999993491173">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,10.3999996745587" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,10.3999996745587"
-                    Point2="0,14.3999996745587"
-                    Point3="4,14.3999996745587" />
-                  <mssgle:LineSegment
-                    End="108.033327277667,14.3999996745587" />
-                  <mssgle:CubicBezierSegment
-                    Point1="108.033327277667,14.3999996745587"
-                    Point2="112.033327277667,14.3999996745587"
-                    Point3="112.033327277667,18.3999996745587" />
-                  <mssgle:LineSegment
-                    End="112.033327277667,21.2999993491173" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 2]"
-          TopLeft="447.166647589042,292.599998354714">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="112.666660292282,29.799999403357"
-              Start="0,0"
-              End="112.666660292282,22.299999403357">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="0,10.8999997016785" />
-                  <mssgle:CubicBezierSegment
-                    Point1="0,10.8999997016785"
-                    Point2="0,14.8999997016785"
-                    Point3="4,14.8999997016785" />
-                  <mssgle:LineSegment
-                    End="108.666660292282,14.8999997016785" />
-                  <mssgle:CubicBezierSegment
-                    Point1="108.666660292282,14.8999997016785"
-                    Point2="112.666660292282,14.8999997016785"
-                    Point3="112.666660292282,18.8999997016785" />
-                  <mssgle:LineSegment
-                    End="112.666660292282,22.299999403357" />
+                    End="38.0333203113755,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
