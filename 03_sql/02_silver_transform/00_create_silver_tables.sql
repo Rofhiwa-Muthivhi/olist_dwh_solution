@@ -110,12 +110,13 @@ BEGIN
         order_delivered_carrier_date    DATETIME2,
         order_delivered_customer_date   DATETIME2,
         order_estimated_delivery_date   DATETIME2,
-        is_delivered                    VARCHAR(5) DEFAULT 'No',
+
+        is_delivered                    VARCHAR(5) NOT NULL
+            CONSTRAINT DF_orders_is_delivered DEFAULT 'No',
 
         dwh_load_ts                     DATETIME2 DEFAULT SYSDATETIME()
     );
 END;
-
 
 /* =========================================================
     order_items
