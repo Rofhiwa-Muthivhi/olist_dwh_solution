@@ -151,4 +151,12 @@ I kept this separate from the Bronze tables because it serves a different purpos
 
 I will integrate the etl logging infrastructure  into 01_bronze_load.dtsx so that the package can record the results of each file load.
 
+Table: olist_stg.etl.load_log
 
+| Column          | Purpose                                     |
+| --------------- | --------------------------------------------|
+| load_log_id     | identifies each logging record.             |
+| batch_id        | Identifies the ingestion batch.             |
+| source_file     | records the source csv filename.            |
+| rows_loaded     | records the number of rows loaded.          |
+| load_timestamp  | records when the logging entry was created. |
