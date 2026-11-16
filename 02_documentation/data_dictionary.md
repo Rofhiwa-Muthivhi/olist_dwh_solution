@@ -344,3 +344,35 @@ The Silver tables retain the following metadata column:
 The Silver transformation process uses the etl.error_rows table in the olist_dwh database to capture records identified as invalid during data quality checks.
 
 Invalid records are redirected to this table through SSIS Conditional Split transformations, allowing them to be retained for investigation and troubleshooting rather than being loaded into the Silver destination tables.
+
+
+## Gold Layer
+
+### 1. Purpose
+
+This section describes the structure of my Gold layer, including its dimension and fact tables, their columns, data types and the purpose of each column.
+
+The Gold layer is located in the olist_dwh database under the gold schema.
+
+### 2. Table Definitions
+
+#### 2.1 Date Dimension
+
+**Source:** Generated using SQL Server.
+
+**Destination:**`olist_dwh.gold.dim_date
+
+| Column | Data type | Description |
+|---|---|---|
+| date_key | INT | Primary key used to uniquely identify each date. The value -1 represents an Unknown date. |
+| full_date | DATE | Actual calendar date represented by the record. |
+| day_of_month | TINYINT | Day of the month, ranging from 1 to 31. |
+| day_of_week_number | TINYINT | Numeric representation of the day of the week. |
+| day_name | NVARCHAR(10) | Name of the day, such as Monday or Tuesday. |
+| week_of_year | TINYINT | Week number within the year, based on the ISO week numbering system. |
+| month_number | TINYINT | Numeric representation of the month, ranging from 1 to 12. |
+| month_name | NVARCHAR(10) | Name of the month, such as January or February. |
+| quarter_number | TINYINT | Calendar quarter, ranging from 1 to 4. |
+| year_number | SMALLINT | Calendar year represented by the date. |
+| is_weekend | BIT | Indicates whether the date falls on a Saturday or Sunday. |
+

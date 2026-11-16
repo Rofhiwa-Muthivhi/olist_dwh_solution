@@ -300,3 +300,5 @@ The following transformations were implemented:
 - Preserved the original load timestamp and generated timestamps for the two additional mappings.
 
 A Conditional Split was used to identify records with NULL or blank Portuguese category names or English translations.
+
+
