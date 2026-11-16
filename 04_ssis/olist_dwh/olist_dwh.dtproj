@@ -26,13 +26,14 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">ROF0207</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAADT2kAgNxOM+bHg22Fo2+3a/ryJFzvA/SR6x5URHOqmiQAAAAAOgAAAAAIAACAAAAACDulOzFgAksL0XmeN4OvqjaNUJtbWbEm2sJPfcL80xZAAAAA3G5dpONUy4zWX331tgWsOhMA+/CC6RiaC/964OKrbDvdgQiQcj3FyNqRSatkOA2CwTReUiAem2LnX1wYEB2+/35nwUbL1TxFsM+xmeA8Ae1NIkhkEQKIT/9UQLC+11GibKvaQ5CRhLqvOxFU2pXG9Z6Irlbla4kMcpCzgbnP2QlSGvog3p95gDfPVb15QIq5AAAAAwit8hT3XOhyWYXfzyTYg0ZKCEbHWxO8QIZ6aqWQ8JBWiBSrRCJAtjPk3wRwZ6Ye8Z63gYEhg1tyYyErmMKE1PQ==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAADZzokd4z2aAGKcnkmWDRefOumFfaudoaOUt8EpRskyxQAAAAAOgAAAAAIAACAAAAAqUxG8ScHuQwGkuGEetroaUc9ESao05ZjsHKr8gKnOVZAAAACCMF4+ZgwdXuAFnjbA+DN4pN7f+emWJWD0CFQEHDlxJZXro79yx0S4fBvZ/1Mq1vZn5nonkbff0D4eGZSRrsXywkmFOSuETBZaX/L9Vu3LLhjdkH2PLcz3l9JXLR4vGs36g5tvRp81cor0uA1UjVzczrvpWyHMr3zz0R4heIFuFu7hLiw6LiP3xYWu7MEuMTRAAAAAToL7O4CELNyA3Lw/LmVceyjAX74qB532pzfmv0/oe13RpHGp2pcEhNIooSIGhHWdWKZ54KBhRrQWCFa3xYgJ/w==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
           <SSIS:Package SSIS:Name="00_master.dtsx" SSIS:EntryPoint="1" />
           <SSIS:Package SSIS:Name="01_bronze_load.dtsx" SSIS:EntryPoint="1" />
           <SSIS:Package SSIS:Name="02_silver_transform.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="03_gold_dimensions.dtsx" SSIS:EntryPoint="1" />
         </SSIS:Packages>
         <SSIS:ConnectionManagers>
           <SSIS:ConnectionManager SSIS:Name="ROF0207.master.conmgr" />
@@ -372,7 +373,7 @@
                 <SSIS:Property SSIS:Name="IncludeInDebugDump">0</SSIS:Property>
                 <SSIS:Property SSIS:Name="Required">0</SSIS:Property>
                 <SSIS:Property SSIS:Name="Sensitive">0</SSIS:Property>
-                <SSIS:Property SSIS:Name="Value">Data Source=ROF0207;Initial Catalog=olist_dwh;Provider=SQLOLEDB.1;Integrated Security=SSPI;Application Name=SSIS-olist_dwh-{310CC007-85DA-4340-BD2B-8E52234DCCD9}ROF0207.olist_dwh;Auto Translate=False;</SSIS:Property>
+                <SSIS:Property SSIS:Name="Value">Data Source=ROF0207;Initial Catalog=olist_dwh;Provider=SQLOLEDB.1;Integrated Security=SSPI;Auto Translate=False;Application Name=SSIS-olist_dwh-{310CC007-85DA-4340-BD2B-8E52234DCCD9}ROF0207.olist_dwh;</SSIS:Property>
                 <SSIS:Property SSIS:Name="DataType">18</SSIS:Property>
               </SSIS:Properties>
             </SSIS:Parameter>
@@ -2313,6 +2314,23 @@
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionGUID">{35609DA3-C996-48A8-9730-ED19CE22C557}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">
+                </SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="03_gold_dimensions.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{E239569C-9201-4DB4-BB9D-B9F53A24FDEF}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">Package1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">2</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments">
+                </SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{470C55AE-92EE-4D45-A2AF-07DBD06DA72E}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>

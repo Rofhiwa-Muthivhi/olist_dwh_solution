@@ -5,15 +5,109 @@
   DTS:CreationName="Microsoft.Package"
   DTS:CreatorComputerName="ROF0207"
   DTS:CreatorName="ROF0207\muthi"
+  DTS:DelayValidation="True"
   DTS:DTSID="{E239569C-9201-4DB4-BB9D-B9F53A24FDEF}"
   DTS:ExecutableType="Microsoft.Package"
   DTS:LastModifiedProductVersion="17.0.1016.0"
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionGUID="{E58D651B-939D-431F-B566-0FDCD9A54209}">
+  DTS:VersionBuild="2"
+  DTS:VersionGUID="{470C55AE-92EE-4D45-A2AF-07DBD06DA72E}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
-  <DTS:Executables />
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\45_create_dim_date"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{06466809-3891-4A43-ACBA-01DE8E239628}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="45_create_dim_date"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;-- ============================================================&#xA;-- i am creating the date dimension table in the gold layer&#xA;-- this table will provide calendar attributes for analysing&#xA;-- sales, payments, reviews and delivery performance&#xA;-- ============================================================&#xA;&#xA;IF OBJECT_ID('[gold].[dim_date]', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE [gold].[dim_date]&#xA;    (&#xA;        date_key INT NOT NULL,&#xA;        full_date DATE NULL,&#xA;        day_of_month TINYINT NULL,&#xA;        day_of_week_number TINYINT NULL,&#xA;        day_name NVARCHAR(10) NULL,&#xA;        week_of_year TINYINT NULL,&#xA;        month_number TINYINT NULL,&#xA;        month_name NVARCHAR(10) NULL,&#xA;        quarter_number TINYINT NULL,&#xA;        year_number SMALLINT NULL,&#xA;        is_weekend BIT NULL,&#xA;&#xA;        CONSTRAINT PK_dim_date&#xA;            PRIMARY KEY (date_key),&#xA;&#xA;        CONSTRAINT UQ_dim_date_full_date&#xA;            UNIQUE (full_date)&#xA;    );&#xA;END;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\46_load_dim_date"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{3B016F97-61FC-4DC4-86C1-347CECDEF833}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="46_load_dim_date"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;-- ============================================================&#xA;-- populate the date dimension&#xA;-- ============================================================&#xA;-- i am populating the date dimension with calendar dates&#xA;-- from 01 january 2016 to 31 december 2019.&#xA;-- the calendar dates are generated using a recursive cte,&#xA;-- with additional date attributes derived using sql functions.&#xA;-- ============================================================&#xA;&#xA;SET DATEFIRST 1;&#xA;&#xA;;WITH date_series AS&#xA;(&#xA;    -- generate the first calendar date&#xA;    SELECT CAST('20160101' AS DATE) AS full_date&#xA;&#xA;    UNION ALL&#xA;&#xA;    -- generate the next date until 31 december 2019&#xA;    SELECT DATEADD(DAY, 1, full_date)&#xA;    FROM date_series&#xA;    WHERE full_date &lt; '20191231'&#xA;)&#xA;&#xA;-- insert the generated dates and their calendar attributes&#xA;INSERT INTO [gold].[dim_date]&#xA;(&#xA;    date_key,&#xA;    full_date,&#xA;    day_of_month,&#xA;    day_of_week_number,&#xA;    day_name,&#xA;    week_of_year,&#xA;    month_number,&#xA;    month_name,&#xA;    quarter_number,&#xA;    year_number,&#xA;    is_weekend&#xA;)&#xA;SELECT&#xA;    CONVERT(INT, CONVERT(CHAR(8), ds.full_date, 112)) AS date_key,&#xA;    ds.full_date,&#xA;    DAY(ds.full_date) AS day_of_month,&#xA;    DATEPART(WEEKDAY, ds.full_date) AS day_of_week_number,&#xA;    DATENAME(WEEKDAY, ds.full_date) AS day_name,&#xA;    DATEPART(ISO_WEEK, ds.full_date) AS week_of_year,&#xA;    MONTH(ds.full_date) AS month_number,&#xA;    DATENAME(MONTH, ds.full_date) AS month_name,&#xA;    DATEPART(QUARTER, ds.full_date) AS quarter_number,&#xA;    YEAR(ds.full_date) AS year_number,&#xA;&#xA;    CASE&#xA;        WHEN DATEPART(WEEKDAY, ds.full_date) IN (6, 7)&#xA;            THEN 1&#xA;        ELSE 0&#xA;    END AS is_weekend&#xA;&#xA;FROM date_series AS ds&#xA;WHERE NOT EXISTS&#xA;(&#xA;    -- prevent inserting dates that already exist&#xA;    SELECT 1&#xA;    FROM [gold].[dim_date] AS d&#xA;    WHERE d.date_key = CONVERT(INT, CONVERT(CHAR(8), ds.full_date, 112))&#xA;)&#xA;OPTION (MAXRECURSION 0);&#xA;&#xA;&#xA;&#xA;-- ============================================================&#xA;-- insert the unknown date record&#xA;-- ============================================================&#xA;-- this record will be used when a date is missing or cannot&#xA;-- be matched during the loading of the fact tables.&#xA;-- using -1 ensures that fact records can still be linked to&#xA;-- the date dimension without leaving the foreign key empty.&#xA;-- ============================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM [gold].[dim_date]&#xA;    WHERE date_key = -1&#xA;)&#xA;BEGIN&#xA;    INSERT INTO [gold].[dim_date]&#xA;    (&#xA;        date_key,&#xA;        full_date,&#xA;        day_of_month,&#xA;        day_of_week_number,&#xA;        day_name,&#xA;        week_of_year,&#xA;        month_number,&#xA;        month_name,&#xA;        quarter_number,&#xA;        year_number,&#xA;        is_weekend&#xA;    )&#xA;    VALUES&#xA;    (&#xA;        -1,&#xA;        NULL,&#xA;        NULL,&#xA;        NULL,&#xA;        'Unknown',&#xA;        NULL,&#xA;        NULL,&#xA;        'Unknown',&#xA;        NULL,&#xA;        NULL,&#xA;        NULL&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{B9858853-38B9-4D82-AF0E-399926110734}"
+      DTS:From="Package\45_create_dim_date"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\46_load_dim_date" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="172.8,41.6"
+          Id="Package\45_create_dim_date"
+          TopLeft="113.525634822874,48.5333329958386" />
+        <NodeLayout
+          Size="164,41.6"
+          Id="Package\46_load_dim_date"
+          TopLeft="354.487160118855,49.9999996523063" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="286.325634822874,70.0666663240724">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="68.161525295981,0"
+              Start="0,0"
+              End="60.661525295981,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="60.661525295981,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
 </DTS:Executable>
