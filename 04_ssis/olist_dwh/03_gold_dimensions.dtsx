@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="2"
-  DTS:VersionGUID="{470C55AE-92EE-4D45-A2AF-07DBD06DA72E}">
+  DTS:VersionBuild="5"
+  DTS:VersionGUID="{378097A0-2D9D-4973-B203-F6A680C9005B}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -39,6 +39,7 @@
     <DTS:Executable
       DTS:refId="Package\46_load_dim_date"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{3B016F97-61FC-4DC4-86C1-347CECDEF833}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -53,6 +54,40 @@
           SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;-- ============================================================&#xA;-- populate the date dimension&#xA;-- ============================================================&#xA;-- i am populating the date dimension with calendar dates&#xA;-- from 01 january 2016 to 31 december 2019.&#xA;-- the calendar dates are generated using a recursive cte,&#xA;-- with additional date attributes derived using sql functions.&#xA;-- ============================================================&#xA;&#xA;SET DATEFIRST 1;&#xA;&#xA;;WITH date_series AS&#xA;(&#xA;    -- generate the first calendar date&#xA;    SELECT CAST('20160101' AS DATE) AS full_date&#xA;&#xA;    UNION ALL&#xA;&#xA;    -- generate the next date until 31 december 2019&#xA;    SELECT DATEADD(DAY, 1, full_date)&#xA;    FROM date_series&#xA;    WHERE full_date &lt; '20191231'&#xA;)&#xA;&#xA;-- insert the generated dates and their calendar attributes&#xA;INSERT INTO [gold].[dim_date]&#xA;(&#xA;    date_key,&#xA;    full_date,&#xA;    day_of_month,&#xA;    day_of_week_number,&#xA;    day_name,&#xA;    week_of_year,&#xA;    month_number,&#xA;    month_name,&#xA;    quarter_number,&#xA;    year_number,&#xA;    is_weekend&#xA;)&#xA;SELECT&#xA;    CONVERT(INT, CONVERT(CHAR(8), ds.full_date, 112)) AS date_key,&#xA;    ds.full_date,&#xA;    DAY(ds.full_date) AS day_of_month,&#xA;    DATEPART(WEEKDAY, ds.full_date) AS day_of_week_number,&#xA;    DATENAME(WEEKDAY, ds.full_date) AS day_name,&#xA;    DATEPART(ISO_WEEK, ds.full_date) AS week_of_year,&#xA;    MONTH(ds.full_date) AS month_number,&#xA;    DATENAME(MONTH, ds.full_date) AS month_name,&#xA;    DATEPART(QUARTER, ds.full_date) AS quarter_number,&#xA;    YEAR(ds.full_date) AS year_number,&#xA;&#xA;    CASE&#xA;        WHEN DATEPART(WEEKDAY, ds.full_date) IN (6, 7)&#xA;            THEN 1&#xA;        ELSE 0&#xA;    END AS is_weekend&#xA;&#xA;FROM date_series AS ds&#xA;WHERE NOT EXISTS&#xA;(&#xA;    -- prevent inserting dates that already exist&#xA;    SELECT 1&#xA;    FROM [gold].[dim_date] AS d&#xA;    WHERE d.date_key = CONVERT(INT, CONVERT(CHAR(8), ds.full_date, 112))&#xA;)&#xA;OPTION (MAXRECURSION 0);&#xA;&#xA;&#xA;&#xA;-- ============================================================&#xA;-- insert the unknown date record&#xA;-- ============================================================&#xA;-- this record will be used when a date is missing or cannot&#xA;-- be matched during the loading of the fact tables.&#xA;-- using -1 ensures that fact records can still be linked to&#xA;-- the date dimension without leaving the foreign key empty.&#xA;-- ============================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM [gold].[dim_date]&#xA;    WHERE date_key = -1&#xA;)&#xA;BEGIN&#xA;    INSERT INTO [gold].[dim_date]&#xA;    (&#xA;        date_key,&#xA;        full_date,&#xA;        day_of_month,&#xA;        day_of_week_number,&#xA;        day_name,&#xA;        week_of_year,&#xA;        month_number,&#xA;        month_name,&#xA;        quarter_number,&#xA;        year_number,&#xA;        is_weekend&#xA;    )&#xA;    VALUES&#xA;    (&#xA;        -1,&#xA;        NULL,&#xA;        NULL,&#xA;        NULL,&#xA;        'Unknown',&#xA;        NULL,&#xA;        NULL,&#xA;        'Unknown',&#xA;        NULL,&#xA;        NULL,&#xA;        NULL&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\47_create_dim_customers"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{2DF7A268-3E08-4A46-A6B8-9AD156C50A3E}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="47_create_dim_customers"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="&#xA;USE [olist_dwh];&#xA;&#xA;&#xA;--===========================================================================================&#xA;-- i am creating the customer dimension in the gold schema.&#xA;-- customer_key will be the surrogate key generated by sql server.&#xA;-- customer_unique_id will remain the business key used to identify each customer.&#xA;-- city and state will be tracked to preserve historical changes using scd type 2.&#xA;-- the valid_from, valid_to and is_current columns will help me manage each customer version.&#xA;--===========================================================================================&#xA;&#xA;IF OBJECT_ID('[gold].[dim_customer]', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE [gold].[dim_customer]&#xA;    (&#xA;        customer_key INT IDENTITY(1,1) NOT NULL,&#xA;        customer_unique_id VARCHAR(50) NOT NULL,&#xA;        customer_zip_code_prefix CHAR(5) NULL,&#xA;        customer_city NVARCHAR(255) NULL,&#xA;        customer_state NVARCHAR(255) NULL,&#xA;        valid_from DATETIME2(7) NULL,&#xA;        valid_to DATETIME2(7) NULL,&#xA;        is_current BIT NOT NULL,&#xA;&#xA;        CONSTRAINT PK_dim_customer&#xA;            PRIMARY KEY (customer_key)&#xA;    );&#xA;END;&#xA;&#xA;&#xA;--========================================================================&#xA;-- i am creating a filtered unique index to ensure that each customer&#xA;-- can only have one current record in the dimension.&#xA;-- historical records are still allowed because they have is_current = 0.&#xA;-- this helps prevent duplicate current versions for the same customer.&#xA;--========================================================================&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.indexes&#xA;    WHERE name = 'UX_dim_customer_current'&#xA;      AND object_id = OBJECT_ID('[gold].[dim_customer]')&#xA;)&#xA;BEGIN&#xA;    CREATE UNIQUE NONCLUSTERED INDEX UX_dim_customer_current&#xA;    ON [gold].[dim_customer] (customer_unique_id)&#xA;    WHERE is_current = 1;&#xA;END;&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am inserting an unknown customer record with customer_key = -1.&#xA;-- this record will be used when a customer from a fact table&#xA;-- cannot be matched to a record in the customer dimension.&#xA;-- identity_insert allows me to insert -1 manually instead of&#xA;-- allowing sql server to generate the identity value automatically.&#xA;-- the if not exists check prevents the unknown record from being inserted again.&#xA;--================================================================================&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM [gold].[dim_customer]&#xA;    WHERE customer_key = -1&#xA;)&#xA;BEGIN&#xA;    SET IDENTITY_INSERT [gold].[dim_customer] ON;&#xA;&#xA;    INSERT INTO [gold].[dim_customer]&#xA;    (&#xA;        customer_key,&#xA;        customer_unique_id,&#xA;        customer_zip_code_prefix,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to,&#xA;        is_current&#xA;    )&#xA;    VALUES&#xA;    (&#xA;        -1,&#xA;        'Unknown',&#xA;        NULL,&#xA;        'Unknown',&#xA;        'Unknown',&#xA;        NULL,&#xA;        NULL,&#xA;        1&#xA;    );&#xA;&#xA;    SET IDENTITY_INSERT [gold].[dim_customer] OFF;&#xA;END;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\48_load_dim_customers"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{61CE67C7-5C05-4AFE-9268-19A47CC2AFD4}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="48_load_dim_customers"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -63,6 +98,22 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
       DTS:To="Package\46_load_dim_date" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{150C34BB-5202-474A-B16F-EBC246A9CA87}"
+      DTS:From="Package\46_load_dim_date"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\47_create_dim_customers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{C90A2674-5F90-4028-83E2-81A1450CC99D}"
+      DTS:From="Package\47_create_dim_customers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\48_load_dim_customers" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -75,29 +126,81 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="4" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="172.8,41.6"
           Id="Package\45_create_dim_date"
-          TopLeft="113.525634822874,48.5333329958386" />
+          TopLeft="45.5769205867101,47.1999996717771" />
         <NodeLayout
           Size="164,41.6"
           Id="Package\46_load_dim_date"
-          TopLeft="354.487160118855,49.9999996523063" />
+          TopLeft="279.487164216674,46.6666663421525" />
+        <NodeLayout
+          Size="200.8,41.6"
+          Id="Package\47_create_dim_customers"
+          TopLeft="500.491425645807,46.7555552304233" />
+        <NodeLayout
+          Size="192,41.6"
+          Id="Package\48_load_dim_customers"
+          TopLeft="751.99355591907,45.8333330146141" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="286.325634822874,70.0666663240724">
+          TopLeft="218.37692058671,67.7333330069648">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="68.161525295981,0"
+              EndConnector="61.110243629964,0"
               Start="0,0"
-              End="60.661525295981,0">
+              End="53.610243629964,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="60.661525295981,0" />
+                    End="53.610243629964,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="443.487164216674,67.5111107862879">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="57.004261429133,0"
+              Start="0,0"
+              End="49.504261429133,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="49.504261429133,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="701.291425645807,67.0944441225187">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="50.7021302732626,0"
+              Start="0,0"
+              End="43.2021302732626,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="43.2021302732626,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>

@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="137"
-  DTS:VersionGUID="{15ADF3ED-7C41-4A7C-A793-66CA121AB2A7}">
+  DTS:VersionBuild="139"
+  DTS:VersionGUID="{97821B4D-8F2D-4102-BEF2-C900D0B4BACB}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -148,6 +148,7 @@
     <DTS:Executable
       DTS:refId="Package\05_generate_batch_id"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{7C52B9C4-8B35-4124-920C-97B644CFE464}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
@@ -188,6 +189,7 @@
     <DTS:Executable
       DTS:refId="Package\07_dft_load_customers"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{3238270C-2B1B-4581-A953-2734C8D1FED2}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -792,6 +794,7 @@
     <DTS:Executable
       DTS:refId="Package\09_load_geolocation"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{62002FFB-E11A-41D1-B954-AE9002947EE4}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -1396,6 +1399,7 @@
     <DTS:Executable
       DTS:refId="Package\11_dft_load_order_items"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{DEA99B33-3D61-468A-992C-2793944212D2}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -2076,6 +2080,7 @@
     <DTS:Executable
       DTS:refId="Package\13_dft_load_order_payments"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{E7EF905B-BE05-4288-B968-02011A62294E}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -2680,6 +2685,7 @@
     <DTS:Executable
       DTS:refId="Package\15_dft_load_order_reviews"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{C736D1D1-7816-41AF-85CD-F84CEF200D8F}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -3358,6 +3364,7 @@
     <DTS:Executable
       DTS:refId="Package\17_dft_load_orders"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{FDC43261-7869-4029-823A-179F52ECFBD7}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -4076,6 +4083,7 @@
     <DTS:Executable
       DTS:refId="Package\19_dft_load_products"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{8461B1E0-2AC8-4DF9-9DCA-07FCB40BE0C6}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -4832,6 +4840,7 @@
     <DTS:Executable
       DTS:refId="Package\21_dft_load_sellers"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{92E9F0A6-99EF-4193-A32B-995A54ADDE7E}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -5398,6 +5407,7 @@
     <DTS:Executable
       DTS:refId="Package\23_dft_load_product_category_name_translation"
       DTS:CreationName="Microsoft.Pipeline"
+      DTS:DelayValidation="True"
       DTS:Description="Data Flow Task"
       DTS:DTSID="{0D9304EB-5C93-4E32-A8E2-A36D111D7757}"
       DTS:ExecutableType="Microsoft.Pipeline"
@@ -6069,6 +6079,10 @@
       <GraphLayout
         Capacity="64" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
+          Size="196,56"
+          Id="Package\03_create_bronze_tables"
+          TopLeft="62.5640991457509,34.1999997621775" />
+        <NodeLayout
           Size="189.6,52.8"
           Id="Package\04_ensure_etl_load_log"
           TopLeft="320.710938188082,37.6606057987189" />
@@ -6475,6 +6489,28 @@
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 20]"
+          TopLeft="258.564099145751,63.1303027804482">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="62.1468390423312,0"
+              Start="0,0"
+              End="54.6468390423312,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="54.6468390423312,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 3]"
           TopLeft="506.408374036482,157.666665771935">
           <EdgeLayout.Curve>
@@ -6652,32 +6688,6 @@
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="196,56"
-          Id="Package\03_create_bronze_tables"
-          TopLeft="62.5640991457509,34.1999997621775" />
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 20]"
-          TopLeft="258.564099145751,63.1303027804482">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="62.1468390423312,0"
-              Start="0,0"
-              End="54.6468390423312,0">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="54.6468390423312,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </Package>
@@ -6685,7 +6695,7 @@
     design-time-name="Package\07_dft_load_customers">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
           Size="157.6,41.6"
           Id="Package\07_dft_load_customers\OLE DB Destination"
@@ -6721,7 +6731,9 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -6743,7 +6755,9 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -6765,7 +6779,9 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
