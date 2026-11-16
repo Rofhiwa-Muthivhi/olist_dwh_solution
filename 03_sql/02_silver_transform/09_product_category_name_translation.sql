@@ -1,18 +1,27 @@
-USE olist_dwh;
+
+USE [olist_dwh];
 GO
 
+-- ============================================================
 -- i am creating a preparation view for product category translations
-CREATE OR ALTER VIEW silver.vw_product_category_name_translation_prepared
+-- this view cleans the original category translations and adds
+-- the two missing category translations before loading them
+-- into the silver layer
+-- ============================================================
+
+CREATE OR ALTER VIEW [silver].[vw_product_category_name_translation_prepared]
 AS
 
--- i am selecting and cleaning the original translations
+-- select and clean the original category translations
+-- remove unnecessary spaces and exclude records with missing category names or translations
+-- retain the latest source load timestamp for each category translation
 WITH original_translations AS
 (
     SELECT
         LTRIM(RTRIM(column1)) AS product_category_name,
         LTRIM(RTRIM(column2)) AS product_category_name_english,
         MAX(TRY_CONVERT(DATETIME2(7), dwh_load_ts)) AS dwh_load_ts
-    FROM olist_stg.bronze.product_category_name_translation
+    FROM [olist_stg].[bronze].[product_category_name_translation]
     WHERE NULLIF(LTRIM(RTRIM(column1)), '') IS NOT NULL
       AND NULLIF(LTRIM(RTRIM(column2)), '') IS NOT NULL
     GROUP BY
@@ -20,7 +29,9 @@ WITH original_translations AS
         LTRIM(RTRIM(column2))
 ),
 
--- i am adding the two missing category translations
+-- add the two missing category translations that are not available in the original dataset
+-- assign the Portuguese category names their corresponding English translations
+-- use the current system timestamp as the load timestamp for these manually added records
 missing_translations AS
 (
     SELECT
@@ -36,7 +47,8 @@ missing_translations AS
         CAST(SYSDATETIME() AS DATETIME2(7))
 )
 
--- i am combining original and missing translations
+-- combine the original category translations with the two missing translations
+-- use not exists to ensure that manually added categories are only included when they are not already present in the original translations
 SELECT
     product_category_name,
     product_category_name_english,
