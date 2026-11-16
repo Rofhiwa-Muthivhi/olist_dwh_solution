@@ -1,14 +1,15 @@
 
 USE [olist_stg];
 
--- create the etl schema if it does not exist
+-- create the etl schema if it does not already exist in the database
 IF SCHEMA_ID('etl') IS NULL
 BEGIN
     EXEC('CREATE SCHEMA etl');
 END;
 
 
--- create the load log table if it does not exist
+-- create the load log table if it does not already exist
+-- this table is used to keep track of each etl batch load, including the source file, number of rows loaded, load status, and load timestamp
 IF OBJECT_ID('etl.load_log', 'U') IS NULL
 BEGIN
     CREATE TABLE etl.load_log
@@ -21,7 +22,6 @@ BEGIN
         load_timestamp DATETIME2 NOT NULL DEFAULT SYSDATETIME()
     );
 END;
-
 
 
 
