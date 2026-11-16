@@ -302,3 +302,47 @@ The following transformations were implemented:
 A Conditional Split was used to identify records with NULL or blank Portuguese category names or English translations.
 
 
+## Gold Data Lineage
+
+### 1. Purpose
+
+I created the Gold layer to organise the cleaned Silver data into dimension and fact tables that support business reporting and analytical queries.
+
+The Gold layer is located in the `olist_dwh` database under the `gold` schema.
+
+The tables are designed to support the Star Schema and provide structured data for downstream reporting and analysis.
+
+### 2. Source-to-Gold Mapping
+
+| Source | Destination table |
+|---|---|
+| SQL Server-generated calendar dates | olist_dwh.gold.dim_date |
+
+### 3. Data Flow
+
+The date dimension is generated directly in SQL Server using a SQL loading script.
+
+The script generates the calendar dates and their related attributes before inserting them into the gold.dim_date table.
+
+The loading process currently uses a standalone SQL script. SSIS orchestration will be documented once it has been implemented.
+
+### 4. Dataset Transformations
+
+#### 4.1 Date Dimension
+
+The date dimension was generated directly in SQL Server rather than being loaded from an external source dataset.
+
+The following steps were implemented:
+
+- Created the gold.dim_date table with a primary key and calendar attribute columns.
+- Used a recursive Common Table Expression (CTE) to generate calendar dates from 1 January 2016 to 31 December 2019.
+- Generated the day, day name, day of the week, week of the year, month, month name, quarter and year attributes.
+- Used ISO week numbering to calculate the week of the year.
+- Created an is_weekend flag to identify Saturdays and Sundays.
+- Inserted an Unknown record using date_key = -1 to represent missing or unavailable date references.
+- Used WHERE NOT EXISTS to prevent existing calendar dates from being inserted again.
+- Used IF NOT EXISTS to prevent the Unknown record from being inserted more than once.
+
+The generated calendar contains 1,461 dates. Including the additional Unknown record, the expected total is 1,462 records.
+
+
