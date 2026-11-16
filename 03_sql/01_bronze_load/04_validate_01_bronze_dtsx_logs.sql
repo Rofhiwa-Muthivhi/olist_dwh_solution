@@ -1,4 +1,4 @@
-```sql
+
 USE [olist_stg];
 GO
 
@@ -166,4 +166,3 @@ SELECT 'product_category_name_translation', COUNT(*),
        SUM(CASE WHEN dwh_source_file IS NULL THEN 1 ELSE 0 END),
        SUM(CASE WHEN dwh_batch_id IS NULL THEN 1 ELSE 0 END)
 FROM [olist_stg].[bronze].[product_category_name_translation];
-```
