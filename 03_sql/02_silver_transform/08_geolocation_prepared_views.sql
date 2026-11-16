@@ -1,12 +1,19 @@
 
-USE olist_dwh;
+USE [olist_dwh];
 GO
 
--- i am creating a preparation view for geolocation before loading into silver
-CREATE OR ALTER VIEW silver.vw_geolocation_prepared
+-- ============================================================
+-- i am creating a preparation view for geolocation before
+-- loading it into the silver layer
+-- this view aggregates geographical coordinates and identifies
+-- the most frequently occurring city and state per zip prefix
+-- ============================================================
+
+CREATE OR ALTER VIEW [silver].[vw_geolocation_prepared]
 AS
 
--- i am calculating the average latitude and longitude per zip prefix
+-- calculate the average latitude and longitude for each zip prefix
+-- also retain the latest source load timestamp for data lineage
 WITH coordinate_aggregation AS
 (
     SELECT
@@ -24,12 +31,13 @@ WITH coordinate_aggregation AS
 
         MAX(TRY_CONVERT(DATETIME2(7), dwh_load_ts)) AS dwh_load_ts
 
-    FROM olist_stg.bronze.geolocation
+    FROM [olist_stg].[bronze].[geolocation]
 
     GROUP BY geolocation_zip_code_prefix
 ),
 
--- i am counting the frequency of each city per zip prefix
+-- count how frequently each city occurs within a zip prefix
+-- trim unnecessary spaces to ensure consistent city values during grouping
 city_frequency AS
 (
     SELECT
@@ -37,14 +45,15 @@ city_frequency AS
         LTRIM(RTRIM(geolocation_city)) AS geolocation_city,
         COUNT(*) AS city_count
 
-    FROM olist_stg.bronze.geolocation
+    FROM [olist_stg].[bronze].[geolocation]
 
     GROUP BY
         geolocation_zip_code_prefix,
         LTRIM(RTRIM(geolocation_city))
 ),
 
--- i am ranking cities by frequency and using alphabetical order for ties
+-- rank cities according to their occurrence frequency within each zip prefix
+-- use alphabetical order as a secondary sorting condition when frequencies are tied
 city_ranking AS
 (
     SELECT
@@ -60,7 +69,8 @@ city_ranking AS
     FROM city_frequency
 ),
 
--- i am counting the frequency of each state per zip prefix
+-- count how frequently each state occurs within a zip prefix
+-- trim unnecessary spaces and convert state values to uppercase before grouping
 state_frequency AS
 (
     SELECT
@@ -68,14 +78,15 @@ state_frequency AS
         UPPER(LTRIM(RTRIM(geolocation_state))) AS geolocation_state,
         COUNT(*) AS state_count
 
-    FROM olist_stg.bronze.geolocation
+    FROM [olist_stg].[bronze].[geolocation]
 
     GROUP BY
         geolocation_zip_code_prefix,
         UPPER(LTRIM(RTRIM(geolocation_state)))
 ),
 
--- i am ranking states by frequency and using alphabetical order for ties
+-- rank states according to their occurrence frequency within each zip prefix
+-- use alphabetical order as a secondary sorting condition when frequencies are tied
 state_ranking AS
 (
     SELECT
@@ -91,7 +102,8 @@ state_ranking AS
     FROM state_frequency
 )
 
--- i am combining aggregated coordinates with the selected city and state
+-- combine the aggregated coordinates with the most frequently occurring city and state
+-- retain only the highest-ranked city and state for each zip prefix
 SELECT
     coordinates.geolocation_zip_code_prefix,
     coordinates.geolocation_lat,
