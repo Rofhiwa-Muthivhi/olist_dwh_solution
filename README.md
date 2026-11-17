@@ -6,23 +6,27 @@
 
 In this project, I take on the role of a Data Engineer at Olist, a Brazilian e-commerce marketplace. My assignment is to design and build an end-to-end data warehouse that consolidates the company's e-commerce data into a centralised environment.
 
-The project uses nine raw CSV datasets covering customers, sellers, products, orders, payments, deliveries and customer reviews. The objective is to create a reliable data foundation that enables consistent reporting, business analysis and informed decision-making.
+The project uses nine raw CSV datasets covering different areas of the business, including customers, sellers, products, orders, payments, order items, customer reviews, geographical locations and product category translations.
+
 
 ### 🏢 Business Context
 
 Olist is a Brazilian online marketplace that connects small businesses with customers. Sellers list their products on the platform, customers place orders, and sellers fulfil those orders through delivery partners.
 
-This business model is easy to relate to in South Africa. Platforms such as Takealot and Mr D operate in familiar e-commerce spaces where customers place orders, businesses fulfil them, deliveries take place and customers share feedback about their experiences.
+This business model is easy to relate to in South Africa. Platforms such as Takealot operate in a similar e-commerce environment where customers place orders, businesses fulfil them, deliveries take place and customers share feedback about their experiences.
 
-Every transaction generates valuable information about customer behaviour, seller performance, product sales, payments, delivery operations and customer satisfaction. Bringing this information together provides an opportunity to generate meaningful business insights.
+Every transaction generates valuable information about customer behaviour, seller performance, product sales, payments, delivery operations and customer satisfaction.
+
+This information is important to the business because it helps management understand how different areas of the marketplace are performing. Bringing these different sources of information together creates an opportunity to generate meaningful business insights and support better decision-making.
 
 ### ⚠️ Business Problem
 
-Olist has nine raw CSV extracts covering approximately 100,000 orders between 2016 and 2018, but no centralised data warehouse.
+Olist sits on a large amount of transactional data generated between 2016 and 2018. However, turning this data into meaningful business information presents several challenges.
 
-As a result, business information is distributed across multiple datasets, making it difficult to obtain a consistent view of revenue, product performance, delivery efficiency and customer satisfaction.
+Business information is spread across different datasets, making it difficult to get a complete view of business performance. Data quality issues, inconsistent formats and the lack of a centralised analytical environment further complicate reporting and analysis.
 
-My responsibility is to address this challenge by developing a centralised data warehouse that integrates the datasets, improves data quality and provides a trusted foundation for business reporting and decision-making.
+As a result, management faces challenges in understanding revenue, customer behaviour, seller performance, product sales, delivery efficiency and customer satisfaction.
+
 
 ### 🎯 Project Requirements & Technical Approach
 
