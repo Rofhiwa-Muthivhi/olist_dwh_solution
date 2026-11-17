@@ -46,3 +46,100 @@ The objective is to deliver a reliable, auditable and business-ready data wareho
 **📖 Detailed Technical Requirements:** [View Original Project Brief](https://github.com/KetroSithole/brightlearn_olist_dwh_2026/tree/main)
 
 
+### 🧩 Architecture Overview
+
+```mermaid
+flowchart LR
+    A["📁 Olist Source Data<br/>9 CSV Files"]:::source
+
+    subgraph BR["🥉 BRONZE LAYER<br/>olist_stg.bronze"]
+        direction TB
+        B[("Raw Tables<br/>Original Source Data<br/>Load Metadata")]
+    end
+
+    subgraph SL["🥈 SILVER LAYER<br/>olist_dwh.silver"]
+        direction TB
+        S[("Cleansed & Standardised<br/>Tables")]
+        E[("etl.error_rows<br/>Invalid Records")]
+    end
+
+    subgraph GL["🥇 GOLD LAYER<br/>olist_dwh.gold"]
+        direction TB
+        G[("Business-Ready Star Schema<br/>Fact Tables & Dimension Tables")]
+    end
+
+    P["📊 Power BI<br/>Reporting & Analysis"]:::powerbi
+
+    A --> B
+    B --> S
+    S --> G
+    S -.-> E
+    G --> P
+
+    classDef source fill:#263B5E,stroke:#6488B8,color:#FFFFFF,stroke-width:2px
+    classDef bronze fill:#75451F,stroke:#C18A50,color:#FFFFFF,stroke-width:2px
+    classDef silver fill:#465569,stroke:#91A3B8,color:#FFFFFF,stroke-width:2px
+    classDef gold fill:#765B18,stroke:#D5AD46,color:#FFFFFF,stroke-width:2px
+    classDef powerbi fill:#145B46,stroke:#36A77F,color:#FFFFFF,stroke-width:2px
+
+    class A source
+    class B bronze
+    class S,E silver
+    class G gold
+    class P powerbi
+
+    style BR fill:#75451F12,stroke:#B8793D,stroke-width:2px
+    style SL fill:#46556912,stroke:#8293A8,stroke-width:2px
+    style GL fill:#765B1812,stroke:#C49B38,stroke-width:2px
+```
+
+
+### 🥉 Bronze Data Ingestion (`01_bronze_load.dtsx`)
+
+```mermaid
+flowchart LR
+
+    A["📁 9 Source CSV Files"]:::source
+
+    B["Flat File Source<br/>Read CSV Records"]:::bronze
+
+    C["Derived Column<br/>Add Load Metadata"]:::transform
+
+    D[("OLE DB Destination<br/>olist_stg.bronze<br/>9 Bronze Tables")]:::destination
+
+    A --> B --> C --> D
+
+    classDef source fill:#263B5E,stroke:#6488B8,color:#FFFFFF,stroke-width:2px
+    classDef bronze fill:#75451F,stroke:#C18A50,color:#FFFFFF,stroke-width:2px
+    classDef transform fill:#465569,stroke:#91A3B8,color:#FFFFFF,stroke-width:2px
+    classDef destination fill:#75451F,stroke:#C18A50,color:#FFFFFF,stroke-width:2px
+```
+
+
+### 🥈 Silver Data Transformation (`02_silver_transform.dtsx`)
+
+```mermaid
+flowchart LR
+
+    A[("🥉 Bronze Tables<br/>olist_stg.bronze")]:::bronze
+
+    B["Execute SQL Task<br/>Create or Update Prepared Views"]:::silver
+
+    C["OLE DB Source<br/>Read Prepared Records"]:::silver
+
+    D["Transformations<br/>Data Cleaning, Standardisation<br/>& Type Conversions"]:::transform
+
+    E[("🥈 Silver Tables<br/>olist_dwh.silver")]:::destination
+
+    F[("etl.error_rows<br/>Invalid Records")]:::error
+
+    A --> B --> C --> D
+    D -->|"Valid Records"| E
+    D -.->|"Invalid Records"| F
+
+    classDef bronze fill:#75451F,stroke:#C18A50,color:#FFFFFF,stroke-width:2px
+    classDef silver fill:#465569,stroke:#91A3B8,color:#FFFFFF,stroke-width:2px
+    classDef transform fill:#354B63,stroke:#6386A8,color:#FFFFFF,stroke-width:2px
+    classDef destination fill:#465569,stroke:#91A3B8,color:#FFFFFF,stroke-width:2px
+    classDef error fill:#762F35,stroke:#C65C64,color:#FFFFFF,stroke-width:2px
+```
