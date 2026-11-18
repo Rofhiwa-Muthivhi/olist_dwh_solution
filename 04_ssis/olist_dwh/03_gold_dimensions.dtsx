@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="16"
-  DTS:VersionGUID="{700ADC7F-1A90-4C76-829C-4D2BE01754A6}">
+  DTS:VersionBuild="19"
+  DTS:VersionGUID="{775E675B-5973-47E7-9FD8-822E4D7DBDE7}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -286,12 +286,22 @@
                   description="The SQL command to be executed."
                   name="SqlCommand"
                   UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
-    geolocation_zip_code_prefix,
-    geolocation_lat,
-    geolocation_lng,
-    geolocation_city,
-    geolocation_state
-FROM silver.geolocation;</property>
+    s.geolocation_zip_code_prefix,
+    s.geolocation_lat,
+    s.geolocation_lng,
+    s.geolocation_city,
+    s.geolocation_state
+
+FROM [olist_dwh].[silver].[geolocation] AS s
+
+WHERE NOT EXISTS
+(
+    SELECT 1
+    FROM [olist_dwh].[gold].[dim_geography] AS g
+
+    WHERE g.geography_zip_code_prefix =
+          s.geolocation_zip_code_prefix
+);</property>
                 <property
                   dataType="System.String"
                   description="The variable that contains the SQL command to be executed."
@@ -480,14 +490,14 @@ FROM silver.geolocation;</property>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\49_create_dim_customer"
+      DTS:refId="Package\49_create_dim_customers"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
       DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{2DF7A268-3E08-4A46-A6B8-9AD156C50A3E}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
       DTS:LocaleID="-1"
-      DTS:ObjectName="49_create_dim_customer"
+      DTS:ObjectName="49_create_dim_customers"
       DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
       DTS:ThreadHint="0">
       <DTS:Variables />
@@ -498,21 +508,21 @@ FROM silver.geolocation;</property>
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\50_load_dim_customer"
+      DTS:refId="Package\50_load_dim_customers"
       DTS:CreationName="Microsoft.ExecuteSQLTask"
       DTS:DelayValidation="True"
       DTS:Description="Execute SQL Task"
       DTS:DTSID="{61CE67C7-5C05-4AFE-9268-19A47CC2AFD4}"
       DTS:ExecutableType="Microsoft.ExecuteSQLTask"
       DTS:LocaleID="-1"
-      DTS:ObjectName="50_load_dim_customer"
+      DTS:ObjectName="50_load_dim_customers"
       DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
       DTS:ThreadHint="0">
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
           SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
-          SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am implementing an incremental scd type 2 load for the customer dimension.&#xA;-- i am using customer_unique_id as the business key to identify each customer.&#xA;-- i am joining customers to orders to establish the chronological order of&#xA;-- customer location records using the order purchase timestamp.&#xA;-- i will track changes in zip code, city and state while preserving history.&#xA;-- this process will identify new versions without duplicating existing records.&#xA;--================================================================================&#xA;&#xA;SET NOCOUNT ON;&#xA;SET XACT_ABORT ON;&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am checking that the unknown customer record exists before processing.&#xA;-- this ensures that missing customer information can still be handled.&#xA;--================================================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM [gold].[dim_customer]&#xA;    WHERE customer_key = -1&#xA;)&#xA;BEGIN&#xA;    THROW 50001, 'the unknown customer record is missing.', 1;&#xA;END;&#xA;&#xA;&#xA;BEGIN TRY&#xA;&#xA;    BEGIN TRANSACTION;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am retrieving customer records and joining them to orders.&#xA;    -- i am using the first order purchase timestamp associated with each&#xA;    -- customer record to establish when that location was first observed.&#xA;    --================================================================================&#xA;&#xA;    ;WITH customer_observations AS&#xA;    (&#xA;        SELECT&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;            c.customer_city,&#xA;            c.customer_state,&#xA;&#xA;            MIN(o.order_purchase_timestamp) AS observed_from&#xA;&#xA;        FROM [olist_dwh].[silver].[customers] AS c&#xA;&#xA;        INNER JOIN [olist_dwh].[silver].[orders] AS o&#xA;            ON c.customer_id = o.customer_id&#xA;&#xA;        WHERE c.customer_unique_id IS NOT NULL&#xA;          AND c.customer_unique_id &lt;&gt; 'Unknown'&#xA;&#xA;        GROUP BY&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;            c.customer_city,&#xA;            c.customer_state&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lag to compare each customer location with the previous&#xA;    -- recorded location to identify changes in customer information.&#xA;    --================================================================================&#xA;&#xA;    customer_location_changes AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            customer_zip_code_prefix,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from,&#xA;&#xA;            LAG(customer_id) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_customer_id,&#xA;&#xA;            LAG(customer_zip_code_prefix) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_zip_code,&#xA;&#xA;            LAG(customer_city) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_city,&#xA;&#xA;            LAG(customer_state) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_state&#xA;&#xA;        FROM customer_observations&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am keeping the first customer record and subsequent records where&#xA;    -- the zip code, city or state differs from the previous location.&#xA;    -- this prevents unchanged customer information from creating new versions.&#xA;    --================================================================================&#xA;&#xA;    customer_versions AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            customer_zip_code_prefix,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from&#xA;&#xA;        FROM customer_location_changes&#xA;&#xA;        WHERE previous_customer_id IS NULL&#xA;&#xA;           OR ISNULL(customer_zip_code_prefix, '') &lt;&gt;&#xA;              ISNULL(previous_zip_code, '')&#xA;&#xA;           OR ISNULL(customer_city, '') &lt;&gt;&#xA;              ISNULL(previous_city, '')&#xA;&#xA;           OR ISNULL(customer_state, '') &lt;&gt;&#xA;              ISNULL(previous_state, '')&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lead to identify when the next customer version begins.&#xA;    -- this allows me to establish the end date of each previous version.&#xA;    -- the latest version will have no end date and will remain current.&#xA;    --================================================================================&#xA;&#xA;    customer_version_dates AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_zip_code_prefix,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from AS valid_from,&#xA;&#xA;            LEAD(observed_from) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS valid_to&#xA;&#xA;        FROM customer_versions&#xA;    )&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am storing the prepared customer versions in a temporary table.&#xA;    -- this allows me to compare the prepared history with the existing gold records.&#xA;    --================================================================================&#xA;&#xA;    SELECT&#xA;        customer_unique_id,&#xA;        customer_zip_code_prefix,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to&#xA;&#xA;    INTO #customer_version_dates&#xA;&#xA;    FROM customer_version_dates;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am updating existing customer records when a newer version is identified.&#xA;    -- the previous record will be expired and marked as no longer current.&#xA;    -- this preserves the existing customer history instead of overwriting it.&#xA;    --================================================================================&#xA;&#xA;    UPDATE target&#xA;&#xA;    SET&#xA;        target.valid_to = source.valid_to,&#xA;&#xA;        target.is_current =&#xA;            CASE&#xA;                WHEN source.valid_to IS NULL THEN 1&#xA;                ELSE 0&#xA;            END&#xA;&#xA;    FROM [gold].[dim_customer] AS target&#xA;&#xA;    INNER JOIN #customer_version_dates AS source&#xA;        ON target.customer_unique_id = source.customer_unique_id&#xA;       AND target.valid_from = source.valid_from&#xA;&#xA;    WHERE target.customer_key &lt;&gt; -1;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am inserting customer versions that do not already exist in gold.&#xA;    -- the identity column will automatically generate a new surrogate key.&#xA;    -- the not exists check prevents previously loaded versions from being duplicated.&#xA;    --================================================================================&#xA;&#xA;    INSERT INTO [gold].[dim_customer]&#xA;    (&#xA;        customer_unique_id,&#xA;        customer_zip_code_prefix,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to,&#xA;        is_current&#xA;    )&#xA;&#xA;    SELECT&#xA;        source.customer_unique_id,&#xA;        source.customer_zip_code_prefix,&#xA;        source.customer_city,&#xA;        source.customer_state,&#xA;        source.valid_from,&#xA;        source.valid_to,&#xA;&#xA;        CASE&#xA;            WHEN source.valid_to IS NULL THEN 1&#xA;            ELSE 0&#xA;        END&#xA;&#xA;    FROM #customer_version_dates AS source&#xA;&#xA;    WHERE NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM [gold].[dim_customer] AS target&#xA;&#xA;        WHERE target.customer_unique_id = source.customer_unique_id&#xA;          AND target.valid_from = source.valid_from&#xA;    );&#xA;&#xA;&#xA;    COMMIT TRANSACTION;&#xA;&#xA;&#xA;    PRINT 'customer dimension incremental scd type 2 load completed successfully.';&#xA;&#xA;&#xA;END TRY&#xA;&#xA;BEGIN CATCH&#xA;&#xA;    IF @@TRANCOUNT &gt; 0&#xA;        ROLLBACK TRANSACTION;&#xA;&#xA;    THROW;&#xA;&#xA;END CATCH;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+          SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am implementing an incremental scd type 2 load for the customer dimension.&#xA;-- i am using customer_unique_id as the business key to identify each customer.&#xA;-- i am joining customers to orders to establish the chronological order of&#xA;-- customer location records using the order purchase timestamp.&#xA;-- i am retrieving geography_key by matching customer zip prefixes to&#xA;-- the geography dimension.&#xA;-- i will track changes in geography, city and state while preserving history.&#xA;--================================================================================&#xA;&#xA;SET NOCOUNT ON;&#xA;SET XACT_ABORT ON;&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am checking that the unknown customer and unknown geography records exist.&#xA;-- this ensures that missing customer or geographical information can be handled.&#xA;--================================================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM gold.dim_customer&#xA;    WHERE customer_key = -1&#xA;)&#xA;BEGIN&#xA;    THROW 50001, 'The unknown customer record is missing.', 1;&#xA;END;&#xA;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM gold.dim_geography&#xA;    WHERE geography_key = -1&#xA;)&#xA;BEGIN&#xA;    THROW 50002, 'The unknown geography record is missing.', 1;&#xA;END;&#xA;&#xA;&#xA;BEGIN TRY&#xA;&#xA;    BEGIN TRANSACTION;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am retrieving customer records and joining them to orders.&#xA;    -- i am also matching customer zip prefixes to the geography dimension&#xA;    -- to retrieve the corresponding geography surrogate key.&#xA;    -- i am using the first order purchase timestamp associated with each&#xA;    -- customer record to establish when that location was first observed.&#xA;    --================================================================================&#xA;&#xA;    ;WITH customer_observations AS&#xA;    (&#xA;        SELECT&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;&#xA;            COALESCE(g.geography_key, -1) AS geography_key,&#xA;&#xA;            c.customer_city,&#xA;            c.customer_state,&#xA;&#xA;            MIN(o.order_purchase_timestamp) AS observed_from&#xA;&#xA;        FROM silver.customers AS c&#xA;&#xA;        INNER JOIN silver.orders AS o&#xA;            ON c.customer_id = o.customer_id&#xA;&#xA;        LEFT JOIN gold.dim_geography AS g&#xA;            ON LTRIM(RTRIM(c.customer_zip_code_prefix))&#xA;             = LTRIM(RTRIM(g.geography_zip_code_prefix))&#xA;&#xA;        WHERE c.customer_unique_id IS NOT NULL&#xA;          AND c.customer_unique_id &lt;&gt; 'Unknown'&#xA;&#xA;        GROUP BY&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;            g.geography_key,&#xA;            c.customer_city,&#xA;            c.customer_state&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lag to compare each customer location with the previous&#xA;    -- recorded location to identify changes in geographical information.&#xA;    --================================================================================&#xA;&#xA;    customer_location_changes AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            customer_zip_code_prefix,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from,&#xA;&#xA;            LAG(customer_id) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_customer_id,&#xA;&#xA;            LAG(customer_zip_code_prefix) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_zip_code,&#xA;&#xA;            LAG(geography_key) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_geography_key,&#xA;&#xA;            LAG(customer_city) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_city,&#xA;&#xA;            LAG(customer_state) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_state&#xA;&#xA;        FROM customer_observations&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am keeping the first customer record and subsequent records where&#xA;    -- the zip code, geography key, city or state differs from the previous record.&#xA;    -- this prevents unchanged customer information from creating new versions.&#xA;    --================================================================================&#xA;&#xA;    customer_versions AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from&#xA;&#xA;        FROM customer_location_changes&#xA;&#xA;        WHERE previous_customer_id IS NULL&#xA;&#xA;           OR ISNULL(customer_zip_code_prefix, '') &lt;&gt;&#xA;              ISNULL(previous_zip_code, '')&#xA;&#xA;           OR geography_key &lt;&gt; previous_geography_key&#xA;&#xA;           OR ISNULL(customer_city, '') &lt;&gt;&#xA;              ISNULL(previous_city, '')&#xA;&#xA;           OR ISNULL(customer_state, '') &lt;&gt;&#xA;              ISNULL(previous_state, '')&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lead to identify when the next customer version begins.&#xA;    -- this allows me to establish the end date of each previous version.&#xA;    -- the latest version will have no end date and will remain current.&#xA;    --================================================================================&#xA;&#xA;    customer_version_dates AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;&#xA;            observed_from AS valid_from,&#xA;&#xA;            LEAD(observed_from) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS valid_to&#xA;&#xA;        FROM customer_versions&#xA;    )&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am storing the prepared customer versions in a temporary table.&#xA;    -- this allows me to compare the prepared history with existing gold records.&#xA;    --================================================================================&#xA;&#xA;    SELECT&#xA;        customer_unique_id,&#xA;        geography_key,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to&#xA;&#xA;    INTO #customer_version_dates&#xA;&#xA;    FROM customer_version_dates;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am updating existing customer records when a matching version exists.&#xA;    -- i am updating the geography reference and maintaining the correct&#xA;    -- valid_from, valid_to and is_current values.&#xA;    -- this preserves existing customer history instead of overwriting it.&#xA;    --================================================================================&#xA;&#xA;    UPDATE target&#xA;&#xA;    SET&#xA;        target.geography_key = source.geography_key,&#xA;        target.customer_city = source.customer_city,&#xA;        target.customer_state = source.customer_state,&#xA;        target.valid_to = source.valid_to,&#xA;&#xA;        target.is_current =&#xA;            CASE&#xA;                WHEN source.valid_to IS NULL THEN 1&#xA;                ELSE 0&#xA;            END&#xA;&#xA;    FROM gold.dim_customer AS target&#xA;&#xA;    INNER JOIN #customer_version_dates AS source&#xA;        ON target.customer_unique_id = source.customer_unique_id&#xA;       AND target.valid_from = source.valid_from&#xA;&#xA;    WHERE target.customer_key &lt;&gt; -1;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am inserting customer versions that do not already exist in gold.&#xA;    -- the identity column will automatically generate a new surrogate key.&#xA;    -- geography_key will reference the geography dimension.&#xA;    -- the not exists check prevents previously loaded versions from being duplicated.&#xA;    --================================================================================&#xA;&#xA;    INSERT INTO gold.dim_customer&#xA;    (&#xA;        customer_unique_id,&#xA;        geography_key,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to,&#xA;        is_current&#xA;    )&#xA;&#xA;    SELECT&#xA;        source.customer_unique_id,&#xA;        source.geography_key,&#xA;        source.customer_city,&#xA;        source.customer_state,&#xA;        source.valid_from,&#xA;        source.valid_to,&#xA;&#xA;        CASE&#xA;            WHEN source.valid_to IS NULL THEN 1&#xA;            ELSE 0&#xA;        END&#xA;&#xA;    FROM #customer_version_dates AS source&#xA;&#xA;    WHERE NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM gold.dim_customer AS target&#xA;&#xA;        WHERE target.customer_unique_id = source.customer_unique_id&#xA;          AND target.valid_from = source.valid_from&#xA;    );&#xA;&#xA;&#xA;    DROP TABLE #customer_version_dates;&#xA;&#xA;&#xA;    COMMIT TRANSACTION;&#xA;&#xA;&#xA;    PRINT 'Customer dimension incremental SCD Type 2 load completed successfully.';&#xA;&#xA;&#xA;END TRY&#xA;&#xA;BEGIN CATCH&#xA;&#xA;    IF @@TRANCOUNT &gt; 0&#xA;        ROLLBACK TRANSACTION;&#xA;&#xA;    THROW;&#xA;&#xA;END CATCH;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
   </DTS:Executables>
@@ -548,15 +558,15 @@ FROM silver.geolocation;</property>
       DTS:From="Package\48_load_dim_geography"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 3"
-      DTS:To="Package\49_create_dim_customer" />
+      DTS:To="Package\49_create_dim_customers" />
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
       DTS:CreationName=""
       DTS:DTSID="{ED9BC04D-A10A-4B2E-A86A-630BCC80538B}"
-      DTS:From="Package\49_create_dim_customer"
+      DTS:From="Package\49_create_dim_customers"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 4"
-      DTS:To="Package\50_load_dim_customer" />
+      DTS:To="Package\50_load_dim_customers" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -579,12 +589,12 @@ FROM silver.geolocation;</property>
           Id="Package\46_load_dim_date"
           TopLeft="281.410241034679,45.9999996801218" />
         <NodeLayout
-          Size="196,41.6"
-          Id="Package\49_create_dim_customer"
+          Size="200.8,41.6"
+          Id="Package\49_create_dim_customers"
           TopLeft="37.6709381126909,148.755554521128" />
         <NodeLayout
-          Size="186.4,41.6"
-          Id="Package\50_load_dim_customer"
+          Size="192,41.6"
+          Id="Package\50_load_dim_customers"
           TopLeft="296.865375657972,146.499998981257" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
@@ -666,9 +676,9 @@ FROM silver.geolocation;</property>
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-724.19055863515,61.1555548410062"
+              EndConnector="-721.79055863515,61.1555548410062"
               Start="0,0"
-              End="-724.19055863515,53.6555548410062">
+              End="-721.79055863515,53.6555548410062">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
@@ -679,13 +689,13 @@ FROM silver.geolocation;</property>
                     Point2="0,30.5777774205031"
                     Point3="-4,30.5777774205031" />
                   <mssgle:LineSegment
-                    End="-720.19055863515,30.5777774205031" />
+                    End="-717.79055863515,30.5777774205031" />
                   <mssgle:CubicBezierSegment
-                    Point1="-720.19055863515,30.5777774205031"
-                    Point2="-724.19055863515,30.5777774205031"
-                    Point3="-724.19055863515,34.5777774205031" />
+                    Point1="-717.79055863515,30.5777774205031"
+                    Point2="-721.79055863515,30.5777774205031"
+                    Point3="-721.79055863515,34.5777774205031" />
                   <mssgle:LineSegment
-                    End="-724.19055863515,53.6555548410062" />
+                    End="-721.79055863515,53.6555548410062" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -696,18 +706,18 @@ FROM silver.geolocation;</property>
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 4]"
-          TopLeft="233.670938112691,168.427776751193">
+          TopLeft="238.470938112691,168.427776751193">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="63.1944375452814,0"
+              EndConnector="58.3944375452814,0"
               Start="0,0"
-              End="55.6944375452814,0">
+              End="50.8944375452814,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="55.6944375452814,0" />
+                    End="50.8944375452814,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
