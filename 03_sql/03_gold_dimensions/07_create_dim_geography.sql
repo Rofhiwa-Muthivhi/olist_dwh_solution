@@ -19,7 +19,7 @@ BEGIN
         latitude DECIMAL(10,8) NULL,
         longitude DECIMAL(11,8) NULL,
         city NVARCHAR(255) NOT NULL,
-        state NVARCHAR(255) NOT NULL,
+        [state] NVARCHAR(255) NOT NULL,
 
         CONSTRAINT PK_dim_geography
             PRIMARY KEY (geography_key)
@@ -72,7 +72,7 @@ BEGIN
         latitude,
         longitude,
         city,
-        state
+        [state]
     )
     VALUES
     (
