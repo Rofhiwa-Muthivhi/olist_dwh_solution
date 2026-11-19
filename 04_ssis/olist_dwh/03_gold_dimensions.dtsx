@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="19"
-  DTS:VersionGUID="{775E675B-5973-47E7-9FD8-822E4D7DBDE7}">
+  DTS:VersionBuild="34"
+  DTS:VersionGUID="{100E965E-D273-4B61-B0A2-E20C801EE69B}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -525,6 +525,1014 @@ WHERE NOT EXISTS
           SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am implementing an incremental scd type 2 load for the customer dimension.&#xA;-- i am using customer_unique_id as the business key to identify each customer.&#xA;-- i am joining customers to orders to establish the chronological order of&#xA;-- customer location records using the order purchase timestamp.&#xA;-- i am retrieving geography_key by matching customer zip prefixes to&#xA;-- the geography dimension.&#xA;-- i will track changes in geography, city and state while preserving history.&#xA;--================================================================================&#xA;&#xA;SET NOCOUNT ON;&#xA;SET XACT_ABORT ON;&#xA;&#xA;&#xA;--================================================================================&#xA;-- i am checking that the unknown customer and unknown geography records exist.&#xA;-- this ensures that missing customer or geographical information can be handled.&#xA;--================================================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM gold.dim_customer&#xA;    WHERE customer_key = -1&#xA;)&#xA;BEGIN&#xA;    THROW 50001, 'The unknown customer record is missing.', 1;&#xA;END;&#xA;&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM gold.dim_geography&#xA;    WHERE geography_key = -1&#xA;)&#xA;BEGIN&#xA;    THROW 50002, 'The unknown geography record is missing.', 1;&#xA;END;&#xA;&#xA;&#xA;BEGIN TRY&#xA;&#xA;    BEGIN TRANSACTION;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am retrieving customer records and joining them to orders.&#xA;    -- i am also matching customer zip prefixes to the geography dimension&#xA;    -- to retrieve the corresponding geography surrogate key.&#xA;    -- i am using the first order purchase timestamp associated with each&#xA;    -- customer record to establish when that location was first observed.&#xA;    --================================================================================&#xA;&#xA;    ;WITH customer_observations AS&#xA;    (&#xA;        SELECT&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;&#xA;            COALESCE(g.geography_key, -1) AS geography_key,&#xA;&#xA;            c.customer_city,&#xA;            c.customer_state,&#xA;&#xA;            MIN(o.order_purchase_timestamp) AS observed_from&#xA;&#xA;        FROM silver.customers AS c&#xA;&#xA;        INNER JOIN silver.orders AS o&#xA;            ON c.customer_id = o.customer_id&#xA;&#xA;        LEFT JOIN gold.dim_geography AS g&#xA;            ON LTRIM(RTRIM(c.customer_zip_code_prefix))&#xA;             = LTRIM(RTRIM(g.geography_zip_code_prefix))&#xA;&#xA;        WHERE c.customer_unique_id IS NOT NULL&#xA;          AND c.customer_unique_id &lt;&gt; 'Unknown'&#xA;&#xA;        GROUP BY&#xA;            c.customer_unique_id,&#xA;            c.customer_id,&#xA;            c.customer_zip_code_prefix,&#xA;            g.geography_key,&#xA;            c.customer_city,&#xA;            c.customer_state&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lag to compare each customer location with the previous&#xA;    -- recorded location to identify changes in geographical information.&#xA;    --================================================================================&#xA;&#xA;    customer_location_changes AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            customer_zip_code_prefix,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from,&#xA;&#xA;            LAG(customer_id) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_customer_id,&#xA;&#xA;            LAG(customer_zip_code_prefix) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_zip_code,&#xA;&#xA;            LAG(geography_key) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_geography_key,&#xA;&#xA;            LAG(customer_city) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_city,&#xA;&#xA;            LAG(customer_state) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS previous_state&#xA;&#xA;        FROM customer_observations&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am keeping the first customer record and subsequent records where&#xA;    -- the zip code, geography key, city or state differs from the previous record.&#xA;    -- this prevents unchanged customer information from creating new versions.&#xA;    --================================================================================&#xA;&#xA;    customer_versions AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;            observed_from&#xA;&#xA;        FROM customer_location_changes&#xA;&#xA;        WHERE previous_customer_id IS NULL&#xA;&#xA;           OR ISNULL(customer_zip_code_prefix, '') &lt;&gt;&#xA;              ISNULL(previous_zip_code, '')&#xA;&#xA;           OR geography_key &lt;&gt; previous_geography_key&#xA;&#xA;           OR ISNULL(customer_city, '') &lt;&gt;&#xA;              ISNULL(previous_city, '')&#xA;&#xA;           OR ISNULL(customer_state, '') &lt;&gt;&#xA;              ISNULL(previous_state, '')&#xA;    ),&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am using lead to identify when the next customer version begins.&#xA;    -- this allows me to establish the end date of each previous version.&#xA;    -- the latest version will have no end date and will remain current.&#xA;    --================================================================================&#xA;&#xA;    customer_version_dates AS&#xA;    (&#xA;        SELECT&#xA;            customer_unique_id,&#xA;            customer_id,&#xA;            geography_key,&#xA;            customer_city,&#xA;            customer_state,&#xA;&#xA;            observed_from AS valid_from,&#xA;&#xA;            LEAD(observed_from) OVER&#xA;            (&#xA;                PARTITION BY customer_unique_id&#xA;                ORDER BY observed_from, customer_id&#xA;            ) AS valid_to&#xA;&#xA;        FROM customer_versions&#xA;    )&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am storing the prepared customer versions in a temporary table.&#xA;    -- this allows me to compare the prepared history with existing gold records.&#xA;    --================================================================================&#xA;&#xA;    SELECT&#xA;        customer_unique_id,&#xA;        geography_key,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to&#xA;&#xA;    INTO #customer_version_dates&#xA;&#xA;    FROM customer_version_dates;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am updating existing customer records when a matching version exists.&#xA;    -- i am updating the geography reference and maintaining the correct&#xA;    -- valid_from, valid_to and is_current values.&#xA;    -- this preserves existing customer history instead of overwriting it.&#xA;    --================================================================================&#xA;&#xA;    UPDATE target&#xA;&#xA;    SET&#xA;        target.geography_key = source.geography_key,&#xA;        target.customer_city = source.customer_city,&#xA;        target.customer_state = source.customer_state,&#xA;        target.valid_to = source.valid_to,&#xA;&#xA;        target.is_current =&#xA;            CASE&#xA;                WHEN source.valid_to IS NULL THEN 1&#xA;                ELSE 0&#xA;            END&#xA;&#xA;    FROM gold.dim_customer AS target&#xA;&#xA;    INNER JOIN #customer_version_dates AS source&#xA;        ON target.customer_unique_id = source.customer_unique_id&#xA;       AND target.valid_from = source.valid_from&#xA;&#xA;    WHERE target.customer_key &lt;&gt; -1;&#xA;&#xA;&#xA;    --================================================================================&#xA;    -- i am inserting customer versions that do not already exist in gold.&#xA;    -- the identity column will automatically generate a new surrogate key.&#xA;    -- geography_key will reference the geography dimension.&#xA;    -- the not exists check prevents previously loaded versions from being duplicated.&#xA;    --================================================================================&#xA;&#xA;    INSERT INTO gold.dim_customer&#xA;    (&#xA;        customer_unique_id,&#xA;        geography_key,&#xA;        customer_city,&#xA;        customer_state,&#xA;        valid_from,&#xA;        valid_to,&#xA;        is_current&#xA;    )&#xA;&#xA;    SELECT&#xA;        source.customer_unique_id,&#xA;        source.geography_key,&#xA;        source.customer_city,&#xA;        source.customer_state,&#xA;        source.valid_from,&#xA;        source.valid_to,&#xA;&#xA;        CASE&#xA;            WHEN source.valid_to IS NULL THEN 1&#xA;            ELSE 0&#xA;        END&#xA;&#xA;    FROM #customer_version_dates AS source&#xA;&#xA;    WHERE NOT EXISTS&#xA;    (&#xA;        SELECT 1&#xA;        FROM gold.dim_customer AS target&#xA;&#xA;        WHERE target.customer_unique_id = source.customer_unique_id&#xA;          AND target.valid_from = source.valid_from&#xA;    );&#xA;&#xA;&#xA;    DROP TABLE #customer_version_dates;&#xA;&#xA;&#xA;    COMMIT TRANSACTION;&#xA;&#xA;&#xA;    PRINT 'Customer dimension incremental SCD Type 2 load completed successfully.';&#xA;&#xA;&#xA;END TRY&#xA;&#xA;BEGIN CATCH&#xA;&#xA;    IF @@TRANCOUNT &gt; 0&#xA;        ROLLBACK TRANSACTION;&#xA;&#xA;    THROW;&#xA;&#xA;END CATCH;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\51_create_dim_sellers"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E2F9154A-6A4E-4BDB-8266-EA80F575B572}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="51_create_dim_sellers"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="&#xA;USE [olist_dwh];&#xA;&#xA;--=========================================================&#xA;-- 1. CREATE SELLER DIMENSION TABLE&#xA;--=========================================================&#xA;&#xA;IF OBJECT_ID('gold.dim_seller', 'U') IS NULL&#xA;BEGIN&#xA;&#xA;    CREATE TABLE gold.dim_seller&#xA;    (&#xA;        seller_key INT IDENTITY(1,1) NOT NULL,&#xA;        seller_id VARCHAR(50) NOT NULL,&#xA;        geography_key INT NOT NULL,&#xA;        seller_city NVARCHAR(255) NOT NULL,&#xA;        seller_state NVARCHAR(255) NOT NULL,&#xA;&#xA;        CONSTRAINT PK_dim_seller&#xA;            PRIMARY KEY CLUSTERED (seller_key)&#xA;    );&#xA;&#xA;END;&#xA;&#xA;&#xA;--=========================================================&#xA;-- 2. CREATE UNIQUE INDEX ON SELLER BUSINESS KEY&#xA;--=========================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.indexes&#xA;    WHERE name = 'UX_dim_seller_seller_id'&#xA;      AND object_id = OBJECT_ID('gold.dim_seller')&#xA;)&#xA;BEGIN&#xA;&#xA;    CREATE UNIQUE NONCLUSTERED INDEX UX_dim_seller_seller_id&#xA;    ON gold.dim_seller (seller_id);&#xA;&#xA;END;&#xA;&#xA;&#xA;--=========================================================&#xA;-- 3. CREATE GEOGRAPHY FOREIGN KEY&#xA;--=========================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM sys.foreign_keys&#xA;    WHERE name = 'FK_dim_seller_geography'&#xA;      AND parent_object_id = OBJECT_ID('gold.dim_seller')&#xA;)&#xA;BEGIN&#xA;&#xA;    ALTER TABLE gold.dim_seller&#xA;    ADD CONSTRAINT FK_dim_seller_geography&#xA;    FOREIGN KEY (geography_key)&#xA;    REFERENCES gold.dim_geography (geography_key);&#xA;&#xA;END;&#xA;&#xA;&#xA;--=========================================================&#xA;-- 4. INSERT UNKNOWN SELLER RECORD&#xA;--=========================================================&#xA;&#xA;IF NOT EXISTS&#xA;(&#xA;    SELECT 1&#xA;    FROM gold.dim_seller&#xA;    WHERE seller_key = -1&#xA;       OR seller_id = 'Unknown'&#xA;)&#xA;BEGIN&#xA;&#xA;    SET IDENTITY_INSERT gold.dim_seller ON;&#xA;&#xA;    INSERT INTO gold.dim_seller&#xA;    (&#xA;        seller_key,&#xA;        seller_id,&#xA;        geography_key,&#xA;        seller_city,&#xA;        seller_state&#xA;    )&#xA;    VALUES&#xA;    (&#xA;        -1,&#xA;        'Unknown',&#xA;        -1,&#xA;        'Unknown',&#xA;        'Unknown'&#xA;    );&#xA;&#xA;    SET IDENTITY_INSERT gold.dim_seller OFF;&#xA;&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\52_load_dim_sellers"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{0251259B-1B1A-4ECC-8F5D-A705A2986564}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="52_load_dim_sellers"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\52_load_dim_sellers\Derived Column"
+              componentClassID="Microsoft.DerivedColumn"
+              contactInfo="Derived Column;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;0"
+              description="Creates new column values by applying expressions to transformation input columns. Create new columns or overwrite existing ones. For example, concatenate the values from the 'first name' and 'last name' column to make a 'full name' column."
+              name="Derived Column"
+              usesDispositions="true">
+              <inputs>
+                <input
+                  refId="Package\52_load_dim_sellers\Derived Column.Inputs[Derived Column Input]"
+                  description="Input to the Derived Column Transformation"
+                  name="Derived Column Input">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Output]"
+                  description="Default Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  name="Derived Column Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Output].Columns[geography_key]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Computation"
+                      errorRowDisposition="FailComponent"
+                      lineageId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Output].Columns[geography_key]"
+                      name="geography_key"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Expression"
+                          name="Expression">(DT_I4)-1</property>
+                        <property
+                          containsID="true"
+                          dataType="System.String"
+                          description="Derived Column Friendly Expression"
+                          expressionType="Notify"
+                          name="FriendlyExpression">(DT_I4)-1</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Error Output]"
+                  description="Error Output of the Derived Column Transformation"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Derived Column Error Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Derived Column.Inputs[Derived Column Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\52_load_dim_sellers\Lookup"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Joins additional columns to the data flow by looking up values in a table. For example, join to the 'employee id' column the employees table to get 'hire date' and 'employee name'. We recommend this transformation when the lookup table can fit into memory."
+              name="Lookup"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
+    geography_zip_code_prefix,
+    geography_key
+FROM gold.dim_geography;</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (SELECT
+    geography_zip_code_prefix,
+    geography_key
+FROM gold.dim_geography;) [refTable]
+where [refTable].[geography_zip_code_prefix] = ?</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="geography_zip_code_prefix" dataType="DT_STR" length="10" precision="0" scale="0" codePage="1252"/&gt;&lt;referenceColumn name="geography_key" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap">#{Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]};</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\52_load_dim_sellers\Lookup.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input].Columns[seller_zip_code_prefix]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="10"
+                      cachedName="seller_zip_code_prefix"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">geography_zip_code_prefix</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Match Output].Columns[geography_key]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Match Output].Columns[geography_key]"
+                      name="geography_key"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">geography_key</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\52_load_dim_sellers\Lookup 1"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Joins additional columns to the data flow by looking up values in a table. For example, join to the 'employee id' column the employees table to get 'hire date' and 'employee name'. We recommend this transformation when the lookup table can fit into memory."
+              name="Lookup 1"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
+    seller_id
+FROM gold.dim_seller;</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (SELECT
+    seller_id
+FROM gold.dim_seller;) [refTable]
+where [refTable].[seller_id] = ?</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="seller_id" dataType="DT_STR" length="50" precision="0" scale="0" codePage="1252"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]};</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\52_load_dim_sellers\Lookup 1.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input].Columns[seller_id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="seller_id"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">seller_id</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\52_load_dim_sellers\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[gold].[dim_seller]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\52_load_dim_sellers\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[seller_id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="seller_id"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_id]"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]" />
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[seller_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_city"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_city]"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_city]" />
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[seller_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_state"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_state]"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_state]" />
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[geography_key]"
+                      cachedDataType="i4"
+                      cachedName="geography_key"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geography_key]"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[geography_key]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_key]"
+                      dataType="i4"
+                      name="seller_key" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="seller_id" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[geography_key]"
+                      dataType="i4"
+                      name="geography_key" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="seller_city" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[seller_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="seller_state" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\52_load_dim_sellers\OLE DB Source"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="OLE DB Source"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[silver].[sellers]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
+    seller_id,
+    CAST(
+        LTRIM(RTRIM(seller_zip_code_prefix))
+        AS VARCHAR(10)
+    ) AS seller_zip_code_prefix,
+    seller_city,
+    seller_state
+FROM silver.sellers;</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\52_load_dim_sellers\OLE DB Source.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_id]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_id]"
+                      length="50"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_id]"
+                      name="seller_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_zip_code_prefix]"
+                      length="10"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]"
+                      name="seller_zip_code_prefix"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_city]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_city]"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_city]"
+                      name="seller_city"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_state]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_state]"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_state]"
+                      name="seller_state"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="seller_id" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_zip_code_prefix]"
+                      codePage="1252"
+                      dataType="str"
+                      length="10"
+                      name="seller_zip_code_prefix" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_city]"
+                      dataType="wstr"
+                      length="255"
+                      name="seller_city" />
+                    <externalMetadataColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[seller_state]"
+                      dataType="wstr"
+                      length="255"
+                      name="seller_state" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_id]"
+                      name="seller_id" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_zip_code_prefix]"
+                      codePage="1252"
+                      dataType="str"
+                      length="10"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_zip_code_prefix]"
+                      name="seller_zip_code_prefix" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_city]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_city]"
+                      name="seller_city" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_state]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[seller_state]"
+                      name="seller_state" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\52_load_dim_sellers\Union All"
+              componentClassID="Microsoft.UnionAll"
+              contactInfo="Union All;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;1"
+              description="Combines rows from multiple data flows without sorting. For example, add rows back to a data flow after correction of errors. If sorting is important, we recommend using the Merge transformation."
+              name="Union All"
+              version="1">
+              <inputs>
+                <input
+                  refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1]"
+                  name="Union All Input 1">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1].Columns[seller_id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="seller_id"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_id]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1].Columns[seller_zip_code_prefix]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="10"
+                      cachedName="seller_zip_code_prefix"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_zip_code_prefix]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1].Columns[seller_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_city"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_city]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_city]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1].Columns[seller_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_state"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_state]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_state]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1].Columns[geography_key]"
+                      cachedDataType="i4"
+                      cachedName="geography_key"
+                      lineageId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Match Output].Columns[geography_key]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[geography_key]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2]"
+                  hasSideEffects="true"
+                  name="Union All Input 2">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2].Columns[seller_id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="seller_id"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_id]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2].Columns[seller_zip_code_prefix]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="10"
+                      cachedName="seller_zip_code_prefix"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_zip_code_prefix]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_zip_code_prefix]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2].Columns[seller_city]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_city"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_city]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_city]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2].Columns[seller_state]"
+                      cachedDataType="wstr"
+                      cachedLength="255"
+                      cachedName="seller_state"
+                      lineageId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output].Columns[seller_state]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_state]}</property>
+                      </properties>
+                    </inputColumn>
+                    <inputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2].Columns[geography_key]"
+                      cachedDataType="i4"
+                      cachedName="geography_key"
+                      lineageId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Output].Columns[geography_key]">
+                      <properties>
+                        <property
+                          containsID="true"
+                          dataType="System.Int32"
+                          description="Output column lineage ID"
+                          name="OutputColumnLineageID">#{Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[geography_key]}</property>
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+                <input
+                  refId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 3]"
+                  dangling="true"
+                  hasSideEffects="true"
+                  name="Union All Input 3">
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1]"
+                  name="Union All Output 1">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_id]"
+                      name="seller_id" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_zip_code_prefix]"
+                      codePage="1252"
+                      dataType="str"
+                      length="10"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_zip_code_prefix]"
+                      name="seller_zip_code_prefix" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_city]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_city]"
+                      name="seller_city" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_state]"
+                      dataType="wstr"
+                      length="255"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[seller_state]"
+                      name="seller_state" />
+                    <outputColumn
+                      refId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[geography_key]"
+                      dataType="i4"
+                      lineageId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1].Columns[geography_key]"
+                      name="geography_key" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\52_load_dim_sellers.Paths[Derived Column Output]"
+              endId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 2]"
+              name="Derived Column Output"
+              startId="Package\52_load_dim_sellers\Derived Column.Outputs[Derived Column Output]" />
+            <path
+              refId="Package\52_load_dim_sellers.Paths[Lookup Match Output]"
+              endId="Package\52_load_dim_sellers\Union All.Inputs[Union All Input 1]"
+              name="Lookup Match Output"
+              startId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\52_load_dim_sellers.Paths[Lookup No Match Output]"
+              endId="Package\52_load_dim_sellers\Derived Column.Inputs[Derived Column Input]"
+              name="Lookup No Match Output"
+              startId="Package\52_load_dim_sellers\Lookup.Outputs[Lookup No Match Output]" />
+            <path
+              refId="Package\52_load_dim_sellers.Paths[Lookup No Match Output1]"
+              endId="Package\52_load_dim_sellers\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Lookup No Match Output"
+              startId="Package\52_load_dim_sellers\Lookup 1.Outputs[Lookup No Match Output]" />
+            <path
+              refId="Package\52_load_dim_sellers.Paths[OLE DB Source Output]"
+              endId="Package\52_load_dim_sellers\Lookup.Inputs[Lookup Input]"
+              name="OLE DB Source Output"
+              startId="Package\52_load_dim_sellers\OLE DB Source.Outputs[OLE DB Source Output]" />
+            <path
+              refId="Package\52_load_dim_sellers.Paths[Union All Output 1]"
+              endId="Package\52_load_dim_sellers\Lookup 1.Inputs[Lookup Input]"
+              name="Union All Output 1"
+              startId="Package\52_load_dim_sellers\Union All.Outputs[Union All Output 1]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -567,6 +1575,22 @@ WHERE NOT EXISTS
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 4"
       DTS:To="Package\50_load_dim_customers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{75CAAA9E-0368-44E7-BD5E-AB005166C490}"
+      DTS:From="Package\50_load_dim_customers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\51_create_dim_sellers" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 6]"
+      DTS:CreationName=""
+      DTS:DTSID="{55EC9CDC-1C5A-43A5-90E8-2E3208AC932E}"
+      DTS:From="Package\51_create_dim_sellers"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 6"
+      DTS:To="Package\52_load_dim_sellers" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -588,6 +1612,14 @@ WHERE NOT EXISTS
           Size="164,41.6"
           Id="Package\46_load_dim_date"
           TopLeft="281.410241034679,45.9999996801218" />
+        <NodeLayout
+          Size="202.4,41.6"
+          Id="Package\47_create_dim_geography"
+          TopLeft="494.871767833193,45.3333330180911" />
+        <NodeLayout
+          Size="192.8,41.6"
+          Id="Package\48_load_dim_geography"
+          TopLeft="763.461496747841,45.9999996801217" />
         <NodeLayout
           Size="200.8,41.6"
           Id="Package\49_create_dim_customers"
@@ -618,14 +1650,6 @@ WHERE NOT EXISTS
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="202.4,41.6"
-          Id="Package\47_create_dim_geography"
-          TopLeft="494.871767833193,45.3333330180911" />
-        <NodeLayout
-          Size="192.8,41.6"
-          Id="Package\48_load_dim_geography"
-          TopLeft="763.461496747841,45.9999996801217" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
           TopLeft="445.410241034679,66.4666663491064">
@@ -726,6 +1750,58 @@ WHERE NOT EXISTS
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
+        <NodeLayout
+          Size="200.8,48.8"
+          Id="Package\51_create_dim_sellers"
+          TopLeft="526.66663789087,142.999999005596" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="488.865375657972,167.349998993426">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="37.8012622328981,0"
+              Start="0,0"
+              End="30.3012622328981,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="30.3012622328981,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="173.6,50.4"
+          Id="Package\52_load_dim_sellers"
+          TopLeft="777.499957519275,140.399999023676" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 6]"
+          TopLeft="727.46663789087,166.499999014636">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="50.0333196284045,0"
+              Start="0,0"
+              End="42.5333196284045,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="42.5333196284045,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </Package>
@@ -768,6 +1844,19 @@ WHERE NOT EXISTS
     </LayoutInfo>
   </TaskHost>
   <PipelineComponentMetadata
+    design-time-name="Package\48_load_dim_geography\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
     design-time-name="Package\48_load_dim_geography\OLE DB Source">
     <Properties>
       <Property>
@@ -775,8 +1864,261 @@ WHERE NOT EXISTS
       </Property>
     </Properties>
   </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\52_load_dim_sellers">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="152,41.6"
+          Id="Package\52_load_dim_sellers\OLE DB Source"
+          TopLeft="245.428567771401,42.285713655608" />
+        <NodeLayout
+          Size="156,41.6"
+          Id="Package\52_load_dim_sellers\Lookup"
+          TopLeft="242.85713923829,149.285712061184" />
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[OLE DB Source Output]"
+          TopLeft="321.142853504845,83.885713655608">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,65.3999984055758"
+              Start="0,0"
+              End="0,57.8999984055758">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,57.8999984055758" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="152.8,41.6"
+          Id="Package\52_load_dim_sellers\Derived Column"
+          TopLeft="427.428566447326,247.142853460142" />
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[Lookup No Match Output]"
+          TopLeft="345.523805904956,190.885712061184">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="158.30476054237,56.2571413989578"
+              Start="0,0"
+              End="158.30476054237,48.7571413989578">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.8455396543991" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.8455396543991"
+                    Point2="0,22.8455396543991"
+                    Point3="4,22.8455396543991" />
+                  <mssgle:LineSegment
+                    End="154.30476054237,22.8455396543991" />
+                  <mssgle:CubicBezierSegment
+                    Point1="154.30476054237,22.8455396543991"
+                    Point2="158.30476054237,22.8455396543991"
+                    Point3="158.30476054237,26.8455396543991" />
+                  <mssgle:LineSegment
+                    End="158.30476054237,48.7571413989578" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="23.345993552435,27.8455396543991,111.6127734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="120,41.6"
+          Id="Package\52_load_dim_sellers\Union All"
+          TopLeft="107.142855546304,245.714282052858" />
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[Lookup Match Output]"
+          TopLeft="296.190472571623,190.885712061184">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-129.047617025319,54.8285699916737"
+              Start="0,0"
+              End="-129.047617025319,47.3285699916737">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.2654091336746" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.2654091336746"
+                    Point2="0,22.2654091336746"
+                    Point3="-4,22.2654091336746" />
+                  <mssgle:LineSegment
+                    End="-125.047617025319,22.2654091336746" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-125.047617025319,22.2654091336746"
+                    Point2="-129.047617025319,22.2654091336746"
+                    Point3="-129.047617025319,26.2654091336746" />
+                  <mssgle:LineSegment
+                    End="-129.047617025319,47.3285699916737" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-112.715195231409,27.2654091336746,96.3827734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[Derived Column Output]"
+          TopLeft="427.428566447326,267.2285677565">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-200.285710901022,0"
+              Start="0,0"
+              End="-192.785710901022,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="-192.785710901022,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="120.8,41.6"
+          Id="Package\52_load_dim_sellers\Lookup 1"
+          TopLeft="104.285712731736,333.571423600827" />
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[Union All Output 1]"
+          TopLeft="165.91428413902,287.314282052858">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,46.2571415479694"
+              Start="0,0"
+              End="0,38.7571415479694">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,38.7571415479694" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\52_load_dim_sellers\OLE DB Destination"
+          TopLeft="82.1428559188332,439.142852778946" />
+        <EdgeLayout
+          Id="Package\52_load_dim_sellers.Paths[Lookup No Match Output1]"
+          TopLeft="166.214284325285,375.171423600827">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,63.9714291781189"
+              Start="0,0"
+              End="0,56.4714291781189">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,56.4714291781189" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-55.80638671875,22.4310270890595,111.6127734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
   <PipelineComponentMetadata
-    design-time-name="Package\48_load_dim_geography\OLE DB Destination">
+    design-time-name="Package\52_load_dim_sellers\OLE DB Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\52_load_dim_sellers\Lookup">
+    <Properties>
+      <Property>
+        <Name>OverwriteParamsSQLProp</Name>
+        <Value
+          type="q2:boolean">false</Value>
+      </Property>
+      <Property>
+        <Name>UsedTableName</Name>
+        <Value
+          type="q3:string"></Value>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q4:int">0</Value>
+      </Property>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\52_load_dim_sellers\Lookup 1">
+    <Properties>
+      <Property>
+        <Name>OverwriteParamsSQLProp</Name>
+        <Value
+          type="q2:boolean">false</Value>
+      </Property>
+      <Property>
+        <Name>UsedTableName</Name>
+        <Value
+          type="q3:string"></Value>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q4:int">0</Value>
+      </Property>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\52_load_dim_sellers\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
