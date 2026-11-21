@@ -26,7 +26,7 @@
           <SSIS:Property SSIS:Name="CreatorComputerName">ROF0207</SSIS:Property>
           <SSIS:Property SSIS:Name="Description">
           </SSIS:Property>
-          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAADZzokd4z2aAGKcnkmWDRefOumFfaudoaOUt8EpRskyxQAAAAAOgAAAAAIAACAAAAAqUxG8ScHuQwGkuGEetroaUc9ESao05ZjsHKr8gKnOVZAAAACCMF4+ZgwdXuAFnjbA+DN4pN7f+emWJWD0CFQEHDlxJZXro79yx0S4fBvZ/1Mq1vZn5nonkbff0D4eGZSRrsXywkmFOSuETBZaX/L9Vu3LLhjdkH2PLcz3l9JXLR4vGs36g5tvRp81cor0uA1UjVzczrvpWyHMr3zz0R4heIFuFu7hLiw6LiP3xYWu7MEuMTRAAAAAToL7O4CELNyA3Lw/LmVceyjAX74qB532pzfmv0/oe13RpHGp2pcEhNIooSIGhHWdWKZ54KBhRrQWCFa3xYgJ/w==</SSIS:Property>
+          <SSIS:Property SSIS:Name="PasswordVerifier" SSIS:Sensitive="1">AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAArECm7ihwNEe+I7IPPWOg0QAAAAACAAAAAAAQZgAAAAEAACAAAAC6ccc8dUh0VKf6GzJLa9ZuzlhYa0zIKdY22F1d6sE7lQAAAAAOgAAAAAIAACAAAAD23TDb4U8BCj0vRcQN4O+yy+mjwRTJfEmLYiQ6+vZO0pAAAAD++1ZwmhN4vkqYckpxw3wvzf0g9V4GsVPFN9hgrO7TT88rqeC2flnzImRZzgHLtU9nJhQwZrlU4Ds9JOTFwmhzdIs0aS//PpJlKStayE2nZCwDK7QqmIzinZ6t/oPZNuCGFO5iNFUHfIIAPGxhEgeKZqeb59OIeorr2VyEFzD5QDecmSogHZ2BfyaK7oRZuclAAAAADpbWb50H4QKo6lVitt9v6bH/HrUq/wLu4rsWOog30F9aHu/zouXPn0q4ujBvi/SwM3yk+iVIxFBiEj4E34pfpg==</SSIS:Property>
           <SSIS:Property SSIS:Name="FormatVersion">1</SSIS:Property>
         </SSIS:Properties>
         <SSIS:Packages>
@@ -34,6 +34,7 @@
           <SSIS:Package SSIS:Name="01_bronze_load.dtsx" SSIS:EntryPoint="1" />
           <SSIS:Package SSIS:Name="02_silver_transform.dtsx" SSIS:EntryPoint="1" />
           <SSIS:Package SSIS:Name="03_gold_dimensions.dtsx" SSIS:EntryPoint="1" />
+          <SSIS:Package SSIS:Name="04_gold_facts.dtsx" SSIS:EntryPoint="1" />
         </SSIS:Packages>
         <SSIS:ConnectionManagers>
           <SSIS:ConnectionManager SSIS:Name="ROF0207.master.conmgr" />
@@ -2327,10 +2328,27 @@
                 <SSIS:Property SSIS:Name="Name">Package1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionBuild">50</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionComments">
+                </SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{D83D3F32-BCE6-4C47-8482-DF589C7F45BF}</SSIS:Property>
+                <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
+                <SSIS:Property SSIS:Name="Description">
+                </SSIS:Property>
+                <SSIS:Property SSIS:Name="ProtectionLevel">1</SSIS:Property>
+              </SSIS:Properties>
+              <SSIS:Parameters />
+            </SSIS:PackageMetaData>
+            <SSIS:PackageMetaData SSIS:Name="04_gold_facts.dtsx">
+              <SSIS:Properties>
+                <SSIS:Property SSIS:Name="ID">{2E4A64CF-784B-49F9-8C62-940E422748D8}</SSIS:Property>
+                <SSIS:Property SSIS:Name="Name">Package1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMajor">1</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionMinor">0</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionBuild">2</SSIS:Property>
                 <SSIS:Property SSIS:Name="VersionComments">
                 </SSIS:Property>
-                <SSIS:Property SSIS:Name="VersionGUID">{470C55AE-92EE-4D45-A2AF-07DBD06DA72E}</SSIS:Property>
+                <SSIS:Property SSIS:Name="VersionGUID">{37E34183-8737-464F-BDC8-6806541EED2B}</SSIS:Property>
                 <SSIS:Property SSIS:Name="PackageFormatVersion">8</SSIS:Property>
                 <SSIS:Property SSIS:Name="Description">
                 </SSIS:Property>
