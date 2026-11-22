@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="26"
-  DTS:VersionGUID="{6FD95AC8-970C-4088-A5D7-309704E3A425}">
+  DTS:VersionBuild="36"
+  DTS:VersionGUID="{DABFB3CC-5BE2-4CF6-8536-B0F35A021A82}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables />
@@ -2270,6 +2270,858 @@ LEFT JOIN [gold].[dim_customer] dc
         </pipeline>
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\63_create_fact_payments"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{22D08577-DE93-4981-8DA7-A99B9C9C797A}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="63_create_fact_payments"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="USE [olist_dwh];&#xA;&#xA;&#xA;-- ==========================================&#xA;-- create gold fact_payments table&#xA;-- ==========================================&#xA;&#xA;IF OBJECT_ID('[gold].[fact_payments]', 'U') IS NOT NULL&#xA;    DROP TABLE [gold].[fact_payments];&#xA;&#xA;&#xA;CREATE TABLE [gold].[fact_payments]&#xA;(&#xA;    payment_key INT IDENTITY(1,1) NOT NULL,&#xA;&#xA;    order_id VARCHAR(50) NOT NULL,&#xA;    payment_sequential INT NOT NULL,&#xA;&#xA;    customer_key INT NOT NULL,&#xA;    date_key INT NOT NULL,&#xA;    payment_type_key INT NOT NULL,&#xA;&#xA;    payment_installments INT NULL,&#xA;    payment_value DECIMAL(10,2) NOT NULL,&#xA;&#xA;    CONSTRAINT PK_fact_payments&#xA;        PRIMARY KEY CLUSTERED (payment_key),&#xA;&#xA;    CONSTRAINT FK_fact_payments_customer&#xA;        FOREIGN KEY (customer_key)&#xA;        REFERENCES [gold].[dim_customer] (customer_key),&#xA;&#xA;    CONSTRAINT FK_fact_payments_date&#xA;        FOREIGN KEY (date_key)&#xA;        REFERENCES [gold].[dim_date] (date_key),&#xA;&#xA;    CONSTRAINT FK_fact_payments_payment_type&#xA;        FOREIGN KEY (payment_type_key)&#xA;        REFERENCES [gold].[dim_payment_type] (payment_type_key)&#xA;);&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;GO" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\64_load_fact_payments"
+      DTS:CreationName="Microsoft.Pipeline"
+      DTS:Description="Data Flow Task"
+      DTS:DTSID="{CD67A489-6A1D-4B5E-B26C-5A9C0BB178C6}"
+      DTS:ExecutableType="Microsoft.Pipeline"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="64_load_fact_payments"
+      DTS:TaskContact="Performs high-performance data extraction, transformation and loading;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <pipeline
+          version="1">
+          <components>
+            <component
+              refId="Package\64_load_fact_payments\Lookup"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Joins additional columns to the data flow by looking up values in a table. For example, join to the 'employee id' column the employees table to get 'hire date' and 'employee name'. We recommend this transformation when the lookup table can fit into memory."
+              name="Lookup"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
+    date_key,
+    full_date
+FROM [gold].[dim_date];</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (SELECT
+    date_key,
+    full_date
+FROM [gold].[dim_date];) [refTable]
+where [refTable].[full_date] = ?</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="date_key" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="full_date" dataType="DT_WSTR" length="10" precision="0" scale="0" codePage="0"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap">#{Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_purchase_date]};</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\64_load_fact_payments\Lookup.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input].Columns[order_purchase_date]"
+                      cachedDataType="wstr"
+                      cachedLength="10"
+                      cachedName="order_purchase_date"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_purchase_date]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">full_date</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Match Output].Columns[date_key]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Match Output].Columns[date_key]"
+                      name="date_key"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">date_key</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\64_load_fact_payments\Lookup 1"
+              componentClassID="Microsoft.Lookup"
+              contactInfo="Lookup;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;6"
+              description="Joins additional columns to the data flow by looking up values in a table. For example, join to the 'employee id' column the employees table to get 'hire date' and 'employee name'. We recommend this transformation when the lookup table can fit into memory."
+              name="Lookup 1"
+              usesDispositions="true"
+              version="6">
+              <properties>
+                <property
+                  dataType="System.String"
+                  description="Specifies the SQL statement that generates the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from [gold].[dim_payment_type]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies a SQL statement that uses parameters to generate the lookup table."
+                  expressionType="Notify"
+                  name="SqlCommandParam"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">select * from (select * from [gold].[dim_payment_type]) [refTable]
+where [refTable].[payment_type] = ?</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the type of connection used to access the reference dataset."
+                  name="ConnectionType"
+                  typeConverter="LookupConnectionType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the cache type of the lookup table."
+                  name="CacheType"
+                  typeConverter="CacheType">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies how the Lookup transformation handles rows without matching entries in the reference data set."
+                  name="NoMatchBehavior"
+                  typeConverter="LookupNoMatchBehavior">1</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the percentage of the cache that is allocated for rows with no matching entries in the reference dataset."
+                  name="NoMatchCachePercentage">0</property>
+                <property
+                  dataType="System.Int32"
+                  description="Maximum Memory Usage for Reference Cache on a 32 bit platform."
+                  name="MaxMemoryUsage">25</property>
+                <property
+                  dataType="System.Int64"
+                  description="Maximum Memory Usage for Reference Cache on a 64 bit platform."
+                  name="MaxMemoryUsage64">25</property>
+                <property
+                  dataType="System.String"
+                  description="Indicates whether to reference metadata in an XML format."
+                  name="ReferenceMetadataXml">&lt;referenceMetadata&gt;&lt;referenceColumns&gt;&lt;referenceColumn name="payment_type_key" dataType="DT_I4" length="0" precision="0" scale="0" codePage="0"/&gt;&lt;referenceColumn name="payment_type" dataType="DT_STR" length="50" precision="0" scale="0" codePage="1252"/&gt;&lt;/referenceColumns&gt;&lt;/referenceMetadata&gt;</property>
+                <property
+                  containsID="true"
+                  dataType="System.String"
+                  description="Specifies the list of lineage identifiers that map to the parameters that the SQL statement in the SQLCommand property uses. Entries in the list are separated by semicolons."
+                  name="ParameterMap">#{Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_type]};</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Determines whether duplicate keys in the reference data should be treated as errors when full cache mode is used."
+                  name="TreatDuplicateKeysAsError">false</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\64_load_fact_payments\Lookup 1.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="Connection manager used to access lookup data."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input]"
+                  name="Lookup Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input].Columns[payment_type]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="payment_type"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_type]">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table that a column joins."
+                          name="JoinToReferenceColumn">payment_type</property>
+                        <property
+                          dataType="System.Null"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn" />
+                      </properties>
+                    </inputColumn>
+                  </inputColumns>
+                  <externalMetadataColumns />
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Match Output]"
+                  errorOrTruncationOperation="Lookup"
+                  exclusionGroup="1"
+                  name="Lookup Match Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Match Output].Columns[payment_type_key]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Copy Column"
+                      lineageId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Match Output].Columns[payment_type_key]"
+                      name="payment_type_key"
+                      truncationRowDisposition="FailComponent">
+                      <properties>
+                        <property
+                          dataType="System.String"
+                          description="Specifies the column in the reference table from which a column is copied."
+                          name="CopyFromReferenceColumn">payment_type_key</property>
+                      </properties>
+                    </outputColumn>
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup No Match Output]"
+                  description="The Lookup output that handles rows with no matching entries in the reference dataset. Use this output when the NoMatchBehavior property is set to &quot;Send rows with no matching entries to the no match output.&quot;"
+                  exclusionGroup="1"
+                  name="Lookup No Match Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input]">
+                  <externalMetadataColumns />
+                </output>
+                <output
+                  refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="Lookup Error Output"
+                  synchronousInputId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\64_load_fact_payments\OLE DB Destination"
+              componentClassID="Microsoft.OLEDBDestination"
+              contactInfo="OLE DB Destination;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;4"
+              description="OLE DB Destination"
+              name="OLE DB Destination"
+              usesDispositions="true"
+              version="4">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset">[gold].[fact_payments]</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">3</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the values supplied for identity columns will be copied to the destination. If false, values for identity columns will be auto-generated at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepIdentity">false</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Indicates whether the columns containing null will have null inserted in the destination. If false, columns containing null will have their default values inserted at the destination. Applies only if fast load is turned on."
+                  name="FastLoadKeepNulls">false</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies options to be used with fast load.  Applies only if fast load is turned on."
+                  name="FastLoadOptions">TABLOCK,CHECK_CONSTRAINTS</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies when commits are issued during data insertion.  A value of 0 specifies that one commit will be issued at the end of data insertion.  Applies only if fast load is turned on."
+                  name="FastLoadMaxInsertCommitSize">2147483647</property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\64_load_fact_payments\OLE DB Destination.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <inputs>
+                <input
+                  refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input]"
+                  errorOrTruncationOperation="Insert"
+                  errorRowDisposition="FailComponent"
+                  hasSideEffects="true"
+                  name="OLE DB Destination Input">
+                  <inputColumns>
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[order_id]"
+                      cachedCodepage="1252"
+                      cachedDataType="str"
+                      cachedLength="50"
+                      cachedName="order_id"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_id]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[payment_sequential]"
+                      cachedDataType="i4"
+                      cachedName="payment_sequential"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_sequential]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_sequential]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[customer_key]"
+                      cachedDataType="i4"
+                      cachedName="customer_key"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_key]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[customer_key]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[payment_installments]"
+                      cachedDataType="i4"
+                      cachedName="payment_installments"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_installments]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_installments]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[payment_value]"
+                      cachedDataType="numeric"
+                      cachedName="payment_value"
+                      cachedPrecision="10"
+                      cachedScale="2"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_value]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_value]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[date_key]"
+                      cachedDataType="i4"
+                      cachedName="date_key"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[date_key]"
+                      lineageId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Match Output].Columns[date_key]" />
+                    <inputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].Columns[payment_type_key]"
+                      cachedDataType="i4"
+                      cachedName="payment_type_key"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_type_key]"
+                      lineageId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Match Output].Columns[payment_type_key]" />
+                  </inputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_key]"
+                      dataType="i4"
+                      name="payment_key" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[order_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_sequential]"
+                      dataType="i4"
+                      name="payment_sequential" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[customer_key]"
+                      dataType="i4"
+                      name="customer_key" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[date_key]"
+                      dataType="i4"
+                      name="date_key" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_type_key]"
+                      dataType="i4"
+                      name="payment_type_key" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_installments]"
+                      dataType="i4"
+                      name="payment_installments" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input].ExternalColumns[payment_value]"
+                      dataType="numeric"
+                      name="payment_value"
+                      precision="10"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </input>
+              </inputs>
+              <outputs>
+                <output
+                  refId="Package\64_load_fact_payments\OLE DB Destination.Outputs[OLE DB Destination Error Output]"
+                  exclusionGroup="1"
+                  isErrorOut="true"
+                  name="OLE DB Destination Error Output"
+                  synchronousInputId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input]">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Destination.Outputs[OLE DB Destination Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+            <component
+              refId="Package\64_load_fact_payments\OLE DB Source"
+              componentClassID="Microsoft.OLEDBSource"
+              contactInfo="OLE DB Source;Microsoft Corporation; Microsoft SQL Server; (C) Microsoft Corporation; All Rights Reserved; http://www.microsoft.com/sql/support;7"
+              description="OLE DB Source"
+              name="OLE DB Source"
+              usesDispositions="true"
+              version="7">
+              <properties>
+                <property
+                  dataType="System.Int32"
+                  description="The number of seconds before a command times out.  A value of 0 indicates an infinite time-out."
+                  name="CommandTimeout">0</property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the name of the database object used to open a rowset."
+                  name="OpenRowset"></property>
+                <property
+                  dataType="System.String"
+                  description="Specifies the variable that contains the name of the database object used to open a rowset."
+                  name="OpenRowsetVariable"></property>
+                <property
+                  dataType="System.String"
+                  description="The SQL command to be executed."
+                  name="SqlCommand"
+                  UITypeEditor="Microsoft.DataTransformationServices.Controls.ModalMultilineStringEditor">SELECT
+    p.order_id,
+    p.payment_sequential,
+
+    c.customer_unique_id,
+
+    -- i am retrieving the correct historical customer key
+    COALESCE(dc.customer_key, -1) AS customer_key,
+
+    -- i am extracting the order purchase date for the date lookup
+    CAST(o.order_purchase_timestamp AS DATE) AS order_purchase_date,
+
+    -- i am matching the payment type datatype to the gold dimension
+    CAST(p.payment_type AS VARCHAR(50)) AS payment_type,
+
+    p.payment_installments,
+    p.payment_value
+
+FROM [silver].[order_payments] p
+
+INNER JOIN [silver].[orders] o
+    ON p.order_id = o.order_id
+
+INNER JOIN [silver].[customers] c
+    ON o.customer_id = c.customer_id
+
+-- i am retrieving the customer version valid when the order was purchased
+LEFT JOIN [gold].[dim_customer] dc
+    ON c.customer_unique_id = dc.customer_unique_id
+    AND o.order_purchase_timestamp &gt;= dc.valid_from
+    AND (
+        o.order_purchase_timestamp &lt; dc.valid_to
+        OR dc.valid_to IS NULL
+    );</property>
+                <property
+                  dataType="System.String"
+                  description="The variable that contains the SQL command to be executed."
+                  name="SqlCommandVariable"></property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the column code page to use when code page information is unavailable from the data source."
+                  name="DefaultCodePage">1252</property>
+                <property
+                  dataType="System.Boolean"
+                  description="Forces the use of the DefaultCodePage property value when describing character data."
+                  name="AlwaysUseDefaultCodePage">false</property>
+                <property
+                  dataType="System.Int32"
+                  description="Specifies the mode used to access the database."
+                  name="AccessMode"
+                  typeConverter="AccessMode">2</property>
+                <property
+                  dataType="System.String"
+                  description="The mappings between the parameters in the SQL command and variables."
+                  name="ParameterMapping"></property>
+              </properties>
+              <connections>
+                <connection
+                  refId="Package\64_load_fact_payments\OLE DB Source.Connections[OleDbConnection]"
+                  connectionManagerID="{310CC007-85DA-4340-BD2B-8E52234DCCD9}:external"
+                  connectionManagerRefId="Project.ConnectionManagers[ROF0207.olist_dwh]"
+                  description="The OLE DB runtime connection used to access the database."
+                  name="OleDbConnection" />
+              </connections>
+              <outputs>
+                <output
+                  refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output]"
+                  name="OLE DB Source Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_id]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[order_id]"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_id]"
+                      name="order_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_sequential]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_sequential]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_sequential]"
+                      name="payment_sequential"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[customer_unique_id]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[customer_unique_id]"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[customer_unique_id]"
+                      name="customer_unique_id"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[customer_key]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[customer_key]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[customer_key]"
+                      name="customer_key"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_purchase_date]"
+                      dataType="wstr"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[order_purchase_date]"
+                      length="10"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[order_purchase_date]"
+                      name="order_purchase_date"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_type]"
+                      codePage="1252"
+                      dataType="str"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_type]"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_type]"
+                      name="payment_type"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_installments]"
+                      dataType="i4"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_installments]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_installments]"
+                      name="payment_installments"
+                      truncationRowDisposition="FailComponent" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_value]"
+                      dataType="numeric"
+                      errorOrTruncationOperation="Conversion"
+                      errorRowDisposition="FailComponent"
+                      externalMetadataColumnId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_value]"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].Columns[payment_value]"
+                      name="payment_value"
+                      precision="10"
+                      scale="2"
+                      truncationRowDisposition="FailComponent" />
+                  </outputColumns>
+                  <externalMetadataColumns
+                    isUsed="True">
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[order_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="order_id" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_sequential]"
+                      dataType="i4"
+                      name="payment_sequential" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[customer_unique_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="customer_unique_id" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[customer_key]"
+                      dataType="i4"
+                      name="customer_key" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[order_purchase_date]"
+                      dataType="wstr"
+                      length="10"
+                      name="order_purchase_date" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_type]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      name="payment_type" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_installments]"
+                      dataType="i4"
+                      name="payment_installments" />
+                    <externalMetadataColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output].ExternalColumns[payment_value]"
+                      dataType="numeric"
+                      name="payment_value"
+                      precision="10"
+                      scale="2" />
+                  </externalMetadataColumns>
+                </output>
+                <output
+                  refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output]"
+                  isErrorOut="true"
+                  name="OLE DB Source Error Output">
+                  <outputColumns>
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[order_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[order_id]"
+                      name="order_id" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_sequential]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_sequential]"
+                      name="payment_sequential" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[customer_unique_id]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[customer_unique_id]"
+                      name="customer_unique_id" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[customer_key]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[customer_key]"
+                      name="customer_key" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[order_purchase_date]"
+                      dataType="wstr"
+                      length="10"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[order_purchase_date]"
+                      name="order_purchase_date" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_type]"
+                      codePage="1252"
+                      dataType="str"
+                      length="50"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_type]"
+                      name="payment_type" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_installments]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_installments]"
+                      name="payment_installments" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_value]"
+                      dataType="numeric"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[payment_value]"
+                      name="payment_value"
+                      precision="10"
+                      scale="2" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorCode]"
+                      name="ErrorCode"
+                      specialFlags="1" />
+                    <outputColumn
+                      refId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      dataType="i4"
+                      lineageId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Error Output].Columns[ErrorColumn]"
+                      name="ErrorColumn"
+                      specialFlags="2" />
+                  </outputColumns>
+                  <externalMetadataColumns />
+                </output>
+              </outputs>
+            </component>
+          </components>
+          <paths>
+            <path
+              refId="Package\64_load_fact_payments.Paths[Lookup Match Output]"
+              endId="Package\64_load_fact_payments\Lookup 1.Inputs[Lookup Input]"
+              name="Lookup Match Output"
+              startId="Package\64_load_fact_payments\Lookup.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\64_load_fact_payments.Paths[Lookup Match Output1]"
+              endId="Package\64_load_fact_payments\OLE DB Destination.Inputs[OLE DB Destination Input]"
+              name="Lookup Match Output"
+              startId="Package\64_load_fact_payments\Lookup 1.Outputs[Lookup Match Output]" />
+            <path
+              refId="Package\64_load_fact_payments.Paths[OLE DB Source Output]"
+              endId="Package\64_load_fact_payments\Lookup.Inputs[Lookup Input]"
+              name="OLE DB Source Output"
+              startId="Package\64_load_fact_payments\OLE DB Source.Outputs[OLE DB Source Output]" />
+          </paths>
+        </pipeline>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -2296,6 +3148,22 @@ LEFT JOIN [gold].[dim_customer] dc
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 2"
       DTS:To="Package\62_load_fact_reviews" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{40E5168E-ED07-4BCE-974C-F83873A1CEE4}"
+      DTS:From="Package\62_load_fact_reviews"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\63_create_fact_payments" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{67DDC76D-F0F3-4881-9D73-6D3E1F702E7A}"
+      DTS:From="Package\63_create_fact_payments"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\64_load_fact_payments" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -2308,29 +3176,29 @@ LEFT JOIN [gold].[dim_customer] dc
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="176.8,41.6"
           Id="Package\59_create_fact_sales"
-          TopLeft="39.2948696478948,40.4666663852665" />
+          TopLeft="57.7472495920822,40.4666663852665" />
         <NodeLayout
-          Size="168,41.6"
+          Size="180,41.6"
           Id="Package\60_load_fact_sales"
-          TopLeft="271.794856944655,41.9999997079372" />
+          TopLeft="282.509142073538,46.3333330111371" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="216.094869647895,62.0333330466019">
+          TopLeft="234.547249592082,64.1999996982018">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="55.6999872967606,0"
+              EndConnector="47.9618924814559,0"
               Start="0,0"
-              End="48.1999872967606,0">
+              End="40.4618924814559,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="48.1999872967606,0" />
+                    End="40.4618924814559,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -2342,21 +3210,33 @@ LEFT JOIN [gold].[dim_customer] dc
         <NodeLayout
           Size="188,41.6"
           Id="Package\61_create_fact_reviews"
-          TopLeft="502.499972544612,44.1999996926387" />
+          TopLeft="51.3095210060952,121.580951535494" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
-          TopLeft="439.794856944655,63.899999700288">
+          TopLeft="372.509142073538,87.9333330111371">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="62.7051155999569,0"
+              EndConnector="-227.199621067443,33.6476185243566"
               Start="0,0"
-              End="55.2051155999569,0">
+              End="-227.199621067443,26.1476185243566">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="55.2051155999569,0" />
+                    End="0,12.8238092621783" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,12.8238092621783"
+                    Point2="0,16.8238092621783"
+                    Point3="-4,16.8238092621783" />
+                  <mssgle:LineSegment
+                    End="-223.199621067443,16.8238092621783" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-223.199621067443,16.8238092621783"
+                    Point2="-227.199621067443,16.8238092621783"
+                    Point3="-227.199621067443,20.8238092621783" />
+                  <mssgle:LineSegment
+                    End="-227.199621067443,26.1476185243566" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -2368,21 +3248,85 @@ LEFT JOIN [gold].[dim_customer] dc
         <NodeLayout
           Size="179.2,41.6"
           Id="Package\62_load_fact_reviews"
-          TopLeft="755.35710158625,43.3333330319988" />
+          TopLeft="283.333317852683,123.809522948568" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
-          TopLeft="690.499972544612,64.5666663623188">
+          TopLeft="239.309521006095,143.495237242031">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="64.857129041638,0"
+              EndConnector="44.0237968465876,0"
               Start="0,0"
-              End="57.357129041638,0">
+              End="36.5237968465876,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="57.357129041638,0" />
+                    End="36.5237968465876,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="197.6,41.6"
+          Id="Package\63_create_fact_payments"
+          TopLeft="49.9999972681207,201.190474791423" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="372.933317852683,165.409522948568">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-224.133320584562,35.7809518428549"
+              Start="0,0"
+              End="-224.133320584562,28.2809518428549">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,13.8904759214275" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,13.8904759214275"
+                    Point2="0,17.8904759214275"
+                    Point3="-4,17.8904759214275" />
+                  <mssgle:LineSegment
+                    End="-220.133320584562,17.8904759214275" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-220.133320584562,17.8904759214275"
+                    Point2="-224.133320584562,17.8904759214275"
+                    Point3="-224.133320584562,21.8904759214275" />
+                  <mssgle:LineSegment
+                    End="-224.133320584562,28.2809518428549" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="188.8,41.6"
+          Id="Package\64_load_fact_payments"
+          TopLeft="286.904746228978,202.428570020908" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="247.599997268121,222.609522406166">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="39.3047489608571,0"
+              Start="0,0"
+              End="31.8047489608571,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="31.8047489608571,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -2758,6 +3702,167 @@ LEFT JOIN [gold].[dim_customer] dc
   </PipelineComponentMetadata>
   <PipelineComponentMetadata
     design-time-name="Package\62_load_fact_reviews\OLE DB Destination">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q2:string">Table</Value>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <TaskHost
+    design-time-name="Package\64_load_fact_payments">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        <NodeLayout
+          Size="152,41.6"
+          Id="Package\64_load_fact_payments\OLE DB Source"
+          TopLeft="321.333328545094,75.3333322107792" />
+        <NodeLayout
+          Size="152,41.6"
+          Id="Package\64_load_fact_payments\Lookup"
+          TopLeft="321.333328545094,157.999997645617" />
+        <EdgeLayout
+          Id="Package\64_load_fact_payments.Paths[OLE DB Source Output]"
+          TopLeft="397.333328545094,116.933332210779">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,41.0666654348374"
+              Start="0,0"
+              End="0,33.5666654348374">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,33.5666654348374" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="150.4,41.6"
+          Id="Package\64_load_fact_payments\Lookup 1"
+          TopLeft="324.666661828756,247.33332964778" />
+        <EdgeLayout
+          Id="Package\64_load_fact_payments.Paths[Lookup Match Output]"
+          TopLeft="398.599995186925,199.599997645617">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,47.7333320021629"
+              Start="0,0"
+              End="0,40.2333320021629">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,40.2333320021629" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-48.19138671875,14.3119785010815,96.3827734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\64_load_fact_payments\OLE DB Destination"
+          TopLeft="319.999995231629,343.333328217268" />
+        <EdgeLayout
+          Id="Package\64_load_fact_payments.Paths[Lookup Match Output1]"
+          TopLeft="402.733328530192,288.93332964778">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,54.3999985694884"
+              Start="0,0"
+              End="0,46.8999985694884">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,46.8999985694884" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <mssgm:EdgeLabel
+              BoundingBox="-48.19138671875,17.6453117847442,96.3827734375,11.609375"
+              RelativePosition="Any" />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </TaskHost>
+  <PipelineComponentMetadata
+    design-time-name="Package\64_load_fact_payments\OLE DB Source">
+    <Properties>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\64_load_fact_payments\Lookup">
+    <Properties>
+      <Property>
+        <Name>OverwriteParamsSQLProp</Name>
+        <Value
+          type="q2:boolean">false</Value>
+      </Property>
+      <Property>
+        <Name>UsedTableName</Name>
+        <Value
+          type="q3:string"></Value>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q4:int">0</Value>
+      </Property>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\64_load_fact_payments\Lookup 1">
+    <Properties>
+      <Property>
+        <Name>OverwriteParamsSQLProp</Name>
+        <Value
+          type="q2:boolean">false</Value>
+      </Property>
+      <Property>
+        <Name>UsedTableName</Name>
+        <Value
+          type="q3:string">[gold].[dim_payment_type]</Value>
+      </Property>
+      <Property>
+        <Name>TableInfoObjectType</Name>
+        <Value
+          type="q4:int">0</Value>
+      </Property>
+      <Property>
+        <Name>DataSourceViewID</Name>
+      </Property>
+    </Properties>
+  </PipelineComponentMetadata>
+  <PipelineComponentMetadata
+    design-time-name="Package\64_load_fact_payments\OLE DB Destination">
     <Properties>
       <Property>
         <Name>DataSourceViewID</Name>
