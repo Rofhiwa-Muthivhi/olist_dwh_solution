@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="25"
-  DTS:VersionGUID="{7D21FC95-4457-4728-9D68-7D4ECED26C3E}">
+  DTS:VersionBuild="28"
+  DTS:VersionGUID="{723A0263-3038-44E0-9365-35F64ACE6F7D}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -123,6 +123,31 @@
         </SQLTask:SqlTaskData>
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\06_execute_bronze"
+      DTS:CreationName="Microsoft.ExecutePackageTask"
+      DTS:Description="Execute Package Task"
+      DTS:DTSID="{80939DCD-6164-4136-BF47-A25489BD9FB1}"
+      DTS:ExecutableType="Microsoft.ExecutePackageTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="06_execute_bronze"
+      DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <ExecutePackageTask>
+          <UseProjectReference>True</UseProjectReference>
+          <PackageName>01_bronze_load.dtsx</PackageName>
+          <ParameterAssignment>
+            <ParameterName>p_batch_id</ParameterName>
+            <BindedVariableOrParameterName>User::BatchId</BindedVariableOrParameterName>
+          </ParameterAssignment>
+          <ParameterAssignment>
+            <ParameterName>p_sourcefilepath</ParameterName>
+            <BindedVariableOrParameterName>$Project::p_sourcefilepath</BindedVariableOrParameterName>
+          </ParameterAssignment>
+        </ExecutePackageTask>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -157,6 +182,14 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 3"
       DTS:To="Package\05_initialize_etl_batch" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{F9E75352-9963-4FBF-A780-7A6A94F27140}"
+      DTS:From="Package\05_initialize_etl_batch"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\06_execute_bronze" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -182,6 +215,14 @@
           Size="203.2,74.4"
           Id="Package\03_create_batch_log"
           TopLeft="84.1452945478026,166.011109956691" />
+        <NodeLayout
+          Size="169.6,75.2"
+          Id="Package\04_create_load_log"
+          TopLeft="322.916649023279,164.666665521595" />
+        <NodeLayout
+          Size="199.2,71.2"
+          Id="Package\05_initialize_etl_batch"
+          TopLeft="88.8888840322143,300.444442355191" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint]"
           TopLeft="280.01153369651,64.6555553562885">
@@ -238,10 +279,6 @@
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="169.6,75.2"
-          Id="Package\04_create_load_log"
-          TopLeft="322.916649023279,164.666665521595" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
           TopLeft="287.345294547803,202.738887739143">
@@ -264,10 +301,6 @@
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="199.2,71.2"
-          Id="Package\05_initialize_etl_batch"
-          TopLeft="88.8888840322143,300.444442355191" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 3]"
           TopLeft="407.716649023279,239.866665521595">
@@ -294,6 +327,32 @@
                     Point3="-219.227764991064,34.288888416798" />
                   <mssgle:LineSegment
                     End="-219.227764991064,53.0777768335961" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="169.6,70.4"
+          Id="Package\06_execute_bronze"
+          TopLeft="319.16664922817,297.266664599511" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="288.088884032214,334.255553477351">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="31.0777651959553,0"
+              Start="0,0"
+              End="23.5777651959553,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="23.5777651959553,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>

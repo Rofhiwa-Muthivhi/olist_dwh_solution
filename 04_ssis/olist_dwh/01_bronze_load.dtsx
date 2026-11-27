@@ -12,11 +12,22 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="152"
-  DTS:VersionGUID="{5BD1AD83-95AA-409A-8CAA-8CCD5E605951}">
+  DTS:VersionBuild="154"
+  DTS:VersionGUID="{06F11AEA-41C6-40B8-A66F-208C207C0EA4}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="3"
+      DTS:Description="batch Id received from the master package"
+      DTS:DTSID="{799C89A2-1BF1-4DB9-B370-5F969B2C7C9C}"
+      DTS:ObjectName="p_batch_id"
+      DTS:Required="True">
+      <DTS:Property
+        DTS:DataType="3"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
     <DTS:PackageParameter
       DTS:CreationName=""
       DTS:DataType="8"
@@ -33,11 +44,13 @@
     <DTS:Variable
       DTS:CreationName=""
       DTS:DTSID="{FD8BABFE-F12B-4C85-8B8D-7CE0ED711A06}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[$Package::p_batch_id]"
       DTS:IncludeInDebugDump="2345"
       DTS:Namespace="User"
       DTS:ObjectName="BatchId">
       <DTS:VariableValue
-        DTS:DataType="3">1</DTS:VariableValue>
+        DTS:DataType="3">0</DTS:VariableValue>
     </DTS:Variable>
     <DTS:Variable
       DTS:CreationName=""
