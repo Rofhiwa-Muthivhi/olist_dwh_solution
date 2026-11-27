@@ -12,11 +12,21 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="18"
-  DTS:VersionGUID="{8420B88A-5522-470B-8820-8B50455086B0}">
+  DTS:VersionBuild="25"
+  DTS:VersionGUID="{7D21FC95-4457-4728-9D68-7D4ECED26C3E}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
-  <DTS:Variables />
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{F9AB476B-5CCD-4753-8001-24992B2E3A01}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="BatchId">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
   <DTS:Executables>
     <DTS:Executable
       DTS:refId="Package\01_create_stg_dwh_db"
@@ -90,6 +100,29 @@
           SQLTask:SqlStatementSource="&#xA;-- create central etl load log table&#xA;&#xA;&#xA;IF OBJECT_ID('olist_dwh.etl.load_log', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE olist_dwh.etl.load_log&#xA;    (&#xA;        load_log_id INT IDENTITY(1,1) NOT NULL,&#xA;&#xA;        batch_id INT NOT NULL,&#xA;&#xA;        package NVARCHAR(100) NOT NULL,&#xA;&#xA;        table_name NVARCHAR(128) NOT NULL,&#xA;&#xA;        rows_read INT NOT NULL DEFAULT 0,&#xA;&#xA;        rows_written INT NOT NULL DEFAULT 0,&#xA;&#xA;        rows_error INT NOT NULL DEFAULT 0,&#xA;&#xA;        ts DATETIME2 NOT NULL&#xA;            DEFAULT SYSDATETIME(),&#xA;&#xA;        CONSTRAINT PK_load_log&#xA;            PRIMARY KEY (load_log_id)&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\05_initialize_etl_batch"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:DelayValidation="True"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{C44D323D-59A6-4BA4-9A2B-1098D054C67B}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="05_initialize_etl_batch"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="-- initialize a new etl batch&#xA;&#xA;DECLARE @batch_id INT;&#xA;&#xA;-- generate the next batch id&#xA;SELECT @batch_id = NEXT VALUE FOR etl.batch_id_seq;&#xA;&#xA;-- insert the batch execution record&#xA;INSERT INTO etl.batch_log&#xA;(&#xA;    batch_id,&#xA;    start_ts,&#xA;    end_ts,&#xA;    status&#xA;)&#xA;VALUES&#xA;(&#xA;    @batch_id,&#xA;    SYSDATETIME(),&#xA;    NULL,&#xA;    'RUNNING'&#xA;);&#xA;&#xA;-- return the generated batch id to ssis&#xA;SELECT @batch_id AS BatchID;"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="0"
+            SQLTask:DtsVariableName="User::BatchId" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -116,6 +149,14 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 2"
       DTS:To="Package\04_create_load_log" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{2C490DBD-454F-45EE-B438-11C2B0664B23}"
+      DTS:From="Package\04_create_load_log"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\05_initialize_etl_batch" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -128,7 +169,7 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="192.8,70.4"
           Id="Package\01_create_stg_dwh_db"
@@ -215,6 +256,44 @@
                   Capacity="5">
                   <mssgle:LineSegment
                     End="28.071354475476,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="199.2,71.2"
+          Id="Package\05_initialize_etl_batch"
+          TopLeft="88.8888840322143,300.444442355191" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="407.716649023279,239.866665521595">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-219.227764991064,60.5777768335961"
+              Start="0,0"
+              End="-219.227764991064,53.0777768335961">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,26.288888416798" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,26.288888416798"
+                    Point2="0,30.288888416798"
+                    Point3="-4,30.288888416798" />
+                  <mssgle:LineSegment
+                    End="-215.227764991064,30.288888416798" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-215.227764991064,30.288888416798"
+                    Point2="-219.227764991064,30.288888416798"
+                    Point3="-219.227764991064,34.288888416798" />
+                  <mssgle:LineSegment
+                    End="-219.227764991064,53.0777768335961" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
