@@ -12,11 +12,36 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="201"
-  DTS:VersionGUID="{39636C7C-EE62-4A4B-843C-5D734A0CD7DC}">
+  DTS:VersionBuild="203"
+  DTS:VersionGUID="{366BA05A-EE26-4CA1-BDB1-B3DE3B20334D}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
-  <DTS:Variables />
+  <DTS:PackageParameters>
+    <DTS:PackageParameter
+      DTS:CreationName=""
+      DTS:DataType="3"
+      DTS:Description="batch id received from the master package"
+      DTS:DTSID="{EADA4DCF-E469-46FD-82FE-032B3A8A0088}"
+      DTS:ObjectName="p_batch_id"
+      DTS:Required="True">
+      <DTS:Property
+        DTS:DataType="3"
+        DTS:Name="ParameterValue">0</DTS:Property>
+    </DTS:PackageParameter>
+  </DTS:PackageParameters>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{5F12007F-5B7A-48A0-A676-85AD508BE6C2}"
+      DTS:EvaluateAsExpression="True"
+      DTS:Expression="@[$Package::p_batch_id]"
+      DTS:IncludeInDebugDump="2345"
+      DTS:Namespace="User"
+      DTS:ObjectName="BatchId">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
   <DTS:Executables>
     <DTS:Executable
       DTS:refId="Package\01_create_silver_tables"

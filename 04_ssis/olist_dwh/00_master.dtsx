@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="28"
-  DTS:VersionGUID="{723A0263-3038-44E0-9365-35F64ACE6F7D}">
+  DTS:VersionBuild="29"
+  DTS:VersionGUID="{0204391A-734D-413A-93E3-6AE618E9A5F4}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -148,6 +148,27 @@
         </ExecutePackageTask>
       </DTS:ObjectData>
     </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\07_execute_silver"
+      DTS:CreationName="Microsoft.ExecutePackageTask"
+      DTS:Description="Execute Package Task"
+      DTS:DTSID="{769A0E78-328C-406A-B5B1-21E5E44CC4FF}"
+      DTS:ExecutableType="Microsoft.ExecutePackageTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="07_execute_silver"
+      DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <ExecutePackageTask>
+          <UseProjectReference>True</UseProjectReference>
+          <PackageName>02_silver_transform.dtsx</PackageName>
+          <ParameterAssignment>
+            <ParameterName>p_batch_id</ParameterName>
+            <BindedVariableOrParameterName>User::BatchId</BindedVariableOrParameterName>
+          </ParameterAssignment>
+        </ExecutePackageTask>
+      </DTS:ObjectData>
+    </DTS:Executable>
   </DTS:Executables>
   <DTS:PrecedenceConstraints>
     <DTS:PrecedenceConstraint
@@ -190,6 +211,14 @@
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 4"
       DTS:To="Package\06_execute_bronze" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 5]"
+      DTS:CreationName=""
+      DTS:DTSID="{0A759DE1-F87D-40CA-9438-6AC78987A041}"
+      DTS:From="Package\06_execute_bronze"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 5"
+      DTS:To="Package\07_execute_silver" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -353,6 +382,44 @@
                   Capacity="5">
                   <mssgle:LineSegment
                     End="23.5777651959553,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="192,73.6"
+          Id="Package\07_execute_silver"
+          TopLeft="91.666661658221,419.466663749748" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 5]"
+          TopLeft="403.96664922817,367.666664599511">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-216.299987569949,51.7999991502365"
+              Start="0,0"
+              End="-216.299987569949,44.2999991502365">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,21.8999995751182" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,21.8999995751182"
+                    Point2="0,25.8999995751182"
+                    Point3="-4,25.8999995751182" />
+                  <mssgle:LineSegment
+                    End="-212.299987569949,25.8999995751182" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-212.299987569949,25.8999995751182"
+                    Point2="-216.299987569949,25.8999995751182"
+                    Point3="-216.299987569949,29.8999995751182" />
+                  <mssgle:LineSegment
+                    End="-216.299987569949,44.2999991502365" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
