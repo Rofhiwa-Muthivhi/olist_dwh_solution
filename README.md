@@ -44,4 +44,91 @@ As a result, management faces challenges in understanding important areas of bus
 
 The challenge, therefore, is to bring these different datasets together, address the data quality issues and develop a centralised data warehouse that can provide reliable information for business analysis and reporting.
 
-   
+## 🏗️ 4. Solution Architecture
+
+My solution uses a Master Package to manage and control the execution of the entire Olist Data Warehouse ETL process. It starts by preparing the databases and schemas, setting up the audit tables and generating a batch ID to keep track of each ETL execution.
+
+Once these steps are completed, the Master Package will execute the individual SSIS packages in sequence: Bronze, Silver, Gold Dimensions and finally Gold Facts. Each layer has its own package, which means I can run and test each stage independently while still having the ability to execute the entire ETL process from one central point.
+
+The diagram below illustrates the overall ETL architecture and how data moves through the different layers.
+
+```mermaid
+flowchart LR
+
+    SRC[("OLIST SOURCE DATA<br/>9 CSV DATASETS")]
+
+    MASTER["00_master.dtsx<br/>MASTER PACKAGE<br/>ETL ORCHESTRATION"]
+
+    subgraph BRONZE["01 | BRONZE LAYER"]
+        direction TB
+        BP["01_bronze_load.dtsx<br/>BRONZE LOAD"]
+        BDB[("olist_stg<br/>RAW DATA TABLES")]
+        BP --> BDB
+    end
+
+    subgraph SILVER["02 | SILVER LAYER"]
+        direction TB
+        SP["02_silver_transform.dtsx<br/>SILVER TRANSFORMATION"]
+        SDB[("olist_dwh<br/>CLEANSED DATA TABLES")]
+        SP --> SDB
+    end
+
+    subgraph GOLD["03 | GOLD LAYER"]
+        direction TB
+        DP["03_gold_dimensions.dtsx<br/>DIMENSION PACKAGE"]
+        FP["04_gold_facts.dtsx<br/>FACT PACKAGE"]
+        GDB[("olist_dwh<br/>GOLD STAR SCHEMA")]
+        DP --> FP --> GDB
+    end
+
+    AUDIT[("ETL AUDIT TABLES<br/>BATCH LOG | LOAD LOG | ERROR ROWS")]
+
+    END["ETL EXECUTION<br/>SUCCESS / FAILED"]
+
+    SRC --> BP
+    BDB --> SP
+    SDB --> DP
+    GDB --> END
+
+    MASTER -.-> BP
+    MASTER -.-> SP
+    MASTER -.-> DP
+    MASTER -.-> FP
+
+    MASTER -.-> AUDIT
+    BP -.-> AUDIT
+    SP -.-> AUDIT
+    FP -.-> AUDIT
+
+    classDef master fill:#244638,stroke:#142D24,color:#FFFFFF,stroke-width:3px;
+    classDef bronze fill:#B18459,stroke:#805B38,color:#FFFFFF,stroke-width:2px;
+    classDef bronzeDB fill:#795638,stroke:#563B26,color:#FFFFFF,stroke-width:2px;
+    classDef silver fill:#C2C7CC,stroke:#858D95,color:#263238,stroke-width:2px;
+    classDef silverDB fill:#7D8993,stroke:#59656E,color:#FFFFFF,stroke-width:2px;
+    classDef gold fill:#C6A85F,stroke:#947B3D,color:#302716,stroke-width:2px;
+    classDef goldDB fill:#92763C,stroke:#675126,color:#FFFFFF,stroke-width:2px;
+    classDef source fill:#344D40,stroke:#1D362A,color:#FFFFFF,stroke-width:2px;
+    classDef audit fill:#536D60,stroke:#304A3B,color:#FFFFFF,stroke-width:2px;
+    classDef finish fill:#244638,stroke:#142D24,color:#FFFFFF,stroke-width:2px;
+
+    class MASTER master;
+    class BP bronze;
+    class BDB bronzeDB;
+    class SP silver;
+    class SDB silverDB;
+    class DP,FP gold;
+    class GDB goldDB;
+    class SRC source;
+    class AUDIT audit;
+    class END finish;
+
+    style BRONZE fill:#F4EDE4,stroke:#B18459,stroke-width:2px,color:#694A2D
+    style SILVER fill:#EEF0F2,stroke:#A6ADB4,stroke-width:2px,color:#45515B
+    style GOLD fill:#F5F0E1,stroke:#C6A85F,stroke-width:2px,color:#75602D
+```
+
+### 📸 Master Package Execution Evidence
+
+The screenshot below shows the successful execution of my Master Package, including database preparation, schema creation and ETL batch initialisation.
+
+![Master Package Execution Evidence](06_assets/master_package_execution.png)
