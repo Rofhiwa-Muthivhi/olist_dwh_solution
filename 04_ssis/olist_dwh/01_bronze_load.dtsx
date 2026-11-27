@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="141"
-  DTS:VersionGUID="{D2C25065-A3B6-4009-9848-93B255062AF2}">
+  DTS:VersionBuild="147"
+  DTS:VersionGUID="{B9836D9D-9DE7-4792-86EC-22A544008148}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -138,24 +138,6 @@
         <SQLTask:SqlTaskData
           SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
           SQLTask:SqlStatementSource="&#xA;/*&#xA;    olist data warehouse solution&#xA;    layer: bronze&#xA;    database: olist_stg&#xA;    schema: bronze&#xA;&#xA;    my objective here is to create the nine bronze tables&#xA;    that will receive data from my olist source csv files.&#xA;&#xA;    i am using if object_id to check whether each table exists&#xA;    before creating it. this allows me to rerun my script without&#xA;    attempting to recreate tables that already exist.&#xA;&#xA;    i am using nvarchar for every source column because i want&#xA;    to land the source data as text before applying transformations&#xA;    in the silver layer.&#xA;&#xA;    i am also including three metadata columns in every table&#xA;    to capture the load timestamp, source file and batch id.&#xA;*/&#xA;&#xA;USE [olist_stg];&#xA;&#xA;&#xA;/* =========================================================&#xA;   1. customers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the customers table to store the customer&#xA;    identifiers and location information from the source dataset.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.customers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.customers&#xA;    (&#xA;        customer_id                 NVARCHAR(255),&#xA;        customer_unique_id          NVARCHAR(255),&#xA;        customer_zip_code_prefix    NVARCHAR(255),&#xA;        customer_city               NVARCHAR(255),&#xA;        customer_state              NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   2. geolocation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the geolocation table to store the location&#xA;    information associated with zip code prefixes.&#xA;&#xA;    i am keeping the latitude and longitude as text for now.&#xA;    i can convert them to appropriate numeric types in silver.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.geolocation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.geolocation&#xA;    (&#xA;        geolocation_zip_code_prefix NVARCHAR(255),&#xA;        geolocation_lat             NVARCHAR(255),&#xA;        geolocation_lng             NVARCHAR(255),&#xA;        geolocation_city            NVARCHAR(255),&#xA;        geolocation_state           NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   3. order items&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_items table to capture the products&#xA;    associated with each order, including the seller and pricing.&#xA;&#xA;    i am keeping the dates and monetary values as text in bronze.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_items', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_items&#xA;    (&#xA;        order_id            NVARCHAR(255),&#xA;        order_item_id       NVARCHAR(255),&#xA;        product_id          NVARCHAR(255),&#xA;        seller_id           NVARCHAR(255),&#xA;        shipping_limit_date NVARCHAR(255),&#xA;        price               NVARCHAR(255),&#xA;        freight_value       NVARCHAR(255),&#xA;&#xA;        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file     NVARCHAR(260),&#xA;        dwh_batch_id        INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   4. order payments&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_payments table to capture payment&#xA;    information, including payment type, instalments and value.&#xA;&#xA;    i will handle the appropriate data type conversions later.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_payments', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_payments&#xA;    (&#xA;        order_id             NVARCHAR(255),&#xA;        payment_sequential   NVARCHAR(255),&#xA;        payment_type         NVARCHAR(255),&#xA;        payment_installments NVARCHAR(255),&#xA;        payment_value        NVARCHAR(255),&#xA;&#xA;        dwh_load_ts          DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file      NVARCHAR(260),&#xA;        dwh_batch_id         INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   5. order reviews&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the order_reviews table to store customer&#xA;    feedback, review scores and review timestamps.&#xA;&#xA;    i am using nvarchar(max) for the review comments because&#xA;    the messages can be longer than the other source fields.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.order_reviews', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.order_reviews&#xA;    (&#xA;        review_id               NVARCHAR(255),&#xA;        order_id                NVARCHAR(255),&#xA;        review_score            NVARCHAR(255),&#xA;        review_comment_title    NVARCHAR(MAX),&#xA;        review_comment_message  NVARCHAR(MAX),&#xA;        review_creation_date    NVARCHAR(255),&#xA;        review_answer_timestamp NVARCHAR(255),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file         NVARCHAR(260),&#xA;        dwh_batch_id            INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   6. orders&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the orders table to capture the order status&#xA;    and the different timestamps associated with each order.&#xA;&#xA;    i am landing the timestamps as text so i can validate and&#xA;    convert them during silver-layer processing.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.orders', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.orders&#xA;    (&#xA;        order_id                       NVARCHAR(255),&#xA;        customer_id                    NVARCHAR(255),&#xA;        order_status                   NVARCHAR(255),&#xA;        order_purchase_timestamp       NVARCHAR(255),&#xA;        order_approved_at              NVARCHAR(255),&#xA;        order_delivered_carrier_date   NVARCHAR(255),&#xA;        order_delivered_customer_date  NVARCHAR(255),&#xA;        order_estimated_delivery_date  NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                    DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file                NVARCHAR(260),&#xA;        dwh_batch_id                   INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   7. products&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the products table to store product details,&#xA;    including the category, dimensions, weight and photo count.&#xA;&#xA;    i am keeping the measurements as text for now.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.products', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.products&#xA;    (&#xA;        product_id                  NVARCHAR(255),&#xA;        product_category_name       NVARCHAR(255),&#xA;        product_name_lenght         NVARCHAR(255),&#xA;        product_description_lenght  NVARCHAR(255),&#xA;        product_photos_qty          NVARCHAR(255),&#xA;        product_weight_g            NVARCHAR(255),&#xA;        product_length_cm           NVARCHAR(255),&#xA;        product_height_cm           NVARCHAR(255),&#xA;        product_width_cm            NVARCHAR(255),&#xA;&#xA;        dwh_load_ts                 DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file             NVARCHAR(260),&#xA;        dwh_batch_id                INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   8. sellers&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the sellers table to store seller identifiers&#xA;    and their location information.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.sellers', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.sellers&#xA;    (&#xA;        seller_id              NVARCHAR(255),&#xA;        seller_zip_code_prefix NVARCHAR(255),&#xA;        seller_city            NVARCHAR(255),&#xA;        seller_state           NVARCHAR(255),&#xA;&#xA;        dwh_load_ts             DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file         NVARCHAR(260),&#xA;        dwh_batch_id            INT&#xA;    );&#xA;END;&#xA;&#xA;&#xA;/* =========================================================&#xA;   9. product category name translation&#xA;   ========================================================= */&#xA;&#xA;/*&#xA;    i am creating the product category translation table&#xA;    to store the category names and their translations.&#xA;&#xA;    i am preserving the source column names for now.&#xA;    i can confirm their actual meanings before transforming&#xA;    them in the silver layer.&#xA;*/&#xA;&#xA;IF OBJECT_ID('bronze.product_category_name_translation', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE bronze.product_category_name_translation&#xA;    (&#xA;        column1             NVARCHAR(255),&#xA;        column2             NVARCHAR(255),&#xA;&#xA;        dwh_load_ts         DATETIME2 DEFAULT SYSDATETIME(),&#xA;        dwh_source_file     NVARCHAR(260),&#xA;        dwh_batch_id        INT&#xA;    );&#xA;END;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
-      </DTS:ObjectData>
-    </DTS:Executable>
-    <DTS:Executable
-      DTS:refId="Package\04_ensure_etl_load_log"
-      DTS:CreationName="Microsoft.ExecuteSQLTask"
-      DTS:DelayValidation="True"
-      DTS:Description="Execute SQL Task"
-      DTS:DTSID="{7F868FD3-F525-4917-890C-11C98E77033D}"
-      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
-      DTS:LocaleID="-1"
-      DTS:ObjectName="04_ensure_etl_load_log"
-      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; SQL Server 2025; © 2025 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
-      DTS:ThreadHint="0">
-      <DTS:Variables />
-      <DTS:ObjectData>
-        <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="IF SCHEMA_ID('etl') IS NULL&#xA;BEGIN&#xA;    EXEC('CREATE SCHEMA etl');&#xA;END;&#xA;&#xA;IF OBJECT_ID('etl.load_log', 'U') IS NULL&#xA;BEGIN&#xA;    CREATE TABLE etl.load_log&#xA;    (&#xA;        load_log_id INT IDENTITY(1,1) PRIMARY KEY,&#xA;        batch_id INT NOT NULL,&#xA;        source_file NVARCHAR(260) NOT NULL,&#xA;        rows_loaded INT NOT NULL,&#xA;        load_status NVARCHAR(20) NOT NULL,&#xA;        load_timestamp DATETIME2 NOT NULL DEFAULT SYSDATETIME()&#xA;    );&#xA;END;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
@@ -787,8 +769,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_customers_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.customers',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -797,6 +779,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::CustomerRowLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::CustomerRowLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -1392,8 +1380,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_geolocation_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.geolocation',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
             SQLTask:DtsVariableName="User::GeolocationRowsLoaded"
@@ -1403,6 +1391,12 @@
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::GeolocationRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
             SQLTask:ParameterSize="-1" />
@@ -2073,8 +2067,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_order_items_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.order_items',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -2083,6 +2077,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::OrderItemsRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::OrderItemsRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -2678,8 +2678,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_order_payments_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.order_payments',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -2688,6 +2688,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::OrderPaymentsRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::OrderPaymentsRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -3357,8 +3363,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_order_reviews_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.order_reviews',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -3367,6 +3373,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::OrderReviewsRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::OrderReviewsRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -4076,8 +4088,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_orders_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.orders',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -4086,6 +4098,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::OrdersRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::OrdersRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -4833,8 +4851,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_products_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.products',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -4843,6 +4861,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::ProductsRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::ProductsRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -5400,8 +5424,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'olist_sellers_dataset.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.sellers',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -5410,6 +5434,12 @@
             SQLTask:ParameterSize="-1" />
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::SellersRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
             SQLTask:DtsVariableName="User::SellersRowsLoaded"
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
@@ -5891,8 +5921,8 @@
       <DTS:Variables />
       <DTS:ObjectData>
         <SQLTask:SqlTaskData
-          SQLTask:Connection="{588E6981-183D-41DE-B56E-4B5CD1F797C5}"
-          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    source_file,&#xA;    rows_loaded,&#xA;    load_status,&#xA;    load_timestamp&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'product_category_name_translation.csv',&#xA;    ?,&#xA;    N'SUCCESS',&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          SQLTask:Connection="{310CC007-85DA-4340-BD2B-8E52234DCCD9}"
+          SQLTask:SqlStatementSource="INSERT INTO etl.load_log&#xA;(&#xA;    batch_id,&#xA;    package,&#xA;    table_name,&#xA;    rows_read,&#xA;    rows_written,&#xA;    rows_error,&#xA;    ts&#xA;)&#xA;VALUES&#xA;(&#xA;    ?,&#xA;    N'01_bronze_load',&#xA;    N'bronze.product_category_name_translation',&#xA;    ?,&#xA;    ?,&#xA;    0,&#xA;    SYSDATETIME()&#xA;);" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
           <SQLTask:ParameterBinding
             SQLTask:ParameterName="0"
             SQLTask:DtsVariableName="User::BatchId"
@@ -5905,6 +5935,12 @@
             SQLTask:ParameterDirection="Input"
             SQLTask:DataType="3"
             SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::ProductCategoryNameTranslationRowsLoaded"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="3"
+            SQLTask:ParameterSize="-1" />
         </SQLTask:SqlTaskData>
       </DTS:ObjectData>
     </DTS:Executable>
@@ -5913,8 +5949,8 @@
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint]"
       DTS:CreationName=""
-      DTS:DTSID="{D0BAA9FC-25DC-4B73-AB8D-48CBAA03E8B5}"
-      DTS:From="Package\04_ensure_etl_load_log"
+      DTS:DTSID="{81BF3A34-B83F-4991-B0C0-CEE287DEF703}"
+      DTS:From="Package\03_create_bronze_tables"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
       DTS:To="Package\05_generate_batch_id" />
@@ -6015,14 +6051,6 @@
       DTS:ObjectName="Constraint 2"
       DTS:To="Package\08_log_customers" />
     <DTS:PrecedenceConstraint
-      DTS:refId="Package.PrecedenceConstraints[Constraint 20]"
-      DTS:CreationName=""
-      DTS:DTSID="{C490B3DE-5DEA-4779-95EE-13BF58F1942C}"
-      DTS:From="Package\03_create_bronze_tables"
-      DTS:LogicalAnd="True"
-      DTS:ObjectName="Constraint 20"
-      DTS:To="Package\04_ensure_etl_load_log" />
-    <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
       DTS:CreationName=""
       DTS:DTSID="{0DFF5315-26C9-48D7-B6DF-8B914D740574}"
@@ -6096,13 +6124,9 @@
           Id="Package\03_create_bronze_tables"
           TopLeft="62.5640991457509,34.1999997621775" />
         <NodeLayout
-          Size="189.6,52.8"
-          Id="Package\04_ensure_etl_load_log"
-          TopLeft="320.710938188082,37.6606057987189" />
-        <NodeLayout
           Size="181.6,52.8"
           Id="Package\05_generate_batch_id"
-          TopLeft="609.621178812979,40.0424239639743" />
+          TopLeft="367.954525350396,36.8909088343744" />
         <NodeLayout
           Size="204,48.8"
           Id="Package\06_truncate_bronze_tables"
@@ -6179,28 +6203,6 @@
           Size="281.6,64"
           Id="Package\24_log_product_category_name_translation"
           TopLeft="458.313496991504,506.466663144762" />
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="510.310938188082,65.2515148813466">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="99.310240624897,0"
-              Start="0,0"
-              End="91.810240624897,0">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="91.810240624897,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
           TopLeft="958.800652487175,89.6666663824847">
@@ -6459,18 +6461,18 @@
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 19]"
-          TopLeft="791.221178812979,65.8545451732295">
+          TopLeft="549.554525350396,64.2787876084296">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="65.579473674196,0"
+              EndConnector="307.246127136779,0"
               Start="0,0"
-              End="58.079473674196,0">
+              End="299.746127136779,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="58.079473674196,0" />
+                    End="299.746127136779,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -6493,28 +6495,6 @@
                   Capacity="5">
                   <mssgle:LineSegment
                     End="54.0128060058396,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint 20]"
-          TopLeft="258.564099145751,63.1303027804482">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="62.1468390423312,0"
-              Start="0,0"
-              End="54.6468390423312,0">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="54.6468390423312,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -6701,6 +6681,28 @@
             <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="258.564099145751,62.7454542982759">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="109.390426204645,0"
+              Start="0,0"
+              End="101.890426204645,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="101.890426204645,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
       </GraphLayout>
     </LayoutInfo>
   </Package>
@@ -6708,7 +6710,7 @@
     design-time-name="Package\07_dft_load_customers">
     <LayoutInfo>
       <GraphLayout
-        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
+        Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="157.6,41.6"
           Id="Package\07_dft_load_customers\OLE DB Destination"
@@ -6744,9 +6746,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -6768,9 +6768,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
         <EdgeLayout
@@ -6792,9 +6790,7 @@
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <mssgm:EdgeLabel
-              BoundingBox="0,0,0,0"
-              RelativePosition="Any" />
+            <EdgeLabelCollection />
           </EdgeLayout.Labels>
         </EdgeLayout>
       </GraphLayout>
