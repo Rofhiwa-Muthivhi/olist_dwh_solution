@@ -53,15 +53,40 @@ Once these steps are completed, the Master Package will execute the individual S
 The diagram below illustrates the overall ETL architecture and how data moves through the different layers.
 
 ```mermaid
+%%{init: {
+    "theme": "base",
+    "themeVariables": {
+        "fontFamily": "Arial, sans-serif",
+        "fontSize": "17px",
+        "lineColor": "#455A4E",
+        "lineWidth": "2px"
+    },
+    "flowchart": {
+        "nodeSpacing": 65,
+        "rankSpacing": 85,
+        "curve": "basis",
+        "padding": 20
+    }
+}}%%
+
 flowchart LR
 
     SRC[("OLIST SOURCE DATA<br/>9 CSV DATASETS")]
 
-    MASTER["00_master.dtsx<br/>MASTER PACKAGE<br/>ETL ORCHESTRATION"]
+    MASTER["00_master.dtsx<br/>MASTER PACKAGE<br/>CENTRAL ETL ORCHESTRATION"]
+
+    subgraph INITIALISE["MASTER PACKAGE | INITIALISATION"]
+        direction TB
+        A["01 | Prepare Databases"]
+        B["02 | Create Schemas"]
+        C["03 | Create Audit Tables"]
+        D["04 | Generate Batch ID"]
+        A --> B --> C --> D
+    end
 
     subgraph BRONZE["01 | BRONZE LAYER"]
         direction TB
-        BP["01_bronze_load.dtsx<br/>BRONZE LOAD"]
+        BP["01_bronze_load.dtsx<br/>BRONZE LOAD PACKAGE"]
         BDB[("olist_stg<br/>RAW DATA TABLES")]
         BP --> BDB
     end
@@ -81,37 +106,38 @@ flowchart LR
         DP --> FP --> GDB
     end
 
-    AUDIT[("ETL AUDIT TABLES<br/>BATCH LOG | LOAD LOG | ERROR ROWS")]
+    AUDIT[("CENTRAL ETL AUDIT TABLES<br/>BATCH LOG | LOAD LOG | ERROR ROWS")]
 
-    END["ETL EXECUTION<br/>SUCCESS / FAILED"]
+    END["ANALYTICAL<br/>REPORTING"]
+
+    MASTER --> INITIALISE
+    D --> BP
 
     SRC --> BP
     BDB --> SP
     SDB --> DP
     GDB --> END
 
-    MASTER -.-> BP
-    MASTER -.-> SP
-    MASTER -.-> DP
-    MASTER -.-> FP
-
     MASTER -.-> AUDIT
     BP -.-> AUDIT
     SP -.-> AUDIT
+    DP -.-> AUDIT
     FP -.-> AUDIT
 
-    classDef master fill:#244638,stroke:#142D24,color:#FFFFFF,stroke-width:3px;
-    classDef bronze fill:#B18459,stroke:#805B38,color:#FFFFFF,stroke-width:2px;
-    classDef bronzeDB fill:#795638,stroke:#563B26,color:#FFFFFF,stroke-width:2px;
-    classDef silver fill:#C2C7CC,stroke:#858D95,color:#263238,stroke-width:2px;
-    classDef silverDB fill:#7D8993,stroke:#59656E,color:#FFFFFF,stroke-width:2px;
-    classDef gold fill:#C6A85F,stroke:#947B3D,color:#302716,stroke-width:2px;
-    classDef goldDB fill:#92763C,stroke:#675126,color:#FFFFFF,stroke-width:2px;
-    classDef source fill:#344D40,stroke:#1D362A,color:#FFFFFF,stroke-width:2px;
-    classDef audit fill:#536D60,stroke:#304A3B,color:#FFFFFF,stroke-width:2px;
-    classDef finish fill:#244638,stroke:#142D24,color:#FFFFFF,stroke-width:2px;
+    classDef master fill:#244638,stroke:#10271D,color:#FFFFFF,stroke-width:5px,font-size:19px,font-weight:bold;
+    classDef setup fill:#536D60,stroke:#304A3B,color:#FFFFFF,stroke-width:3px,font-size:16px,font-weight:bold;
+    classDef bronze fill:#B18459,stroke:#805B38,color:#FFFFFF,stroke-width:3px,font-size:16px,font-weight:bold;
+    classDef bronzeDB fill:#795638,stroke:#563B26,color:#FFFFFF,stroke-width:4px,font-size:16px,font-weight:bold;
+    classDef silver fill:#C2C7CC,stroke:#737D86,color:#263238,stroke-width:3px,font-size:16px,font-weight:bold;
+    classDef silverDB fill:#7D8993,stroke:#59656E,color:#FFFFFF,stroke-width:4px,font-size:16px,font-weight:bold;
+    classDef gold fill:#C6A85F,stroke:#947B3D,color:#302716,stroke-width:3px,font-size:16px,font-weight:bold;
+    classDef goldDB fill:#92763C,stroke:#675126,color:#FFFFFF,stroke-width:4px,font-size:16px,font-weight:bold;
+    classDef source fill:#344D40,stroke:#1D362A,color:#FFFFFF,stroke-width:4px,font-size:16px,font-weight:bold;
+    classDef audit fill:#536D60,stroke:#304A3B,color:#FFFFFF,stroke-width:4px,font-size:16px,font-weight:bold;
+    classDef finish fill:#244638,stroke:#142D24,color:#FFFFFF,stroke-width:4px,font-size:17px,font-weight:bold;
 
     class MASTER master;
+    class A,B,C,D setup;
     class BP bronze;
     class BDB bronzeDB;
     class SP silver;
@@ -122,13 +148,97 @@ flowchart LR
     class AUDIT audit;
     class END finish;
 
-    style BRONZE fill:#F4EDE4,stroke:#B18459,stroke-width:2px,color:#694A2D
-    style SILVER fill:#EEF0F2,stroke:#A6ADB4,stroke-width:2px,color:#45515B
-    style GOLD fill:#F5F0E1,stroke:#C6A85F,stroke-width:2px,color:#75602D
+    style INITIALISE fill:#DCE9DF,stroke:#536D60,stroke-width:3px,color:#244638
+    style BRONZE fill:#F4EDE4,stroke:#B18459,stroke-width:3px,color:#694A2D
+    style SILVER fill:#E4E8EB,stroke:#858D95,stroke-width:3px,color:#45515B
+    style GOLD fill:#F5F0E1,stroke:#C6A85F,stroke-width:3px,color:#75602D
+
+    linkStyle default stroke:#536D60,stroke-width:2.5px
 ```
 
-### 📸 Master Package Execution Evidence
 
-The screenshot below shows the successful execution of my Master Package, including database preparation, schema creation and ETL batch initialisation.
+#### 4.1 Bronze Layer 
 
-![Master Package Execution Evidence](06_assets/master_package_execution.png)
+I use the Bronze layer to load the nine original Olist CSV datasets into SQL Server. The 01_bronze_load.dtsx package manages the ingestion process, adds loading metadata and stores the raw records in the olist_stg database.
+```mermaid
+flowchart LR
+
+    subgraph SOURCE["SOURCE DATA"]
+        direction TB
+        CSV[("OLIST SOURCE DATA<br/>9 CSV DATASETS")]
+    end
+
+    subgraph BRONZE["01 | BRONZE LAYER"]
+        direction TB
+
+        PKG["01_bronze_load.dtsx<br/>BRONZE LOAD PACKAGE"]
+
+        FLAT["Flat File Source"]
+
+        DERIVED["Derived Column<br/>LOAD TIMESTAMP | SOURCE FILE | BATCH ID"]
+
+        BDB[("olist_stg<br/>RAW DATA TABLES")]
+
+        PKG --> FLAT --> DERIVED --> BDB
+    end
+
+    CSV --> PKG
+
+    classDef bronze fill:#B18459,stroke:#805B38,color:#FFFFFF,stroke-width:2px;
+    classDef bronzeDB fill:#795638,stroke:#563B26,color:#FFFFFF,stroke-width:2px;
+    classDef source fill:#344D40,stroke:#1D362A,color:#FFFFFF,stroke-width:2px;
+
+    class PKG,FLAT,DERIVED bronze;
+    class BDB bronzeDB;
+    class CSV source;
+
+    style SOURCE fill:#E6EEE8,stroke:#536D60,stroke-width:2px,color:#244638
+    style BRONZE fill:#F4EDE4,stroke:#B18459,stroke-width:2px,color:#694A2D
+```
+
+
+#### 4.2 Silver Layer 
+I use the Silver layer to clean and standardise the data loaded into Bronze. The 02_silver_transform.dtsx package uses SQL preparation views and SSIS transformations to prepare the records before loading them into the silver schema in olist_dwh. Invalid records are handled through the configured error-handling process.
+```mermaid
+flowchart LR
+
+    subgraph BRONZE["01 | BRONZE LAYER"]
+        direction TB
+        BDB[("olist_stg<br/>RAW DATA TABLES")]
+    end
+
+    subgraph SILVER["02 | SILVER LAYER"]
+        direction TB
+
+        SP["02_silver_transform.dtsx<br/>SILVER TRANSFORMATION PACKAGE"]
+
+        VIEWS["SQL PREPARATION VIEWS"]
+
+        TRANSFORM["SSIS TRANSFORMATIONS<br/>DATA CONVERSION | DERIVED COLUMN | CONDITIONAL SPLIT"]
+
+        SDB[("olist_dwh<br/>CLEANSED DATA TABLES")]
+
+        SP --> VIEWS --> TRANSFORM
+        TRANSFORM -->|"VALID RECORDS"| SDB
+    end
+
+    ERROR[("etl.error_rows<br/>INVALID RECORDS")]
+
+    BDB --> SP
+
+    TRANSFORM -->|"INVALID RECORDS"| ERROR
+
+    classDef bronze fill:#B18459,stroke:#805B38,color:#FFFFFF,stroke-width:2px;
+    classDef bronzeDB fill:#795638,stroke:#563B26,color:#FFFFFF,stroke-width:2px;
+    classDef silver fill:#C2C7CC,stroke:#858D95,color:#263238,stroke-width:2px;
+    classDef silverDB fill:#7D8993,stroke:#59656E,color:#FFFFFF,stroke-width:2px;
+    classDef audit fill:#536D60,stroke:#304A3B,color:#FFFFFF,stroke-width:2px;
+
+    class BDB bronzeDB;
+    class SP,VIEWS,TRANSFORM silver;
+    class SDB silverDB;
+    class ERROR audit;
+
+    style BRONZE fill:#F4EDE4,stroke:#B18459,stroke-width:2px,color:#694A2D
+    style SILVER fill:#EEF0F2,stroke:#A6ADB4,stroke-width:2px,color:#45515B
+```
