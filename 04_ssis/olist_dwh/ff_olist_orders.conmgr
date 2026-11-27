@@ -3,6 +3,8 @@
   DTS:ObjectName="ff_olist_orders"
   DTS:DTSID="{F948D6E5-5D51-49B3-9E58-3E4AFB8DC0FA}"
   DTS:CreationName="FLATFILE">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::p_sourcefilepath] + "olist_orders_dataset.csv"</DTS:PropertyExpression>
   <DTS:ObjectData>
     <DTS:ConnectionManager
       DTS:Format="Delimited"
@@ -21,7 +23,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_id"
-          DTS:DTSID="{DED7692C-BC26-45E7-81FC-B4C4B53F9A18}"
+          DTS:DTSID="{ABAE83F7-790E-4873-9051-CEF7A6066909}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +32,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_id"
-          DTS:DTSID="{EE5F6163-9E6D-48A3-9F77-A7F8C9A16218}"
+          DTS:DTSID="{53819F13-574E-4CB5-93A0-3C03823482FF}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -39,7 +41,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_status"
-          DTS:DTSID="{084BE011-BFA8-442A-B0B6-C7A2012B65BC}"
+          DTS:DTSID="{E07B764A-3B64-4E08-847B-19BAC52A8D5C}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -48,7 +50,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_purchase_timestamp"
-          DTS:DTSID="{70A8ECA8-AB1E-40F7-90E6-BEB0C1B20E79}"
+          DTS:DTSID="{1C5E5A60-2EDA-4369-AF71-5C9638B42B0D}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -57,7 +59,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_approved_at"
-          DTS:DTSID="{F4D509B2-AE3E-41F4-9CF4-39A3331071BE}"
+          DTS:DTSID="{1016390F-C921-45C2-9F32-F25294CB9A2E}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -66,7 +68,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_delivered_carrier_date"
-          DTS:DTSID="{D78F1141-6F52-4B49-8BFA-93C3C86CC72C}"
+          DTS:DTSID="{22FBCAB0-6ABF-4F9F-BA19-2D55982A7224}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -75,7 +77,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_delivered_customer_date"
-          DTS:DTSID="{2541E90F-BFB7-469C-BDA4-7FD6EBED505E}"
+          DTS:DTSID="{B0FE5B4D-31C2-4A30-8B17-20AC8DCDC779}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -84,7 +86,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_estimated_delivery_date"
-          DTS:DTSID="{DE88FD13-0309-4FE0-8A3D-78716E3877B2}"
+          DTS:DTSID="{4F0BDED3-1686-42AB-8C21-6227A3A16B27}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>

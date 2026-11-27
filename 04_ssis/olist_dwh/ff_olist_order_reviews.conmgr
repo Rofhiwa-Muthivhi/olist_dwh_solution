@@ -3,6 +3,8 @@
   DTS:ObjectName="ff_olist_order_reviews"
   DTS:DTSID="{D7B89C68-BFBA-4E36-B8BD-5231D851D807}"
   DTS:CreationName="FLATFILE">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::p_sourcefilepath] + "olist_order_reviews_dataset.csv"</DTS:PropertyExpression>
   <DTS:ObjectData>
     <DTS:ConnectionManager
       DTS:Format="Delimited"
@@ -21,7 +23,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_id"
-          DTS:DTSID="{BDA1A046-7BD8-40F8-B993-805A2074F82F}"
+          DTS:DTSID="{5D91EBE3-E1F1-4F5F-BD5F-A6BB6FCD212C}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +32,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="order_id"
-          DTS:DTSID="{0BC2E8F0-E9DE-4624-BC85-625AFAB1579A}"
+          DTS:DTSID="{07D3B46D-0DC9-41AE-ADB9-F049BFB5E527}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -39,7 +41,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_score"
-          DTS:DTSID="{39CCB93F-393B-418A-A71F-665B3FCD430A}"
+          DTS:DTSID="{A7BC4ED5-1B85-4212-8397-81E1D16DAB5A}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -48,7 +50,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_comment_title"
-          DTS:DTSID="{8BB9B6DA-F5DF-4EAD-8C2F-C557FEF4F9FE}"
+          DTS:DTSID="{BF9AADFE-F303-4021-A21A-3C230812E575}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -57,7 +59,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_comment_message"
-          DTS:DTSID="{B00A6A69-41C4-47E1-B7A6-9A41E75C1247}"
+          DTS:DTSID="{25A33C93-EC2B-4152-A027-F6ED8017C189}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -66,7 +68,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_creation_date"
-          DTS:DTSID="{0457B977-3C46-4135-94A0-1ECE5CC498B5}"
+          DTS:DTSID="{49A7F6B5-B6BC-4F70-B9B8-2A9AA9D0D3B6}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -75,7 +77,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="review_answer_timestamp"
-          DTS:DTSID="{5BE95B4A-EF94-4F69-AB41-8DC97B1451D5}"
+          DTS:DTSID="{8E15FA54-CEDE-4E96-A374-CFA0B2B3E603}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>

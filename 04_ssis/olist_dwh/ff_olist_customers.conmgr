@@ -3,6 +3,8 @@
   DTS:ObjectName="ff_olist_customers"
   DTS:DTSID="{818C49D5-9016-4DEA-9CD8-275587DECBD2}"
   DTS:CreationName="FLATFILE">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::p_sourcefilepath] + "olist_customers_dataset.csv"</DTS:PropertyExpression>
   <DTS:ObjectData>
     <DTS:ConnectionManager
       DTS:Format="Delimited"
@@ -21,7 +23,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_id"
-          DTS:DTSID="{FCFB8736-1285-4D91-89AD-31FC6BBDC86B}"
+          DTS:DTSID="{479979B4-D0E6-4C4E-A363-DC326AB62F64}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +32,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_unique_id"
-          DTS:DTSID="{C0928F90-1961-4FFF-BBB0-4C861EE1F7EF}"
+          DTS:DTSID="{D0FF3C80-01E0-4AD8-BD63-4C3E16BE69F1}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -39,7 +41,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_zip_code_prefix"
-          DTS:DTSID="{AD10F371-0AA9-4ECE-8A18-84607CF3B845}"
+          DTS:DTSID="{46291909-EFCE-4967-9DF6-6A0015945E5E}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -48,7 +50,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_city"
-          DTS:DTSID="{031C2BBA-D13A-43C3-8E91-C320D8EBFFD3}"
+          DTS:DTSID="{049F2F77-940C-4588-9C28-7E97C28F0BCA}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -57,7 +59,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="customer_state"
-          DTS:DTSID="{A43A593A-A551-4A54-923D-DBF7BF1CF7B0}"
+          DTS:DTSID="{74CA9B8C-4AF1-4023-8825-7F5E8A6A3C3C}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>

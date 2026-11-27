@@ -3,6 +3,8 @@
   DTS:ObjectName="ff_olist_product_category_name_translation"
   DTS:DTSID="{CE98B8BB-300C-49FE-A1D6-E6ECC5763490}"
   DTS:CreationName="FLATFILE">
+  <DTS:PropertyExpression
+    DTS:Name="ConnectionString">@[$Project::p_sourcefilepath] + "product_category_name_translation.csv"</DTS:PropertyExpression>
   <DTS:ObjectData>
     <DTS:ConnectionManager
       DTS:Format="Delimited"
@@ -21,7 +23,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="product_category_name"
-          DTS:DTSID="{69CE51B0-B170-40CC-90D5-2EA59B2D0AC1}"
+          DTS:DTSID="{814E5887-B094-45CC-A041-0D38067D8D7E}"
           DTS:CreationName="" />
         <DTS:FlatFileColumn
           DTS:ColumnType="Delimited"
@@ -30,7 +32,7 @@
           DTS:DataType="130"
           DTS:TextQualified="True"
           DTS:ObjectName="product_category_name_english"
-          DTS:DTSID="{E64DEA22-802D-41B1-A0D9-6B66B5F8A4FB}"
+          DTS:DTSID="{B9EAF5CA-38C1-4304-A529-3CC3509A0407}"
           DTS:CreationName="" />
       </DTS:FlatFileColumns>
     </DTS:ConnectionManager>
