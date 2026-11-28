@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package1"
   DTS:PackageType="5"
-  DTS:VersionBuild="55"
-  DTS:VersionGUID="{135BF634-B6E1-4A53-91AD-83B843CA64FF}">
+  DTS:VersionBuild="59"
+  DTS:VersionGUID="{D749E24E-EB0C-4AA8-B0B9-99188ECC10B0}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:PackageParameters>
@@ -3224,7 +3224,7 @@ WHERE payment_type IS NOT NULL
     <DTS:PrecedenceConstraint
       DTS:refId="Package.PrecedenceConstraints[Constraint]"
       DTS:CreationName=""
-      DTS:DTSID="{B9858853-38B9-4D82-AF0E-399926110734}"
+      DTS:DTSID="{EA098E5C-9DC6-45D9-9018-31E9ACC3B25E}"
       DTS:From="Package\01_create_dim_date"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint"
@@ -3341,95 +3341,73 @@ WHERE payment_type IS NOT NULL
         <NodeLayout
           Size="172.8,56"
           Id="Package\01_create_dim_date"
-          TopLeft="40.7234409984127,26.7714283852634" />
+          TopLeft="41.4178854049144,26.7714283852634" />
         <NodeLayout
-          Size="164,52.8"
+          Size="164,59.2"
           Id="Package\02_load_dim_date"
-          TopLeft="279.029288783816,28.0476188525794" />
+          TopLeft="262.084845265175,24.7253966534595" />
         <NodeLayout
-          Size="202.4,54.4"
+          Size="217.6,54.4"
           Id="Package\03_create_dim_geography"
-          TopLeft="494.871767833193,27.3809521905488" />
+          TopLeft="473.899546756842,25.0698410955089" />
         <NodeLayout
           Size="192.8,52.8"
           Id="Package\04_load_dim_geography"
-          TopLeft="786.675781193754,28.0476188525793" />
+          TopLeft="749.592449886565,24.7253966534594" />
         <NodeLayout
-          Size="200.8,50.4"
+          Size="200.8,60"
           Id="Package\05_create_dim_customers"
-          TopLeft="40.6471284262695,148.755554521128" />
+          TopLeft="39.8137951384675,136.622221272168" />
         <NodeLayout
-          Size="192,51.2"
+          Size="192,60.8"
           Id="Package\06_load_dim_customers"
-          TopLeft="279.0082337765,148.976189440228" />
+          TopLeft="267.202678865971,132.509522888069" />
         <NodeLayout
-          Size="183.2,48.8"
+          Size="218.4,56"
           Id="Package\07_create_dim_sellers"
-          TopLeft="502.857115382241,149.809522767767" />
+          TopLeft="482.718227593692,135.365078423767" />
         <NodeLayout
-          Size="186.4,51.2"
+          Size="186.4,64.8"
           Id="Package\08_load_dim_sellers"
-          TopLeft="795.952337463462,146.590475171104" />
+          TopLeft="754.563450835962,135.468253026224" />
         <NodeLayout
-          Size="192.8,52"
+          Size="192.8,64"
           Id="Package\09_create_dim_products"
-          TopLeft="44.7344297902507,230.857141251792" />
+          TopLeft="41.2622077577425,233.023807903392" />
         <NodeLayout
-          Size="183.2,51.2"
+          Size="183.2,60"
           Id="Package\10_load_dim_products"
-          TopLeft="282.715186018325,233.087299966441" />
+          TopLeft="271.465186632998,233.809522183641" />
         <NodeLayout
-          Size="210.4,49.6"
+          Size="210.4,59.2"
           Id="Package\11_create_dim_order_status"
-          TopLeft="505.158702558076,231.111109503993" />
+          TopLeft="488.630925683336,235.299998363753" />
         <NodeLayout
-          Size="201.6,52.8"
+          Size="201.6,70.4"
           Id="Package\12_load_dim_order_status"
-          TopLeft="772.527735818495,229.04761745485" />
+          TopLeft="735.722182273906,237.56983961781" />
         <NodeLayout
-          Size="218.4,54.4"
+          Size="218.4,68.8"
           Id="Package\13_create_dim_payment_type"
-          TopLeft="36.8055535445888,325.722219957191" />
+          TopLeft="44.5833308974074,331.211108807911" />
         <NodeLayout
-          Size="208.8,52.8"
+          Size="208.8,68"
           Id="Package\14_load_dim_payment_type"
-          TopLeft="289.28569847984,329.436505645648" />
-        <EdgeLayout
-          Id="Package.PrecedenceConstraints[Constraint]"
-          TopLeft="213.523440998413,54.6095236189214">
-          <EdgeLayout.Curve>
-            <mssgle:Curve
-              StartConnector="{assembly:Null}"
-              EndConnector="65.5058477854035,0"
-              Start="0,0"
-              End="58.0058477854035,0">
-              <mssgle:Curve.Segments>
-                <mssgle:SegmentCollection
-                  Capacity="5">
-                  <mssgle:LineSegment
-                    End="58.0058477854035,0" />
-                </mssgle:SegmentCollection>
-              </mssgle:Curve.Segments>
-            </mssgle:Curve>
-          </EdgeLayout.Curve>
-          <EdgeLayout.Labels>
-            <EdgeLabelCollection />
-          </EdgeLayout.Labels>
-        </EdgeLayout>
+          TopLeft="313.313474944798,334.780950052928" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 1]"
-          TopLeft="443.029288783816,54.5142855215641">
+          TopLeft="426.084845265175,53.2976188744842">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="51.8424790493768,0"
+              EndConnector="47.8147014916673,0"
               Start="0,0"
-              End="44.3424790493768,0">
+              End="40.3147014916673,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="44.3424790493768,0" />
+                    End="40.3147014916673,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3440,18 +3418,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 10]"
-          TopLeft="715.558702558076,255.679363479422">
+          TopLeft="699.030925683336,268.834918990781">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="56.9690332604197,0"
+              EndConnector="36.69125659057,0"
               Start="0,0"
-              End="49.4690332604197,0">
+              End="29.19125659057,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="49.4690332604197,0" />
+                    End="29.19125659057,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3462,30 +3440,30 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 11]"
-          TopLeft="873.327735818495,281.84761745485">
+          TopLeft="836.522182273906,307.96983961781">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-727.322182273906,43.8746025023408"
+              EndConnector="-682.738851376499,23.241269190101"
               Start="0,0"
-              End="-727.322182273906,36.3746025023408">
+              End="-682.738851376499,15.741269190101">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,17.9373012511704" />
+                    End="0,7.62063459505049" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,17.9373012511704"
-                    Point2="0,21.9373012511704"
-                    Point3="-4,21.9373012511704" />
+                    Point1="0,7.62063459505049"
+                    Point2="0,11.6206345950505"
+                    Point3="-4,11.6206345950505" />
                   <mssgle:LineSegment
-                    End="-723.322182273906,21.9373012511704" />
+                    End="-678.738851376499,11.6206345950505" />
                   <mssgle:CubicBezierSegment
-                    Point1="-723.322182273906,21.9373012511704"
-                    Point2="-727.322182273906,21.9373012511704"
-                    Point3="-727.322182273906,25.9373012511704" />
+                    Point1="-678.738851376499,11.6206345950505"
+                    Point2="-682.738851376499,11.6206345950505"
+                    Point3="-682.738851376499,15.6206345950505" />
                   <mssgle:LineSegment
-                    End="-727.322182273906,36.3746025023408" />
+                    End="-682.738851376499,15.741269190101" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3496,18 +3474,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 12]"
-          TopLeft="255.205553544589,354.379362801419">
+          TopLeft="262.983330897407,367.196029430419">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="34.0801449352512,0"
+              EndConnector="50.3301440473903,0"
               Start="0,0"
-              End="26.5801449352512,0">
+              End="42.8301440473903,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="26.5801449352512,0" />
+                    End="42.8301440473903,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3518,18 +3496,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 2]"
-          TopLeft="697.271767833193,54.514285521564">
+          TopLeft="691.499546756842,51.6976188744841">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="89.404013360561,0"
+              EndConnector="58.0929031297222,0"
               Start="0,0"
-              End="81.904013360561,0">
+              End="50.5929031297222,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="81.904013360561,0" />
+                    End="50.5929031297222,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3540,30 +3518,30 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 3]"
-          TopLeft="883.075781193754,80.8476188525793">
+          TopLeft="845.992449886565,77.5253966534594">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-742.028652767484,67.9079356685487"
+              EndConnector="-705.778654748097,59.096824618709"
               Start="0,0"
-              End="-742.028652767484,60.4079356685487">
+              End="-705.778654748097,51.596824618709">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,29.9539678342743" />
+                    End="0,25.5484123093545" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,29.9539678342743"
-                    Point2="0,33.9539678342743"
-                    Point3="-4,33.9539678342743" />
+                    Point1="0,25.5484123093545"
+                    Point2="0,29.5484123093545"
+                    Point3="-4,29.5484123093545" />
                   <mssgle:LineSegment
-                    End="-738.028652767484,33.9539678342743" />
+                    End="-701.778654748097,29.5484123093545" />
                   <mssgle:CubicBezierSegment
-                    Point1="-738.028652767484,33.9539678342743"
-                    Point2="-742.028652767484,33.9539678342743"
-                    Point3="-742.028652767484,37.9539678342743" />
+                    Point1="-701.778654748097,29.5484123093545"
+                    Point2="-705.778654748097,29.5484123093545"
+                    Point3="-705.778654748097,33.5484123093545" />
                   <mssgle:LineSegment
-                    End="-742.028652767484,60.4079356685487" />
+                    End="-705.778654748097,51.596824618709" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3574,18 +3552,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 4]"
-          TopLeft="241.44712842627,174.265871980678">
+          TopLeft="240.613795138468,164.765872080118">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="37.5611053502309,0"
+              EndConnector="26.5888837275037,0"
               Start="0,0"
-              End="30.0611053502309,0">
+              End="19.0888837275037,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="30.0611053502309,0" />
+                    End="19.0888837275037,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3596,18 +3574,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 5]"
-          TopLeft="471.0082337765,174.392856103998">
+          TopLeft="459.202678865971,163.137300655918">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="31.8488816057408,0"
+              EndConnector="23.5155487277211,0"
               Start="0,0"
-              End="24.3488816057408,0">
+              End="16.0155487277211,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="24.3488816057408,0" />
+                    End="16.0155487277211,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3618,18 +3596,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 6]"
-          TopLeft="686.057115382241,173.199998969436">
+          TopLeft="701.118227593692,165.616665724996">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="109.895222081221,0"
+              EndConnector="53.4452232422698,0"
               Start="0,0"
-              End="102.395222081221,0">
+              End="45.9452232422698,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="102.395222081221,0" />
+                    End="45.9452232422698,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3640,30 +3618,30 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 7]"
-          TopLeft="889.152337463462,197.790475171104">
+          TopLeft="847.763450835962,200.268253026224">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="-748.017907673212,33.0666660806872"
+              EndConnector="-710.10124307822,32.7555548771676"
               Start="0,0"
-              End="-748.017907673212,25.5666660806872">
+              End="-710.10124307822,25.2555548771676">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="0,12.5333330403436" />
+                    End="0,12.3777774385838" />
                   <mssgle:CubicBezierSegment
-                    Point1="0,12.5333330403436"
-                    Point2="0,16.5333330403436"
-                    Point3="-4,16.5333330403436" />
+                    Point1="0,12.3777774385838"
+                    Point2="0,16.3777774385838"
+                    Point3="-4,16.3777774385838" />
                   <mssgle:LineSegment
-                    End="-744.017907673212,16.5333330403436" />
+                    End="-706.10124307822,16.3777774385838" />
                   <mssgle:CubicBezierSegment
-                    Point1="-744.017907673212,16.5333330403436"
-                    Point2="-748.017907673212,16.5333330403436"
-                    Point3="-748.017907673212,20.5333330403436" />
+                    Point1="-706.10124307822,16.3777774385838"
+                    Point2="-710.10124307822,16.3777774385838"
+                    Point3="-710.10124307822,20.3777774385838" />
                   <mssgle:LineSegment
-                    End="-748.017907673212,25.5666660806872" />
+                    End="-710.10124307822,25.2555548771676" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3674,18 +3652,18 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 8]"
-          TopLeft="237.534429790251,257.772220609117">
+          TopLeft="234.062207757743,264.416665043516">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="45.1807562280742,0"
+              EndConnector="37.4029788752554,0"
               Start="0,0"
-              End="37.6807562280742,0">
+              End="29.9029788752554,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="37.6807562280742,0" />
+                    End="29.9029788752554,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -3696,18 +3674,40 @@ WHERE payment_type IS NOT NULL
         </EdgeLayout>
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 9]"
-          TopLeft="465.915186018325,257.299204735217">
+          TopLeft="454.665186632998,264.354760273697">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
-              EndConnector="39.2435165397505,0"
+              EndConnector="33.965739050338,0"
               Start="0,0"
-              End="31.7435165397505,0">
+              End="26.465739050338,0">
               <mssgle:Curve.Segments>
                 <mssgle:SegmentCollection
                   Capacity="5">
                   <mssgle:LineSegment
-                    End="31.7435165397505,0" />
+                    End="26.465739050338,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="214.217885404914,54.5484125193614">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="47.8669598602607,0"
+              Start="0,0"
+              End="40.3669598602607,0">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="40.3669598602607,0" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
@@ -4198,6 +4198,10 @@ WHERE payment_type IS NOT NULL
       <GraphLayout
         Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\12_load_dim_order_status\OLE DB Destination"
+          TopLeft="292.857126856135,319.428569207305" />
+        <NodeLayout
           Size="152,41.6"
           Id="Package\12_load_dim_order_status\OLE DB Source"
           TopLeft="298.809507483292,117.619046801139" />
@@ -4224,13 +4228,11 @@ WHERE payment_type IS NOT NULL
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\12_load_dim_order_status\OLE DB Destination"
-          TopLeft="292.857126856135,319.428569207305" />
         <EdgeLayout
           Id="Package\12_load_dim_order_status.Paths[Lookup No Match Output]"
           TopLeft="376.130936201071,250.83809378308">
@@ -4308,6 +4310,10 @@ WHERE payment_type IS NOT NULL
       <GraphLayout
         Capacity="8" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mssgm="clr-namespace:Microsoft.SqlServer.Graph.Model;assembly=Microsoft.SqlServer.Graph">
         <NodeLayout
+          Size="171.2,41.6"
+          Id="Package\14_load_dim_payment_type\OLE DB Destination"
+          TopLeft="364.999994561076,288.571424271379" />
+        <NodeLayout
           Size="152,41.6"
           Id="Package\14_load_dim_payment_type\OLE DB Source"
           TopLeft="367.571423094188,82.8571416224753" />
@@ -4334,13 +4340,11 @@ WHERE payment_type IS NOT NULL
             </mssgle:Curve>
           </EdgeLayout.Curve>
           <EdgeLayout.Labels>
-            <EdgeLabelCollection />
+            <mssgm:EdgeLabel
+              BoundingBox="0,0,0,0"
+              RelativePosition="Any" />
           </EdgeLayout.Labels>
         </EdgeLayout>
-        <NodeLayout
-          Size="171.2,41.6"
-          Id="Package\14_load_dim_payment_type\OLE DB Destination"
-          TopLeft="364.999994561076,288.571424271379" />
         <EdgeLayout
           Id="Package\14_load_dim_payment_type.Paths[Lookup No Match Output]"
           TopLeft="448.057137375644,221.599997317791">

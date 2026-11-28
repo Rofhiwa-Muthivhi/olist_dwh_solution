@@ -12,8 +12,8 @@
   DTS:LocaleID="7177"
   DTS:ObjectName="Package"
   DTS:PackageType="5"
-  DTS:VersionBuild="30"
-  DTS:VersionGUID="{F9A8D36A-F4C9-43C1-8086-24B6740972FD}">
+  DTS:VersionBuild="31"
+  DTS:VersionGUID="{AD861594-D07D-455E-BDEE-50D594806B3B}">
   <DTS:Property
     DTS:Name="PackageFormatVersion">8</DTS:Property>
   <DTS:Variables>
@@ -170,19 +170,40 @@
       </DTS:ObjectData>
     </DTS:Executable>
     <DTS:Executable
-      DTS:refId="Package\08_execute_gold_dimension"
+      DTS:refId="Package\08_execute_gold_dimensions"
       DTS:CreationName="Microsoft.ExecutePackageTask"
       DTS:Description="Execute Package Task"
       DTS:DTSID="{FA46524E-ECDE-423D-A38A-C115405516ED}"
       DTS:ExecutableType="Microsoft.ExecutePackageTask"
       DTS:LocaleID="-1"
-      DTS:ObjectName="08_execute_gold_dimension"
+      DTS:ObjectName="08_execute_gold_dimensions"
       DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
       <DTS:Variables />
       <DTS:ObjectData>
         <ExecutePackageTask>
           <UseProjectReference>True</UseProjectReference>
           <PackageName>03_gold_dimensions.dtsx</PackageName>
+          <ParameterAssignment>
+            <ParameterName>p_batch_id</ParameterName>
+            <BindedVariableOrParameterName>User::BatchId</BindedVariableOrParameterName>
+          </ParameterAssignment>
+        </ExecutePackageTask>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\09_execute_gold_facts"
+      DTS:CreationName="Microsoft.ExecutePackageTask"
+      DTS:Description="Execute Package Task"
+      DTS:DTSID="{5F004DF1-6CCB-4514-808F-E3D0916EA5C3}"
+      DTS:ExecutableType="Microsoft.ExecutePackageTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="09_execute_gold_facts"
+      DTS:TaskContact="Microsoft Corporation; Microsoft SQL Server; Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <ExecutePackageTask>
+          <UseProjectReference>True</UseProjectReference>
+          <PackageName>04_gold_facts.dtsx</PackageName>
           <ParameterAssignment>
             <ParameterName>p_batch_id</ParameterName>
             <BindedVariableOrParameterName>User::BatchId</BindedVariableOrParameterName>
@@ -247,7 +268,15 @@
       DTS:From="Package\07_execute_silver"
       DTS:LogicalAnd="True"
       DTS:ObjectName="Constraint 6"
-      DTS:To="Package\08_execute_gold_dimension" />
+      DTS:To="Package\08_execute_gold_dimensions" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 7]"
+      DTS:CreationName=""
+      DTS:DTSID="{F84AA465-45A0-466D-8A48-F296C7237F8D}"
+      DTS:From="Package\08_execute_gold_dimensions"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 7"
+      DTS:To="Package\09_execute_gold_facts" />
   </DTS:PrecedenceConstraints>
   <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
 <!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
@@ -260,7 +289,7 @@
     design-time-name="Package">
     <LayoutInfo>
       <GraphLayout
-        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        Capacity="32" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
         <NodeLayout
           Size="192.8,70.4"
           Id="Package\01_create_stg_dwh_db"
@@ -458,12 +487,12 @@
           </EdgeLayout.Labels>
         </EdgeLayout>
         <NodeLayout
-          Size="211.2,72"
-          Id="Package\08_execute_gold_dimension"
+          Size="216,70.4"
+          Id="Package\08_execute_gold_dimensions"
           TopLeft="323.257558095561,420.727269801588" />
         <EdgeLayout
           Id="Package.PrecedenceConstraints[Constraint 6]"
-          TopLeft="283.666661658221,456.496966775668">
+          TopLeft="283.666661658221,456.096966775668">
           <EdgeLayout.Curve>
             <mssgle:Curve
               StartConnector="{assembly:Null}"
@@ -475,6 +504,44 @@
                   Capacity="5">
                   <mssgle:LineSegment
                     End="32.0908964373404,0" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <NodeLayout
+          Size="185.6,68.8"
+          Id="Package\09_execute_gold_facts"
+          TopLeft="93.749994877726,535.166662945184" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 7]"
+          TopLeft="431.257558095561,491.127269801588">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="-244.707563217835,44.0393931435967"
+              Start="0,0"
+              End="-244.707563217835,36.5393931435967">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,18.0196965717984" />
+                  <mssgle:CubicBezierSegment
+                    Point1="0,18.0196965717984"
+                    Point2="0,22.0196965717984"
+                    Point3="-4,22.0196965717984" />
+                  <mssgle:LineSegment
+                    End="-240.707563217835,22.0196965717984" />
+                  <mssgle:CubicBezierSegment
+                    Point1="-240.707563217835,22.0196965717984"
+                    Point2="-244.707563217835,22.0196965717984"
+                    Point3="-244.707563217835,26.0196965717984" />
+                  <mssgle:LineSegment
+                    End="-244.707563217835,36.5393931435967" />
                 </mssgle:SegmentCollection>
               </mssgle:Curve.Segments>
             </mssgle:Curve>
